@@ -75,12 +75,12 @@ export default function ServicesPage({ services }) {
                       <p><span className="font-medium">Description:</span> {service.desc}</p>
                     </div>
 
-                    <button
+                    {/* <button
                       onClick={() => handleOrder(service)}
                       className="mt-auto px-4 py-2 rounded-full bg-gray-400 text-black font-semibold hover:bg-gray-500 transition"
                     >
                       Order Now
-                    </button>
+                    </button> */}
 
                     {Object.entries(orders).length > 0 && (
                       <div className="mt-4 text-sm text-black">
