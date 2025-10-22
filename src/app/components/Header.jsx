@@ -20,9 +20,9 @@ const Header = () => {
         <Link href="/services" className="hover:underline">Services</Link>
         <Link href="/pricing" className="hover:underline">Pricing</Link>
         <Link href="/contact" className="hover:underline">Contact</Link>
-        <Link href="/signup">
+        <Link href="/auth/login">
           <button className="ml-4 px-4 py-2 rounded-full bg-gradient-to-r from-orange-400 to-emerald-400 text-white text-sm">
-            Sign up
+            Login/SignUp
           </button>
         </Link>
       </nav>
