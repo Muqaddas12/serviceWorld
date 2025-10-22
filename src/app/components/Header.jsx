@@ -57,9 +57,9 @@ const Header = () => {
           <Link href="/services" className="hover:underline" onClick={() => setIsOpen(false)}>Services</Link>
           <Link href="/pricing" className="hover:underline" onClick={() => setIsOpen(false)}>Pricing</Link>
           <Link href="/contact" className="hover:underline" onClick={() => setIsOpen(false)}>Contact</Link>
-          <Link href="/signup" onClick={() => setIsOpen(false)}>
+          <Link href="/auth/login" onClick={() => setIsOpen(false)}>
             <button className="px-6 py-3 rounded-full bg-white text-orange-500 font-semibold hover:scale-105 transition-transform">
-              Sign up
+              Login/SignUp
             </button>
           </Link>
         </nav>
