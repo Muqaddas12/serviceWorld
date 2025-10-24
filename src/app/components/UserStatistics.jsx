@@ -11,29 +11,29 @@ export default function UserStatistics() {
   ];
 
   return (
-    <div className="container-fluid">
-      <div className="row">
-        <div className="col-lg-12">
-          <div className="user_statistic_wraper d-flex flex-wrap gap-3">
-            {stats.map((stat, index) => (
-              <div className="statistic__item d-flex align-items-center gap-2" key={index}>
-                <div className="icon">
-                  <Image
-                    src={stat.icon}
-                    alt={stat.label}
-                    width={50}
-                    height={50}
-                    style={{ objectFit: "contain" }}
-                  />
-                </div>
-                <div className="user__data">
-                  <span>{stat.label}</span>
-                  <h4>{stat.value}</h4>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+    <div className="w-full bg-gray-200 py-5 flex px-4">
+      <div className="flex flex-wrap justify-center gap-8 max-w-6xl">
+        {stats.map((stat, index) => (
+          <div
+  key={index}
+  className="flex gap-3  items-center w-64 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white rounded-2xl px-2 py-3 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300"
+>
+  <div className="flex-shrink-0 bg-white/20 p-2 rounded-xl">
+    <Image
+      src={stat.icon}
+      alt={stat.label}
+      width={50}
+      height={50}
+      className="object-contain"
+    />
+  </div>
+  <div>
+    <span className="block text-sm text-white/80">{stat.label}</span>
+    <h4 className="text-2xl font-bold">{stat.value}</h4>
+  </div>
+</div>
+
+        ))}
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import TicketSupport from "../components/TicketSupport";
 import UserStatistics from "../components/UserStatistics";
 import CategoryFilter from "../components/CategoryFilter";
 import JoinButtons from "../components/JoinButton";
+import NewOrderForm from "../components/NewOrderForm";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -116,6 +117,7 @@ export default function Dashboard() {
             <UserStatistics />
       <CategoryFilter />
       <JoinButtons />
+      <NewOrderForm/>
           </>
         )
       case "Orders History":
