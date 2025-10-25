@@ -19,7 +19,7 @@ export default function AdminLayout({ children }) {
   const [openSidebar, setOpenSidebar] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
   const profileRef = useRef(null);
-
+console.log(pathname)
   useEffect(() => {
     function handleClickOutside(e) {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
@@ -31,7 +31,11 @@ export default function AdminLayout({ children }) {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <> 
+    {pathname.includes('admin/login')?(
+      <>{children} </>
+    ):(
+      <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
  <aside
   className={`fixed inset-y-0 left-0 z-40 w-64 text-white transform md:translate-x-0 transition-transform duration-200
@@ -50,7 +54,7 @@ export default function AdminLayout({ children }) {
 
   <nav className="mt-4">
     {menuItems.map((item) => (
-      <Link
+     <Link
         key={item.path}
         href={item.path}
         className={`block px-6 py-3 text-sm font-medium rounded-md mb-1
@@ -121,8 +125,12 @@ export default function AdminLayout({ children }) {
         </header>
 
        
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-2 p-2">{children}</main>
       </div>
     </div>
+    )}  
+     
+    </>
+
   );
 }
