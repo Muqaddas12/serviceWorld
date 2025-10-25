@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import TicketForm from "./TicketForm";
+import TicketForm from "../../../../TicketForm";
 import TicketHistory from "./TicketHistory";
 import TicketPopup from "./TicketPopup";
 

@@ -6,13 +6,13 @@ import { useRouter } from "next/navigation";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import ServicesPage from "../components/ServicesList";
-import TicketSupport from "../components/TicketSupport";
+import TicketSupport from "../components/Ticket/TicketSupport";
 import UserStatistics from "../components/UserStatistics";
 import CategoryFilter from "../components/CategoryFilter";
 import JoinButtons from "../components/JoinButton";
 import NewOrderForm from "../components/NewOrderForm";
 import OrderHistory from "../components/OrderHistory";
-import PaymentHistory from "../components/PaymentHistory";
+import AddFund from "../components/AddFund";
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
@@ -21,6 +21,10 @@ export default function Dashboard() {
   const router = useRouter();
   const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(false);
+
+
+
+
   // Fetch user
   useEffect(() => {
     const fetchUser = async () => {
@@ -131,7 +135,7 @@ export default function Dashboard() {
       case "Add Funds":{
         return(
           <>
-          <PaymentHistory/></>
+          <AddFund/></>
         )
       }
       default:

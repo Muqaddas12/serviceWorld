@@ -1,8 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect } from "react";
 
 export default function UserStatistics() {
+    useEffect(()=>{
+        const getBalance=async () => {
+            
+            
+        }
+    })
   const stats = [
     { icon: "https://cdn.mypanel.link/hmz1fi/bcpg233dh40fsdoc.png", label: "Username", value: "58" },
     { icon: "https://cdn.mypanel.link/hmz1fi/raj356puppqixik9.png", label: "My Balance", value: "₹ 0" },
