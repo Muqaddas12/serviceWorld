@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Footer from "../components/Footer";
-import Header from "../components/Header";
+import Footer from "../user/components/Footer";
+import Header from "../user/components/Header";
 
 const apiDocs = [
   {
