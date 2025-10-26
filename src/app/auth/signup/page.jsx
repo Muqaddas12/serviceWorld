@@ -1,7 +1,7 @@
 "use client";
-import Footer from "@/app/components/Footer";
-import Header from "@/app/components/Header";
-import SignupForm from "@/app/components/Signup";
+import Footer from "@/app/user/components/Footer";
+import SignupForm from "@/app/user/components/Signup";
+import Header from "@/app/user/components/Header";
 
 export default function SignupPage() {
   return (
