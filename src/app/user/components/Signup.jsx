@@ -71,7 +71,7 @@ export default function SignupForm() {
     try {
       const res = await axios.post("/api/auth/signup", { ...data, captcha: captchaValue });
       setMessage(res.data.message);
-      router.push("/dashboard");
+      router.push("user/dashboard");
     } catch (err) {
       setMessage(err.response?.data.error || "Signup failed");
     }

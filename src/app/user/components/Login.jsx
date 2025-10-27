@@ -31,7 +31,7 @@ export default function LoginForm() {
     try {
       const res = await axios.post("/api/auth/login", { ...data, captcha: captchaValue });
       setMessage(res.data.message);
-      router.push("/dashboard");
+      router.push("user/dashboard");
     } catch (err) {
       setMessage(err.response?.data.error || "Login failed");
     }
