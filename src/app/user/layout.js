@@ -7,27 +7,24 @@ export default function UserLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleLogout = () => {
-    console.log("User logged out");
-    // Add your logout logic
+    localStorage.removeItem("token");
+    localStorage.removeItem("email");
+    window.location.href = "/auth/login";
   };
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
-      {/* Header with toggle for sidebar */}
+      {/* 🔹 Header */}
       <Header onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
 
+      {/* 🔹 Sidebar + Main Content */}
       <div className="flex flex-1 overflow-hidden bg-white">
-        {/* Sidebar - collapsible on mobile */}
         <Sidebar
-          onLogout={handleLogout}
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
+          onLogout={handleLogout}
         />
-
-        {/* Scrollable Main Content */}
-        <main className="flex-1 overflow-y-auto bg-gray-100 p-6">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto bg-gray-100 p-6">{children}</main>
       </div>
     </div>
   );

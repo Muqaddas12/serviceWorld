@@ -164,7 +164,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
       {!isCollapsed && (
         <button
           onClick={handleLogout}
-          className="flex items-center justify-center gap-2 m-4 py-2 rounded-xl bg-white text-black font-semibold hover:opacity-90 transition"
+          className="flex items-center justify-center gap-2 m-4 py-2 rounded-xl bg-white text-black font-semibold hover:opacity-90 transition cursor-pointer"
         >
           <FiLogOut /> Logout
         </button>
