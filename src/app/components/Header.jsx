@@ -28,7 +28,7 @@ export default function Navbar() {
   </li>
 
   <li>
-    <a href="/api" className="flex items-center hover:text-blue-600 transition-colors">
+    <a href="/apiv2" className="flex items-center hover:text-blue-600 transition-colors">
       <FaCode className="text-purple-500 mr-2 text-[18px]" />
       API
     </a>

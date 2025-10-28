@@ -56,8 +56,7 @@ export async function POST(req) {
     
 
     const response = new Response(JSON.stringify({ message: "Login successful" }), { status: 200 });
-    cookies().set("token", token, { req, res: response, httpOnly: true, maxAge: 7 * 24 * 60 * 60 });
-console.log('hello')
+    await cookies().set("token", token, { req, res: response, httpOnly: true, maxAge: 7 * 24 * 60 * 60 });
     return response;
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });

@@ -7,9 +7,9 @@ import { MdDashboard, MdHistory, MdPayment, MdHelp } from "react-icons/md";
 import { FiLogOut } from "react-icons/fi";
 import clsx from "clsx";
 
-export default function Sidebar({ onLogout, isSidebarOpen, setIsSidebarOpen }) {
+export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
   const [user, setUser] = useState(null);
-  const [balance, setBalance] = useState(0); // 🔹 New balance state
+  const [balance, setBalance] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const router = useRouter();
@@ -23,7 +23,7 @@ export default function Sidebar({ onLogout, isSidebarOpen, setIsSidebarOpen }) {
     { icon: <MdHelp />, text: "Tickets Support", href: "/user/support" },
   ];
 
-  // 🔹 Fetch user data (profile, etc.)
+  // 🔹 Fetch user data
   useEffect(() => {
     async function fetchUser() {
       try {
@@ -39,28 +39,40 @@ export default function Sidebar({ onLogout, isSidebarOpen, setIsSidebarOpen }) {
     fetchUser();
   }, []);
 
-  // 🔹 Fetch user balance (from your new route)
+  // 🔹 Fetch user balance
   useEffect(() => {
     async function fetchBalance() {
       try {
         const res = await fetch("/api/services/getbalance");
         const data = await res.json();
-        if (data.success) {
-          setBalance(data.balance);
-        } else {
-          console.error("Balance fetch failed:", data.error);
-        }
+        if (data.success) setBalance(data.balance);
       } catch (err) {
-        console.error("Fetch balance error:", err);
+        console.error("Balance fetch error:", err);
       }
     }
-
     fetchBalance();
-
-    // Optional: refresh balance every 30s
     const interval = setInterval(fetchBalance, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // 🔹 Logout handler
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("/api/auth/logout", { method: "POST" });
+
+      if (res.ok) {
+        localStorage.removeItem("email");
+        localStorage.removeItem("token");
+        router.push("/auth/login");
+      } else {
+        console.error("Logout failed:", await res.text());
+        alert("Logout failed. Please try again.");
+      }
+    } catch (err) {
+      console.error("Logout error:", err);
+      alert("Something went wrong during logout.");
+    }
+  };
 
   return (
     <aside
@@ -148,10 +160,10 @@ export default function Sidebar({ onLogout, isSidebarOpen, setIsSidebarOpen }) {
         </nav>
       </div>
 
-      {/* Logout */}
+      {/* 🔹 Logout Button */}
       {!isCollapsed && (
         <button
-          onClick={onLogout}
+          onClick={handleLogout}
           className="flex items-center justify-center gap-2 m-4 py-2 rounded-xl bg-white text-black font-semibold hover:opacity-90 transition"
         >
           <FiLogOut /> Logout

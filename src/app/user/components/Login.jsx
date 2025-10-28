@@ -31,7 +31,7 @@ export default function LoginForm() {
     try {
       const res = await axios.post("/api/auth/login", { ...data, captcha: captchaValue });
       setMessage(res.data.message);
-      router.push("user/dashboard");
+      router.push("/user/dashboard");
     } catch (err) {
       setMessage(err.response?.data.error || "Login failed");
     }
@@ -39,7 +39,7 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-gray-200 px-4">
+    <div className="w-full min-h-screen flex items-center justify-center px-4">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}

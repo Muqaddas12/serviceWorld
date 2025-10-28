@@ -71,7 +71,7 @@ export default function SignupForm() {
     try {
       const res = await axios.post("/api/auth/signup", { ...data, captcha: captchaValue });
       setMessage(res.data.message);
-      router.push("user/dashboard");
+      router.push("/user/dashboard");
     } catch (err) {
       setMessage(err.response?.data.error || "Signup failed");
     }
@@ -84,7 +84,7 @@ export default function SignupForm() {
   };
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-gray-200 px-4">
+    <div className="w-full min-h-screen flex items-center justify-center mt-10 px-4">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
