@@ -91,19 +91,19 @@ export default function MainTop() {
           </p>
 
           <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 flex items-center gap-3 flex-wrap">
-            SMM World Panel – World’s Best and Cheapest SMM Panel
+         SMM World Panel – The Most Trusted and Affordable Growth Platform Worldwide.
             <Image
               src="https://storage.perfectcdn.com/81013d/q6es6uk1ctks7bew.svg"
               alt="heading-icon"
-              width={35}
-              height={35}
+              width={100}
+              height={100}
             />
           </h1>
 
           <p className="text-gray-700 text-lg">
-            Trusted by{" "}
-            <span className="text-indigo-600 font-semibold">82,045,541+</span>{" "}
-            successful orders — your growth starts here.
+            Trusted by {" "}
+            <span className="text-indigo-600 font-semibold">Millions</span>{" "}
+           Fueling Global Social Growth with Confidence.
           </p>
 
           {/* ✅ Login Form */}

@@ -15,7 +15,7 @@ export default function Navbar() {
           <img
             src="https://storage.perfectcdn.com/81013d/wzprcb8ileadr37i.png"
             alt="SMM World Panel"
-            className="h-10 w-auto hover:scale-105 transition-transform duration-200"
+            className="h-15 w-auto hover:scale-105 transition-transform duration-200"
           />
         </Link>
 
