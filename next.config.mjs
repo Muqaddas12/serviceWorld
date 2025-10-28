@@ -11,6 +11,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "upload.wikimedia.org",
         pathname: "/**",
+      },{
+        protocol: "https",
+        hostname: "storage.perfectcdn.com",
+        pathname: "/**",
       },
     ],
   },
