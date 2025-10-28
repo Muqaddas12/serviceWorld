@@ -21,6 +21,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
   const [balance, setBalance] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [width, setWidth] = useState(0);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -31,7 +32,12 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
     { icon: <MdPayment />, text: "Add Funds", href: "/user/addfunds" },
     { icon: <MdHelp />, text: "Tickets Support", href: "/user/support" },
   ];
-
+useEffect(() => {
+  const handleResize = () => setWidth(window.innerWidth);
+  handleResize(); // set initial width
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
   // Fetch user
   useEffect(() => {
     async function fetchUser() {
@@ -92,22 +98,22 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
       {/* Toggle Button */}
       <div className="flex justify-end p-3 border-b border-white/10">
         <button
-          onClick={() => {
-            if (window.innerWidth < 768) {
-              setIsSidebarOpen(!isSidebarOpen);
-            } else {
-              setIsCollapsed(!isCollapsed);
-            }
-          }}
+         onClick={() => {
+  if (width < 768) {
+    setIsSidebarOpen(!isSidebarOpen);
+  } else {
+    setIsCollapsed(!isCollapsed);
+  }
+}}
           className="bg-white text-indigo-700 p-2 rounded-full shadow-md hover:opacity-90 transition"
         >
-          {window.innerWidth < 768 ? (
-            isSidebarOpen ? <FaTimesCircle size={20} /> : <FaBars size={20} />
-          ) : isCollapsed ? (
-            <FaBars size={20} />
-          ) : (
-            <FaTimesCircle size={20} />
-          )}
+          {width < 768 ? (
+  isSidebarOpen ? <FaTimesCircle size={20} /> : <FaBars size={20} />
+) : isCollapsed ? (
+  <FaBars size={20} />
+) : (
+  <FaTimesCircle size={20} />
+)}
         </button>
       </div>
 
