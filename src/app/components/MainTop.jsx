@@ -59,7 +59,9 @@ export default function MainTop() {
   return (
     <section
       id="main-top"
-      className="relative bg-gradient-to-br from-white via-indigo-50 to-purple-50 shadow-2xl rounded-tl-[50px] rounded-br-[50px] py-16 px-6 md:px-12 overflow-hidden py-20"
+      className="relative bg-gradient-to-br from-white via-indigo-50 to-purple-50 
+                 shadow-2xl rounded-tl-[40px] rounded-br-[40px] 
+                 py-6 sm:py-12 md:py-16 px-4 sm:px-6 md:px-10 lg:px-12 overflow-hidden"
     >
       {/* 🌈 Animated Background */}
       <div className="absolute inset-0 -z-10">
@@ -67,49 +69,52 @@ export default function MainTop() {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 0.25, rotate: 360 }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute top-[-150px] left-[-150px] w-[700px] h-[700px] bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-full blur-[150px]"
+          className="absolute top-[-100px] left-[-100px] w-[500px] h-[500px] 
+                     bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 
+                     rounded-full blur-[120px]"
         />
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 0.3, rotate: -360 }}
           transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-          className="absolute bottom-[-200px] right-[-150px] w-[700px] h-[700px] bg-gradient-to-r from-fuchsia-400 to-blue-400 rounded-full blur-[180px]"
+          className="absolute bottom-[-150px] right-[-100px] w-[500px] h-[500px] 
+                     bg-gradient-to-r from-fuchsia-400 to-blue-400 
+                     rounded-full blur-[140px]"
         />
       </div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-14 items-center max-w-6xl mx-auto relative z-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 items-center max-w-5xl mx-auto relative z-10">
         {/* LEFT FORM */}
         <motion.div
           initial={{ opacity: 0, x: -40 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7 }}
-          className="space-y-7 bg-white/70 backdrop-blur-xl border border-white/50 shadow-xl rounded-3xl p-8"
+          className="space-y-4 bg-white/80 backdrop-blur-xl border border-white/50 
+                     shadow-lg rounded-2xl p-6 sm:p-8"
         >
-          <p className="text-indigo-600 font-semibold text-lg tracking-wide">
+          <p className="text-indigo-600 font-semibold text-base sm:text-lg tracking-wide">
             websitename.com
           </p>
 
-          <h1 className="text-2xl text-center font-bold antialiased">
-         SMM World Panel- World’s Best and Cheapest SMM 
-         <h1 className="text-2xl text-center font-bold antialiased">Panel<Image
+          <h1 className="text-lg sm:text-xl text-center font-bold antialiased flex items-center justify-center gap-2">
+            SMM World Panel – World’s Best and Cheapest SMM Panel
+            <Image
               src="https://storage.perfectcdn.com/81013d/q6es6uk1ctks7bew.svg"
               alt="heading-icon"
-              width={100}
-              height={100}
-              className="inline"
-            /></h1>
-            
+              width={12}
+              height={12}
+            />
           </h1>
 
-          <p className="text-gray-700 text-lg">
-            Trusted by {" "}
-            <span className="text-indigo-600 font-semibold">Millions</span>{" "}
-           Fueling Global Social Growth with Confidence.
+          <p className="text-gray-700 text-sm sm:text-base text-center">
+            Trusted by{" "}
+            <span className="text-indigo-600 font-semibold">Millions</span> — 
+            Fueling Global Social Growth with Confidence.
           </p>
 
           {/* ✅ Login Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Email */}
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2">
@@ -124,12 +129,14 @@ export default function MainTop() {
                 type="email"
                 placeholder="Email"
                 {...register("email")}
-                className={`w-full pl-10 pr-3 py-3 border rounded-xl bg-white/70 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition ${
-                  errors.email ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full pl-10 pr-3 py-2.5 sm:py-3 border rounded-xl 
+                           bg-white/70 text-gray-900 placeholder-gray-500 
+                           focus:ring-2 focus:ring-indigo-500 focus:outline-none transition ${
+                             errors.email ? "border-red-500" : "border-gray-300"
+                           }`}
               />
               {errors.email && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-red-500 text-xs mt-1">
                   {errors.email.message}
                 </p>
               )}
@@ -149,26 +156,30 @@ export default function MainTop() {
                 type="password"
                 placeholder="Password"
                 {...register("password")}
-                className={`w-full pl-10 pr-3 py-3 border rounded-xl bg-white/70 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition ${
-                  errors.password ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full pl-10 pr-3 py-2.5 sm:py-3 border rounded-xl 
+                           bg-white/70 text-gray-900 placeholder-gray-500 
+                           focus:ring-2 focus:ring-indigo-500 focus:outline-none transition ${
+                             errors.password
+                               ? "border-red-500"
+                               : "border-gray-300"
+                           }`}
               />
               {errors.password && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-red-500 text-xs mt-1">
                   {errors.password.message}
                 </p>
               )}
             </div>
 
             {/* reCAPTCHA */}
-            <div className="flex justify-center">
+            <div className="flex justify-center scale-90 sm:scale-100">
               <ReCAPTCHA
                 ref={recaptchaRef}
                 sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
               />
             </div>
 
-            <div className="flex justify-between items-center text-sm">
+            <div className="flex justify-between items-center text-xs sm:text-sm">
               <label className="flex items-center gap-2 text-gray-600">
                 <input type="checkbox" className="rounded text-indigo-600" />
                 Remember me
@@ -185,9 +196,11 @@ export default function MainTop() {
             <motion.button
               type="submit"
               disabled={loading}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              className="w-full py-3 font-semibold rounded-xl text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 shadow-lg hover:opacity-90 transition-all"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full py-2.5 sm:py-3 font-semibold rounded-xl 
+                         text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 
+                         shadow-md hover:opacity-90 transition-all text-sm sm:text-base"
             >
               {loading ? "Signing in..." : "Sign in"}
             </motion.button>
@@ -202,7 +215,7 @@ export default function MainTop() {
               </motion.p>
             )}
 
-            <p className="text-center text-gray-700 text-sm">
+            <p className="text-center text-gray-700 text-xs sm:text-sm">
               Don’t have an account?{" "}
               <a
                 href="/auth/signup"
@@ -221,7 +234,8 @@ export default function MainTop() {
           transition={{ duration: 0.7 }}
           className="flex justify-center md:justify-end"
         >
-          <div className="relative w-80 h-80 md:w-[420px] md:h-[420px] rounded-3xl overflow-hidden shadow-2xl">
+          <div className="relative w-60 h-60 sm:w-72 sm:h-72 md:w-[360px] md:h-[360px] 
+                          rounded-2xl overflow-hidden shadow-xl">
             <Image
               src="https://storage.perfectcdn.com/81013d/cisiri3e4fe0qu1o.webp"
               alt="hero"
