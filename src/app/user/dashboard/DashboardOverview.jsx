@@ -3,32 +3,26 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
-  FaInstagram,
-  FaFacebook,
-  FaYoutube,
-  FaTwitter,
-  FaSpotify,
-  FaTiktok,
-  FaTelegram,
-  FaLinkedin,
-  FaDiscord,
-  FaGlobe,
-  FaStar,
-  FaInfinity,
-} from "react-icons/fa";
+  MdAddShoppingCart,
+  MdAccountBalanceWallet,
+  MdSupportAgent,
+  MdTrendingUp,
+} from "react-icons/md";
+import { FaUserCircle } from "react-icons/fa";
 
-// ✅ Reusable card wrapper (same as "card_v2")
-const CardV2 = ({ children }) => (
-  <div className="bg-white justify-center border border-gray-200 rounded-lg shadow-sm p-4 md:p-5">
+const Card = ({ children, className = "" }) => (
+  <div
+    className={`bg-[#151517] border border-yellow-500/20 rounded-2xl shadow-md p-5 hover:border-yellow-500/40 transition-all ${className}`}
+  >
     {children}
   </div>
 );
 
 export default function DashboardLayout({ user }) {
-  const [balance, setBalance] = useState("₹ 0");
-  const [active, setActive] = useState(null);
+  const [balance, setBalance] = useState(0);
+  const [spent, setSpent] = useState(0);
+  const [orders, setOrders] = useState(0);
 
-  // ✅ Fetch balance securely
   useEffect(() => {
     async function fetchBalance() {
       try {
@@ -42,130 +36,171 @@ export default function DashboardLayout({ user }) {
     fetchBalance();
   }, []);
 
-  // ✅ Dashboard statistics
-  const stats = [
+  // Example static data
+  useEffect(() => {
+    setSpent(1245.75);
+    setOrders(689);
+  }, []);
+
+  const quickActions = [
     {
-      icon: "https://cdn.mypanel.link/hmz1fi/bcpg233dh40fsdoc.png",
-      label: "Username",
-      value: user?.username || "Guest",
+      icon: <MdAddShoppingCart size={28} />,
+      label: "New Order",
+      href: "/user/dashboard",
     },
     {
-      icon: "https://cdn.mypanel.link/hmz1fi/raj356puppqixik9.png",
-      label: "My Balance",
-      value: balance,
+      icon: <MdAccountBalanceWallet size={28} />,
+      label: "Add Funds",
+      href: "/user/addfunds",
     },
     {
-      icon: "https://cdn.mypanel.link/hmz1fi/mp50mc1fhx7sm8o1.png",
-      label: "Panel Orders",
-      value: "6689",
-    },
-    {
-      icon: "https://cdn.mypanel.link/hmz1fi/aw21tyz9g0kxlk1u.png",
-      label: "Spent Balance",
-      value: "₹ 0",
+      icon: <MdSupportAgent size={28} />,
+      label: "Support",
+      href: "/user/support",
     },
   ];
 
-  // ✅ Service Categories
-  const categories = [
-    { icon: <FaInstagram size={28} />, label: "Instagram", key: "instagram" },
-    { icon: <FaFacebook size={28} />, label: "Facebook", key: "facebook" },
-    { icon: <FaYoutube size={28} />, label: "YouTube", key: "youtube" },
-    { icon: <FaTwitter size={28} />, label: "Twitter", key: "twitter" },
-    { icon: <FaSpotify size={28} />, label: "Spotify", key: "spotify" },
-    { icon: <FaTiktok size={28} />, label: "TikTok", key: "tiktok" },
-    { icon: <FaTelegram size={28} />, label: "Telegram", key: "telegram" },
-    { icon: <FaLinkedin size={28} />, label: "LinkedIn", key: "linkedin" },
-    { icon: <FaDiscord size={28} />, label: "Discord", key: "discord" },
-    { icon: <FaGlobe size={28} />, label: "Website Traffic", key: "traffic" },
-    { icon: <FaStar size={28} />, label: "Others", key: "other" },
-    { icon: <FaInfinity size={28} />, label: "Everything", key: "everything" },
-  ];
-
-  const handleFilter = (key) => {
-    setActive(key);
-    // You can add callback to filter services here
-  };
-
-  const joinButtons = [
-    {
-      href: "https://t.me/instantsmmboost",
-      img: "https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg",
-      label: "Telegram",
-      color: "bg-[#0088cc] hover:bg-[#007ab8]",
-    },
-    {
-      href: "https://whatsapp.com/channel/0029Vb5qAIXL7UVdD5Fyoi2F",
-      img: "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg",
-      label: "WhatsApp",
-      color: "bg-[#25D366] hover:bg-[#1ebe5b]",
-    },
+  const latestOrders = [
+    { id: "#1324", service: "Instagram Followers", amount: "₹350", status: "Completed" },
+    { id: "#1323", service: "YouTube Views", amount: "₹220", status: "Processing" },
+    { id: "#1322", service: "Twitter Likes", amount: "₹90", status: "Pending" },
   ];
 
   return (
-    <>
-      {/* ==================== STATS SECTION ==================== */}
-      <div className="content w-full bg-gray-100 py-6">
-        <div className="container-fluid mx-auto px-3">
-          <div className="mb-6">
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:gap-4">
-              {stats.map((item, index) => (
-                <div
-                  key={index}
-                  className="statistic__item flex items-center gap-3 bg-white border border-gray-200 rounded-lg p-3 sm:p-4 transition-all hover:shadow-md"
-                >
-                  <div className="icon flex-shrink-0">
-                    <Image
-                      src={item.icon}
-                      alt={item.label}
-                      width={28}
-                      height={28}
-                      className="object-contain"
-                    />
-                  </div>
-                  <div className="user__data overflow-hidden">
-                    <span className="text-xs text-gray-600 block">
-                      {item.label}
-                    </span>
-                    <h4 className="text-base font-bold text-gray-900 truncate">
-                      {item.value}
-                    </h4>
-                  </div>
-                </div>
-              ))}
+    <div className="w-full min-h-screen bg-[#0e0e0f] text-gray-100 p-4 sm:p-6 space-y-8">
+      {/* ================= STATS ================= */}
+      <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-full bg-yellow-500/20 text-yellow-400">
+              <FaUserCircle size={26} />
+            </div>
+            <div>
+              <p className="text-sm text-gray-400">Username</p>
+              <h4 className="text-lg font-semibold text-yellow-300">
+                {user?.username || "Guest"}
+              </h4>
             </div>
           </div>
-        </div>
-      </div>
+        </Card>
 
-      {/* ==================== CATEGORY FILTERS ==================== */}
-      <CardV2>
-        <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-5 p-3 sm:p-4 overflow-x-auto scrollbar-hide">
-          {categories.map((cat, index) => (
-            <button
-              key={index}
-              onClick={() => handleFilter(cat.key)}
-              className={`
-                flex-shrink-0 flex items-center justify-center gap-2 sm:gap-3
-                text-[16px] sm:text-[18px] capitalize 
-                px-4 py-2 sm:px-5 sm:py-3 rounded-xl cursor-pointer select-none
-                transition-all duration-300 ease-in-out
-                bg-gradient-to-r from-indigo-500 to-purple-600 
-                text-white border-2 border-transparent shadow-sm
-                hover:from-purple-600 hover:to-indigo-500 hover:shadow-lg
-                ${
-                  active === cat.key
-                    ? "from-pink-500 to-orange-500 text-white shadow-md ring-2 ring-pink-300 font-semibold scale-105"
-                    : ""
-                }
-              `}
+        <Card>
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-full bg-yellow-500/20 text-yellow-400">
+              <MdAccountBalanceWallet size={26} />
+            </div>
+            <div>
+              <p className="text-sm text-gray-400">Balance</p>
+              <h4 className="text-lg font-semibold text-yellow-300">
+                ₹{balance.toFixed(2)}
+              </h4>
+            </div>
+          </div>
+        </Card>
+
+        <Card>
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-full bg-yellow-500/20 text-yellow-400">
+              <MdTrendingUp size={26} />
+            </div>
+            <div>
+              <p className="text-sm text-gray-400">Total Spent</p>
+              <h4 className="text-lg font-semibold text-yellow-300">
+                ₹{spent.toFixed(2)}
+              </h4>
+            </div>
+          </div>
+        </Card>
+
+        <Card>
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-full bg-yellow-500/20 text-yellow-400">
+              <MdAddShoppingCart size={26} />
+            </div>
+            <div>
+              <p className="text-sm text-gray-400">Total Orders</p>
+              <h4 className="text-lg font-semibold text-yellow-300">{orders}</h4>
+            </div>
+          </div>
+        </Card>
+      </section>
+
+      {/* ================= QUICK ACTIONS ================= */}
+      <section>
+        <h3 className="text-lg font-semibold mb-4 text-yellow-400 tracking-wide">
+          Quick Actions
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {quickActions.map((action, idx) => (
+            <Card
+              key={idx}
+              className="flex items-center justify-center gap-3 py-5 cursor-pointer hover:bg-yellow-500/10 text-yellow-300"
+              onClick={() => (window.location.href = action.href)}
             >
-              <span className="text-2xl sm:text-xl flex-shrink-0">{cat.icon}</span>
-              <span className="hidden sm:inline">{cat.label}</span>
-            </button>
+              {action.icon}
+              <span className="font-medium">{action.label}</span>
+            </Card>
           ))}
         </div>
-      </CardV2>
-    </>
+      </section>
+
+      {/* ================= LATEST ORDERS ================= */}
+      <section>
+        <h3 className="text-lg font-semibold mb-4 text-yellow-400 tracking-wide">
+          Latest Orders
+        </h3>
+        <Card>
+          <table className="w-full text-sm text-left text-gray-300">
+            <thead className="text-xs uppercase border-b border-yellow-500/20 text-yellow-400">
+              <tr>
+                <th className="py-3 px-2 sm:px-4">Order ID</th>
+                <th className="py-3 px-2 sm:px-4">Service</th>
+                <th className="py-3 px-2 sm:px-4">Amount</th>
+                <th className="py-3 px-2 sm:px-4">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {latestOrders.map((order, idx) => (
+                <tr key={idx} className="border-b border-yellow-500/10 hover:bg-yellow-500/5">
+                  <td className="py-3 px-2 sm:px-4">{order.id}</td>
+                  <td className="py-3 px-2 sm:px-4">{order.service}</td>
+                  <td className="py-3 px-2 sm:px-4 text-yellow-300">{order.amount}</td>
+                  <td className="py-3 px-2 sm:px-4">
+                    <span
+                      className={`px-2 py-1 rounded-lg text-xs ${
+                        order.status === "Completed"
+                          ? "bg-green-500/20 text-green-400"
+                          : order.status === "Processing"
+                          ? "bg-yellow-500/20 text-yellow-300"
+                          : "bg-red-500/20 text-red-400"
+                      }`}
+                    >
+                      {order.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      </section>
+
+      {/* ================= ANNOUNCEMENTS ================= */}
+      <section>
+        <h3 className="text-lg font-semibold mb-4 text-yellow-400 tracking-wide">
+          Announcements
+        </h3>
+        <Card>
+          <p className="text-gray-300 leading-relaxed">
+            🎉 Welcome to <span className="text-yellow-400 font-semibold">InstantSMM</span>!
+            Get the best social media services at lightning speed.
+            <br />
+            💳 Add funds to your account and start placing orders instantly.
+            <br />
+            📩 Need help? Visit our <span className="text-yellow-400">Support</span> section.
+          </p>
+        </Card>
+      </section>
+    </div>
   );
 }
