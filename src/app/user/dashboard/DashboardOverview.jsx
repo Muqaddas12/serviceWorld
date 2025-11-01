@@ -13,7 +13,7 @@ import LatestOrders from "./LatestOrders";
 import { getUserBalance, getUserDetails } from "@/lib/userActions";
 import OrderForm from "./OrderForm";
 import SupportSection from "./SupportSection";
-
+import CategoryFilter from "./CategoryFilter";
 const Card = ({ children, className = "", onClick }) => (
   <div
     onClick={onClick}
@@ -160,7 +160,7 @@ export default function DashboardLayout() {
         </section>
 
  <LatestOrders />
-
+<CategoryFilter/>
 
 <OrderForm />
 

@@ -50,3 +50,6 @@ body {
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-in-out;
 }
+html {
+  transition: color 0.3s, background-color 0.3s;
+}

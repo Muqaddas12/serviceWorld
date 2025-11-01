@@ -16,6 +16,14 @@ export default function AddFund() {
   });
   const [paymentMethod, setPaymentMethod] = useState([]);
   const [filteredPaymentMethod, setFilteredPaymentMethod] = useState("");
+  const [darkMode, setDarkMode] = useState(false);
+
+  // 🌓 Sync theme with localStorage
+  useEffect(() => {
+    const theme = localStorage.getItem("theme") || "dark";
+    setDarkMode(theme === "dark");
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, []);
 
   // Fetch Payment Methods
   useEffect(() => {
@@ -60,7 +68,11 @@ export default function AddFund() {
       const res = await fetch("/api/services/addFunds", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payment_type: paymentType, utr, payment_amount: amount }),
+        body: JSON.stringify({
+          payment_type: paymentType,
+          utr,
+          payment_amount: amount,
+        }),
       });
       const data = await res.json();
 
@@ -94,23 +106,28 @@ export default function AddFund() {
     }
   };
 
+  // 🎨 Theme-based colors
+  const bgMain = darkMode ? "bg-[#0e0e0f]" : "bg-gray-50";
+  const bgCard = darkMode ? "bg-[#151517]" : "bg-white";
+  const borderColor = darkMode ? "border-yellow-500/20" : "border-gray-300";
+  const textColor = darkMode ? "text-gray-300" : "text-gray-800";
+  const headingColor = darkMode ? "text-yellow-400" : "text-yellow-600";
+
   return (
-    <div className="min-h-screen bg-[#0e0e0f] text-gray-300 flex justify-center px-2 sm:px-4 md:px-6 py-8">
+    <div className={`min-h-screen ${bgMain} ${textColor} flex justify-center px-2 sm:px-4 md:px-6 py-8 transition-colors`}>
       <div className="w-full max-w-6xl space-y-6 md:space-y-0 md:grid md:grid-cols-2 md:gap-6">
         {/* Left Box - Add Fund Form */}
-        <div className="bg-[#151517] border border-yellow-500/20 rounded-2xl shadow-lg p-5 sm:p-6 md:p-8">
-          <h3 className="text-2xl sm:text-3xl font-bold text-yellow-400 mb-6 text-center md:text-left">
+        <div className={`${bgCard} border ${borderColor} rounded-2xl shadow-lg p-5 sm:p-6 md:p-8`}>
+          <h3 className={`text-2xl sm:text-3xl font-bold ${headingColor} mb-6 text-center md:text-left`}>
             Add Funds
           </h3>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Payment Method */}
             <div>
-              <label className="block font-semibold mb-2 text-gray-200">
-                Payment Method
-              </label>
+              <label className="block font-semibold mb-2">Payment Method</label>
               <select
-                className="w-full bg-[#0e0e0f] border border-yellow-500/20 rounded-lg px-3 py-2 text-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none text-sm sm:text-base"
+                className={`w-full ${bgMain} border ${borderColor} rounded-lg px-3 py-2 ${textColor} focus:ring-2 focus:ring-yellow-400 outline-none text-sm sm:text-base`}
                 value={paymentType}
                 onChange={(e) => setPaymentType(e.target.value)}
               >
@@ -122,9 +139,8 @@ export default function AddFund() {
 
             {/* QR + Instructions */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {/* QR */}
-              <div className="bg-[#0e0e0f] border border-yellow-500/20 p-4 rounded-2xl shadow-inner flex flex-col items-center">
-                <h6 className="font-semibold text-yellow-400 mb-3">Scan QR</h6>
+              <div className={`${bgMain} border ${borderColor} p-4 rounded-2xl shadow-inner flex flex-col items-center`}>
+                <h6 className={`font-semibold ${headingColor} mb-3`}>Scan QR</h6>
                 {filteredPaymentMethod ? (
                   <img
                     src={`data:image/png;base64,${filteredPaymentMethod}`}
@@ -136,10 +152,9 @@ export default function AddFund() {
                 )}
               </div>
 
-              {/* Instructions */}
-              <div className="bg-[#0e0e0f] border border-yellow-500/20 rounded-xl p-4 text-sm">
-                <h6 className="font-semibold text-yellow-400 mb-2">Instructions</h6>
-                <ol className="list-decimal list-inside space-y-1 text-gray-400">
+              <div className={`${bgMain} border ${borderColor} rounded-xl p-4 text-sm`}>
+                <h6 className={`font-semibold ${headingColor} mb-2`}>Instructions</h6>
+                <ol className="list-decimal list-inside space-y-1 text-gray-500">
                   <li>Scan the QR code above</li>
                   <li>Pay the desired amount</li>
                   <li>Enter amount & transaction ID</li>
@@ -150,12 +165,10 @@ export default function AddFund() {
 
             {/* UTR */}
             <div>
-              <label className="block font-semibold mb-2 text-gray-200">
-                Enter UTR
-              </label>
+              <label className="block font-semibold mb-2">Enter UTR</label>
               <input
                 type="text"
-                className="w-full bg-[#0e0e0f] border border-yellow-500/20 rounded-lg px-3 py-2 text-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none text-sm sm:text-base"
+                className={`w-full ${bgMain} border ${borderColor} rounded-lg px-3 py-2 ${textColor} focus:ring-2 focus:ring-yellow-400 outline-none text-sm sm:text-base`}
                 value={utr}
                 onChange={(e) => setUtr(e.target.value)}
                 required
@@ -164,12 +177,10 @@ export default function AddFund() {
 
             {/* Amount */}
             <div>
-              <label className="block font-semibold mb-2 text-gray-200">
-                Amount
-              </label>
+              <label className="block font-semibold mb-2">Amount</label>
               <input
                 type="number"
-                className="w-full bg-[#0e0e0f] border border-yellow-500/20 rounded-lg px-3 py-2 text-gray-200 focus:ring-2 focus:ring-yellow-400 outline-none text-sm sm:text-base"
+                className={`w-full ${bgMain} border ${borderColor} rounded-lg px-3 py-2 ${textColor} focus:ring-2 focus:ring-yellow-400 outline-none text-sm sm:text-base`}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 step="0.01"
@@ -191,14 +202,14 @@ export default function AddFund() {
         </div>
 
         {/* Right Box - Transaction History */}
-        <div className="bg-[#151517] border border-yellow-500/20 rounded-2xl shadow-lg p-5 sm:p-6 md:p-8">
-          <h5 className="text-2xl font-bold text-yellow-400 mb-4 text-center md:text-left">
+        <div className={`${bgCard} border ${borderColor} rounded-2xl shadow-lg p-5 sm:p-6 md:p-8`}>
+          <h5 className={`text-2xl font-bold ${headingColor} mb-4 text-center md:text-left`}>
             Transaction History
           </h5>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-gray-300 min-w-[500px]">
-              <thead className="text-yellow-400 border-b border-yellow-500/20">
+            <table className="w-full text-sm min-w-[500px]">
+              <thead className={`${headingColor} border-b ${borderColor}`}>
                 <tr>
                   <th className="py-2 px-3 text-left">ID</th>
                   <th className="py-2 px-3 text-left">Date</th>
@@ -209,7 +220,7 @@ export default function AddFund() {
               <tbody>
                 {transactions.length === 0 ? (
                   <tr>
-                    <td colSpan="4" className="py-5 text-center text-gray-500 italic">
+                    <td colSpan="4" className="py-5 text-center text-gray-400 italic">
                       No transactions yet.
                     </td>
                   </tr>
@@ -217,12 +228,12 @@ export default function AddFund() {
                   transactions.map((tx, i) => (
                     <tr
                       key={i}
-                      className="border-b border-yellow-500/10 hover:bg-[#1c1c1e] transition"
+                      className={`border-b ${borderColor} hover:${darkMode ? "bg-[#1c1c1e]" : "bg-gray-100"} transition`}
                     >
                       <td className="py-2 px-3">{tx.utr}</td>
                       <td className="py-2 px-3">{new Date(tx.createdAt).toLocaleString()}</td>
                       <td className="py-2 px-3 capitalize">{tx.payment_type}</td>
-                      <td className="py-2 px-3 text-yellow-400 font-semibold">
+                      <td className="py-2 px-3 text-yellow-500 font-semibold">
                         ₹{tx.payment_amount}
                       </td>
                     </tr>
@@ -237,7 +248,7 @@ export default function AddFund() {
       {/* Popup */}
       {popup.visible && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm z-50 p-4">
-          <div className="bg-[#151517] border border-yellow-500/20 rounded-2xl p-6 max-w-sm w-full text-center">
+          <div className={`${bgCard} border ${borderColor} rounded-2xl p-6 max-w-sm w-full text-center`}>
             <div
               className={`mx-auto mb-4 w-14 h-14 flex items-center justify-center rounded-full ${
                 popup.success ? "bg-green-600" : "bg-red-600"
@@ -256,10 +267,10 @@ export default function AddFund() {
               {popup.success ? "Payment Successful" : "Transaction Failed"}
             </h2>
 
-            <p className="text-gray-300 mb-4 text-sm sm:text-base">{popup.message}</p>
+            <p className="mb-4 text-sm sm:text-base">{popup.message}</p>
 
             {popup.transaction && (
-              <div className="text-left bg-[#0e0e0f] border border-yellow-500/20 rounded-xl p-3 mb-4 text-sm">
+              <div className={`${bgMain} border ${borderColor} rounded-xl p-3 mb-4 text-sm`}>
                 <p><strong>UTR:</strong> {popup.transaction.utr}</p>
                 <p><strong>Amount:</strong> ₹{popup.transaction.payment_amount}</p>
                 <p><strong>Type:</strong> {popup.transaction.payment_type}</p>
