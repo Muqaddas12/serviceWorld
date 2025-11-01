@@ -95,7 +95,7 @@ export default function AddFund() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0e0e0f] text-gray-300 flex justify-center px-3 sm:px-4 md:px-6 py-8">
+    <div className="min-h-screen bg-[#0e0e0f] text-gray-300 flex justify-center px-2 sm:px-4 md:px-6 py-8">
       <div className="w-full max-w-6xl space-y-6 md:space-y-0 md:grid md:grid-cols-2 md:gap-6">
         {/* Left Box - Add Fund Form */}
         <div className="bg-[#151517] border border-yellow-500/20 rounded-2xl shadow-lg p-5 sm:p-6 md:p-8">

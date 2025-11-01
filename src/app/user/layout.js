@@ -1,13 +1,23 @@
 "use client";
 
-import { useState, useEffect ,useRef} from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import {FaUserCircle,FaTimesCircle,FaBars,} from "react-icons/fa";
-import {MdDashboard,MdHistory,MdPayment,MdHelp,} from "react-icons/md";
+import {
+  FaUserCircle,
+  FaTimesCircle,
+  FaBars,
+  FaMoon,
+  FaSun,
+} from "react-icons/fa";
+import { MdDashboard, MdHistory, MdPayment, MdHelp } from "react-icons/md";
 import { FiLogOut, FiSettings } from "react-icons/fi";
 import clsx from "clsx";
 import Link from "next/link";
-import { getUserBalance,getUserDetails,uploadProfilePicture } from "@/lib/userActions";
+import {
+  getUserBalance,
+  getUserDetails,
+  uploadProfilePicture,
+} from "@/lib/userActions";
 import { logoutUser } from "@/lib/authentication";
 
 export default function Layout({ children }) {
@@ -16,8 +26,11 @@ export default function Layout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
+  const [darkMode, setDarkMode] = useState(false); // 🌙 Dark mode state
+  const [currency, setCurrency] = useState("INR"); // 💱 Currency selector
+  const fileInputRef = useRef(null);
+
   const router = useRouter();
   const pathname = usePathname();
 
@@ -29,54 +42,48 @@ const fileInputRef = useRef(null);
     { icon: <MdHelp />, text: "Tickets Support", href: "/user/support" },
   ];
 
+  // 🔹 Handle scroll shadow
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 5);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-   useEffect(() => {
+  // 🔹 Fetch user details
+  useEffect(() => {
     async function fetchUser() {
       try {
-       
         const res = await getUserDetails();
-        if (res.success) {
-          setUser(res);
-          
-        } else {
-          console.error("Fetch error:", res.error);
-        }
+        if (res.success) setUser(res);
       } catch (err) {
         console.error("User fetch error:", err);
       }
     }
     fetchUser();
   }, []);
-   // Handle image upload
+
+  // 🔹 Upload profile image
   const handleImageChange = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
     const formData = new FormData();
     formData.append("image", file);
-
     setUploading(true);
+
     const res = await uploadProfilePicture(formData);
     setUploading(false);
 
     if (res.success) {
-      // Update avatar instantly after upload
       setUser((prev) => ({ ...prev, avatar: res.avatar }));
-    } else {
-      alert(res.error || "Upload failed");
-    }
+    } else alert(res.error || "Upload failed");
   };
 
+  // 🔹 Fetch balance (auto refresh every 30s)
   useEffect(() => {
     async function fetchBalance() {
       try {
-        const data = await getUserBalance()
-      
+        const data = await getUserBalance();
         if (data.balance) setBalance(data.balance);
       } catch (err) {
         console.error("Balance fetch error:", err);
@@ -87,9 +94,10 @@ const fileInputRef = useRef(null);
     return () => clearInterval(interval);
   }, []);
 
+  // 🔹 Logout
   const handleLogout = async () => {
     try {
-      const res = await logoutUser()
+      const res = await logoutUser();
       if (!res.error) {
         localStorage.removeItem("email");
         localStorage.removeItem("token");
@@ -100,13 +108,23 @@ const fileInputRef = useRef(null);
     }
   };
 
-  return (
-    <main className="flex h-screen bg-[#0e0e0f] text-gray-100 overflow-hidden">
+  // 🌙 Toggle dark mode
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => !prev);
+    document.documentElement.classList.toggle("dark");
+  };
 
-      {/* 🔹 Overlay (for all screens) */}
+  return (
+    <main
+      className={clsx(
+        "flex h-screen text-gray-100 overflow-hidden transition-colors duration-500",
+        darkMode ? "bg-[#0b0b0c]" : "bg-[#0e0e0f]"
+      )}
+    >
+      {/* 🔹 Overlay */}
       {isSidebarOpen && (
         <div
-          className="fixed bg-black/50 z-40"
+          className="fixed bg-black/50 z-40 inset-0"
           onClick={() => setIsSidebarOpen(false)}
         ></div>
       )}
@@ -118,7 +136,7 @@ const fileInputRef = useRef(null);
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {/* Sidebar Header */}
+        {/* Header */}
         <div className="flex justify-between items-center px-4 py-4 border-b border-yellow-500/20">
           <h1 className="text-lg font-semibold tracking-wide text-yellow-400">
             Navigation
@@ -131,52 +149,62 @@ const fileInputRef = useRef(null);
           </button>
         </div>
 
+        {/* Profile Section */}
         <div className="flex flex-col items-center gap-2 px-4 py-6 border-b border-yellow-500/20">
-      {/* Avatar */}
-      <div
-        className="w-20 h-20 rounded-full bg-yellow-400/20 flex items-center justify-center shadow-md overflow-hidden cursor-pointer relative group"
-        onClick={() => fileInputRef.current?.click()}
-      >
-        {user?.avatar ? (
-          <img
-            src={user.avatar}
-            alt="Avatar"
-            className={`w-full h-full object-cover ${
-              uploading ? "opacity-50" : ""
-            }`}
-          />
-        ) : (
-          <FaUserCircle
-            size={60}
-            className={`text-yellow-400/80 ${uploading ? "opacity-50" : ""}`}
-          />
-        )}
+          {/* Avatar */}
+          <div
+            className="w-20 h-20 rounded-full bg-yellow-400/20 flex items-center justify-center shadow-md overflow-hidden cursor-pointer relative group"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {user?.avatar ? (
+              <img
+                src={user.avatar}
+                alt="Avatar"
+                className={`w-full h-full object-cover ${
+                  uploading ? "opacity-50" : ""
+                }`}
+              />
+            ) : (
+              <FaUserCircle
+                size={60}
+                className={`text-yellow-400/80 ${uploading ? "opacity-50" : ""}`}
+              />
+            )}
+            <div className="absolute inset-0 bg-black/40 text-xs text-yellow-300 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              {uploading ? "Uploading..." : "Change Photo"}
+            </div>
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+              className="hidden"
+            />
+          </div>
 
-        {/* Overlay on hover */}
-        <div className="absolute inset-0 bg-black/40 text-xs text-yellow-300 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          {uploading ? "Uploading..." : "Change Photo"}
+          {/* Username */}
+          <h2 className="text-lg font-semibold mt-2 text-yellow-300">
+            {user?.username || "Guest"}
+          </h2>
+
+          {/* Balance */}
+          <p className="text-sm text-gray-400">
+            Balance: {currency === "USD" ? "$" : "₹"}
+            {balance.toFixed(2)}
+          </p>
+
+          {/* 💱 Currency Selector */}
+          <select
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+            className="mt-2 bg-[#1c1c1e] text-gray-200 border border-yellow-500/20 rounded-lg px-3 py-1 text-sm focus:outline-none focus:border-yellow-400"
+          >
+            <option value="INR">INR ₹</option>
+            <option value="USD">USD $</option>
+            <option value="EUR">EUR €</option>
+          </select>
         </div>
 
-        {/* Hidden file input */}
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          onChange={handleImageChange}
-          className="hidden"
-        />
-      </div>
-
-      {/* Username */}
-      <h2 className="text-lg font-semibold mt-2 text-yellow-300">
-        {user?.username || "Guest"}
-      </h2>
-
-      {/* Balance */}
-      <p className="text-sm text-gray-400">
-        Balance: ₹{balance.toFixed(2)}
-      </p>
-    </div>
         {/* Menu Items */}
         <nav className="flex-1 p-3 space-y-2 overflow-y-auto">
           {menuItems.map((item, idx) => {
@@ -202,7 +230,7 @@ const fileInputRef = useRef(null);
           })}
         </nav>
 
-        {/* Logout Button */}
+        {/* Logout */}
         <div className="p-4 border-t border-yellow-500/20">
           <button
             onClick={handleLogout}
@@ -214,20 +242,15 @@ const fileInputRef = useRef(null);
       </aside>
 
       {/* 🔹 Main Section */}
-      <div
-        className={clsx(
-          "flex flex-col flex-1 min-w-0 overflow-hidden transition-all duration-300 bg-[#0e0e0f]"
-        )}
-      >
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden transition-all duration-300">
         {/* Header */}
         <header
           className={clsx(
-            "flex items-center justify-between px-4 py-3 sticky top-0 z-30 transition-all duration-300",
-            "bg-[#111112]/90 backdrop-blur-lg border-b border-yellow-500/10",
+            "flex items-center justify-between px-4 py-3 sticky top-0 z-30 bg-[#111112]/90 backdrop-blur-lg border-b border-yellow-500/10",
             scrolled && "shadow-lg"
           )}
         >
-          {/* Left Section */}
+          {/* Left */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -243,16 +266,25 @@ const fileInputRef = useRef(null);
             </Link>
           </div>
 
-          {/* Right Section */}
+          {/* Right */}
           <div className="flex items-center gap-4 relative">
+            {/* 🌙 Dark Mode Toggle */}
+            <button
+              onClick={toggleDarkMode}
+              className="p-2 rounded-full bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 transition"
+            >
+              {darkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
+            </button>
+
             <div className="hidden sm:flex flex-col items-end">
               <span className="text-sm text-gray-400">Balance</span>
               <span className="text-lg font-bold text-yellow-400">
-                ₹{balance.toFixed(2)}
+                {currency === "USD" ? "$" : "₹"}
+                {balance.toFixed(2)}
               </span>
             </div>
 
-            {/* User Menu */}
+            {/* Profile Menu */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="flex items-center justify-center w-10 h-10 rounded-full bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 transition"
@@ -285,10 +317,8 @@ const fileInputRef = useRef(null);
           </div>
         </header>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto md:p-6 text-gray-100">
-          {children}
-        </div>
+        {/* Page Content */}
+        <div className="flex-1 overflow-y-auto md:p-6">{children}</div>
       </div>
     </main>
   );
