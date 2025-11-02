@@ -61,7 +61,7 @@ export default function MainTop() {
       id="main-top"
       className="relative bg-gradient-to-br from-white via-indigo-50 to-purple-50 
                  shadow-2xl rounded-tl-[40px] rounded-br-[40px] 
-                 py-6 sm:py-12 md:py-16 px-4 sm:px-6 md:px-10 lg:px-12 overflow-hidden"
+                 py-8 sm:py-14 md:py-20 px-4 sm:px-8 md:px-10 lg:px-14 overflow-hidden"
     >
       {/* 🌈 Animated Background */}
       <div className="absolute inset-0 -z-10">
@@ -83,34 +83,35 @@ export default function MainTop() {
         />
       </div>
 
-      {/* Main Grid */}
+      {/* 🌟 Main Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 items-center max-w-5xl mx-auto relative z-10">
-        {/* LEFT FORM */}
+        {/* LEFT SIDE — LOGIN FORM + TEXT */}
         <motion.div
           initial={{ opacity: 0, x: -40 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7 }}
-          className="space-y-4 bg-white/80 backdrop-blur-xl border border-white/50 
+          className="space-y-6 bg-white/80 backdrop-blur-xl border border-white/50 
                      shadow-lg rounded-2xl p-6 sm:p-8"
         >
-          <p className="text-indigo-600 font-semibold text-base sm:text-lg tracking-wide">
-            websitename.com
+           <p className="text-blue-600 font-semibold text-lg">
+            website.com
           </p>
 
-          <h1 className="text-lg sm:text-xl text-center font-bold antialiased flex items-center justify-center gap-2">
-            SMM World Panel – World’s Best and Cheapest SMM Panel
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 leading-tight flex items-center gap-3 flex-wrap">
+            SMM Panel – World’s Best and Cheapest SMM Panel
             <Image
               src="https://storage.perfectcdn.com/81013d/q6es6uk1ctks7bew.svg"
               alt="heading-icon"
-              width={12}
-              height={12}
+              width={35}
+              height={35}
+              className="inline-block"
             />
           </h1>
 
-          <p className="text-gray-700 text-sm sm:text-base text-center">
-            Trusted by{" "}
-            <span className="text-indigo-600 font-semibold">Millions</span> — 
-            Fueling Global Social Growth with Confidence.
+          <p className="text-gray-600 text-lg">
+            The most usable panel in the world with{" "}
+            <span className="text-blue-600 font-semibold">82,045,541</span>{" "}
+            orders until now! Are you in?
           </p>
 
           {/* ✅ Login Form */}
@@ -129,7 +130,7 @@ export default function MainTop() {
                 type="email"
                 placeholder="Email"
                 {...register("email")}
-                className={`w-full pl-10 pr-3 py-2.5 sm:py-3 border rounded-xl 
+                className={`w-full pl-10 pr-3 py-3 border rounded-xl 
                            bg-white/70 text-gray-900 placeholder-gray-500 
                            focus:ring-2 focus:ring-indigo-500 focus:outline-none transition ${
                              errors.email ? "border-red-500" : "border-gray-300"
@@ -156,7 +157,7 @@ export default function MainTop() {
                 type="password"
                 placeholder="Password"
                 {...register("password")}
-                className={`w-full pl-10 pr-3 py-2.5 sm:py-3 border rounded-xl 
+                className={`w-full pl-10 pr-3 py-3 border rounded-xl 
                            bg-white/70 text-gray-900 placeholder-gray-500 
                            focus:ring-2 focus:ring-indigo-500 focus:outline-none transition ${
                              errors.password
@@ -179,6 +180,7 @@ export default function MainTop() {
               />
             </div>
 
+            {/* Remember + Forgot */}
             <div className="flex justify-between items-center text-xs sm:text-sm">
               <label className="flex items-center gap-2 text-gray-600">
                 <input type="checkbox" className="rounded text-indigo-600" />
@@ -198,7 +200,7 @@ export default function MainTop() {
               disabled={loading}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full py-2.5 sm:py-3 font-semibold rounded-xl 
+              className="w-full py-3 font-semibold rounded-xl 
                          text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 
                          shadow-md hover:opacity-90 transition-all text-sm sm:text-base"
             >
