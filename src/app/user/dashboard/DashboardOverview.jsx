@@ -159,18 +159,19 @@ export default function DashboardLayout() {
           </div>
         </section>
 
- <LatestOrders />   
+
 <CategoryFilter/>
 
 <OrderForm />
-
+ <LatestOrders />   
         
     
 
         {/* ================= OTHER SECTIONS ================= */}
       
-        <Announcements />
+        
         <SupportSection/>
+        <Announcements />
       </div>
     </div>
   );
