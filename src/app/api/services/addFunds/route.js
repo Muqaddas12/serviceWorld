@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { MongoClient } from "mongodb";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
-import { ValidateTransactionBharatPe } from "@/lib/paymentMethod";
+import { ValidateTransactionBharatPe } from "@/lib/adminServices";
 
 // ✅ MongoDB connection (reusable)
 const uri = process.env.MONGODB_URI || "mongodb://localhost:27017";
