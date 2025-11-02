@@ -22,21 +22,26 @@ export default function AdminLayout({ children }) {
   const sidebarRef = useRef(null);
 
   useEffect(() => {
-    // Close profile menu when clicking outside
-    function handleClickOutside(e) {
+    const handleClickOutside = (e) => {
+      // if click outside of profile → close it
       if (profileRef.current && !profileRef.current.contains(e.target)) {
         setOpenProfile(false);
       }
-      if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
+
+      // if click outside of sidebar & not the menu button → close sidebar
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(e.target) &&
+        !e.target.closest(".menu-toggle")
+      ) {
         setOpenSidebar(false);
       }
-    }
+    };
 
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Hide layout on login page
   if (pathname.includes("admin/login")) {
     return <>{children}</>;
   }
@@ -46,7 +51,7 @@ export default function AdminLayout({ children }) {
       {/* Sidebar */}
       <aside
         ref={sidebarRef}
-        className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-transform duration-200
+        className={`fixed inset-y-0 left-0 z-40 w-64 transform transition-transform duration-300 ease-in-out
         bg-[#151517] border-r border-yellow-500/20 shadow-xl
         ${openSidebar ? "translate-x-0" : "-translate-x-full"} 
         md:translate-x-0`}
@@ -82,15 +87,23 @@ export default function AdminLayout({ children }) {
         </nav>
       </aside>
 
+      {/* Overlay (mobile only) */}
+      {openSidebar && (
+        <div
+          onClick={() => setOpenSidebar(false)}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 md:hidden"
+        ></div>
+      )}
+
       {/* Main Content */}
       <div className="flex-1 flex flex-col md:ml-64">
         {/* Header */}
         <header className="sticky top-0 z-30 bg-[#151517] border-b border-yellow-500/20 shadow-md flex items-center justify-between px-5 py-3">
           <div className="flex items-center gap-3">
-            {/* Hamburger Menu (visible on all screen sizes) */}
+            {/* Hamburger Menu */}
             <button
               onClick={() => setOpenSidebar(!openSidebar)}
-              className="text-gray-400 hover:text-yellow-400 transition"
+              className="menu-toggle text-gray-400 hover:text-yellow-400 transition md:hidden"
             >
               {openSidebar ? <X size={22} /> : <Menu size={22} />}
             </button>
@@ -100,7 +113,7 @@ export default function AdminLayout({ children }) {
             </h2>
           </div>
 
-          {/* Right-side Icons */}
+          {/* Right Icons */}
           <div className="flex items-center gap-4 relative">
             <button className="relative text-gray-400 hover:text-yellow-400">
               <Bell size={20} />
@@ -109,7 +122,7 @@ export default function AdminLayout({ children }) {
 
             <div className="relative" ref={profileRef}>
               <button
-                onClick={() => setOpenProfile((prev) => !prev)}
+                onClick={() => setOpenProfile((p) => !p)}
                 className="flex items-center gap-2 bg-[#0e0e0f] hover:bg-[#1d1d1f] px-3 py-2 rounded-full border border-yellow-500/20"
               >
                 <User size={18} className="text-yellow-400" />
@@ -138,7 +151,6 @@ export default function AdminLayout({ children }) {
           </div>
         </header>
 
-        {/* Page content */}
         <main className="flex-1">{children}</main>
       </div>
     </div>
