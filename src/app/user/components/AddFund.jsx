@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getAllPaymentMethods } from "@/lib/adminServices";
 
 export default function AddFund() {
-  const [paymentType, setPaymentType] = useState("BharatPe");
+  const [paymentType, setPaymentType] = useState("");
   const [utr, setUtr] = useState("");
   const [amount, setAmount] = useState("");
   const [transactions, setTransactions] = useState([]);
@@ -25,13 +26,19 @@ export default function AddFund() {
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, []);
 
-  // Fetch Payment Methods
+  // ✅ Fetch Payment Methods
   useEffect(() => {
     const getPaymentMethods = async () => {
       try {
-        const res = await fetch("/api/payment-methods");
-        const data = await res.json();
-        setPaymentMethod(data.methods || []);
+        const res = await getAllPaymentMethods();
+        if (res && res.methods?.length) {
+          setPaymentMethod(res.methods);
+          // Set default payment type
+          setPaymentType(res.methods[0].type);
+        } else {
+          setPaymentMethod([]);
+          console.warn("No payment methods found");
+        }
       } catch (err) {
         console.error("Error fetching payment methods:", err);
       }
@@ -39,7 +46,7 @@ export default function AddFund() {
     getPaymentMethods();
   }, []);
 
-  // Fetch Transaction History
+  // ✅ Fetch Transaction History
   useEffect(() => {
     const getHistory = async () => {
       try {
@@ -53,13 +60,13 @@ export default function AddFund() {
     getHistory();
   }, []);
 
-  // Filter QR Image
+  // ✅ Update QR Image on Payment Type Change
   useEffect(() => {
     const matched = paymentMethod.find((item) => item.type === paymentType);
-    setFilteredPaymentMethod(matched ? matched.qrImage : "");
+    setFilteredPaymentMethod(matched?.qrImage || "");
   }, [paymentType, paymentMethod]);
 
-  // Handle Submit
+  // ✅ Handle Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -74,6 +81,7 @@ export default function AddFund() {
           payment_amount: amount,
         }),
       });
+
       const data = await res.json();
 
       if (res.ok && data.success) {
@@ -94,7 +102,8 @@ export default function AddFund() {
           transaction: null,
         });
       }
-    } catch {
+    } catch (err) {
+      console.error(err);
       setPopup({
         visible: true,
         success: false,
@@ -114,11 +123,17 @@ export default function AddFund() {
   const headingColor = darkMode ? "text-yellow-400" : "text-yellow-600";
 
   return (
-    <div className={`min-h-screen ${bgMain} ${textColor} flex justify-center px-4 sm:px-4 md:px-6 py-8 transition-colors`}>
+    <div
+      className={`min-h-screen ${bgMain} ${textColor} flex justify-center px-4 md:px-6 py-8 transition-colors`}
+    >
       <div className="w-full max-w-6xl space-y-6 md:space-y-0 md:grid md:grid-cols-2 md:gap-6">
-        {/* Left Box - Add Fund Form */}
-        <div className={`${bgCard} border ${borderColor} rounded-2xl shadow-lg p-5 sm:p-6 md:p-8`}>
-          <h3 className={`text-2xl sm:text-3xl font-bold ${headingColor} mb-6 text-center md:text-left`}>
+        {/* ✅ Left Box - Add Fund Form */}
+        <div
+          className={`${bgCard} border ${borderColor} rounded-2xl shadow-lg p-5 md:p-8`}
+        >
+          <h3
+            className={`text-2xl sm:text-3xl font-bold ${headingColor} mb-6 text-center md:text-left`}
+          >
             Add Funds
           </h3>
 
@@ -131,15 +146,19 @@ export default function AddFund() {
                 value={paymentType}
                 onChange={(e) => setPaymentType(e.target.value)}
               >
-                <option value="BharatPe">BharatPe, PhonePe, GPay, Paytm</option>
-                <option value="PhonePe">PhonePe [Min ₹10, 3% Bonus]</option>
-                <option value="BankTransfer">UPI / Bank Transfer [Min ₹1000, 6% Bonus]</option>
+                {paymentMethod.map((item) => (
+                  <option key={item._id} value={item.type}>
+                    {item.name || item.type}
+                  </option>
+                ))}
               </select>
             </div>
 
             {/* QR + Instructions */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div className={`${bgMain} border ${borderColor} p-4 rounded-2xl shadow-inner flex flex-col items-center`}>
+              <div
+                className={`${bgMain} border ${borderColor} p-4 rounded-2xl shadow-inner flex flex-col items-center`}
+              >
                 <h6 className={`font-semibold ${headingColor} mb-3`}>Scan QR</h6>
                 {filteredPaymentMethod ? (
                   <img
@@ -148,12 +167,18 @@ export default function AddFund() {
                     className="w-40 sm:w-52 h-auto rounded-lg"
                   />
                 ) : (
-                  <p className="text-center text-gray-500 text-sm">No QR available</p>
+                  <p className="text-center text-gray-500 text-sm">
+                    No QR available
+                  </p>
                 )}
               </div>
 
-              <div className={`${bgMain} border ${borderColor} rounded-xl p-4 text-sm`}>
-                <h6 className={`font-semibold ${headingColor} mb-2`}>Instructions</h6>
+              <div
+                className={`${bgMain} border ${borderColor} rounded-xl p-4 text-sm`}
+              >
+                <h6 className={`font-semibold ${headingColor} mb-2`}>
+                  Instructions
+                </h6>
                 <ol className="list-decimal list-inside space-y-1 text-gray-500">
                   <li>Scan the QR code above</li>
                   <li>Pay the desired amount</li>
@@ -201,9 +226,13 @@ export default function AddFund() {
           </form>
         </div>
 
-        {/* Right Box - Transaction History */}
-        <div className={`${bgCard} border ${borderColor} rounded-2xl shadow-lg p-5 sm:p-6 md:p-8`}>
-          <h5 className={`text-2xl font-bold ${headingColor} mb-4 text-center md:text-left`}>
+        {/* ✅ Right Box - Transaction History */}
+        <div
+          className={`${bgCard} border ${borderColor} rounded-2xl shadow-lg p-5 md:p-8`}
+        >
+          <h5
+            className={`text-2xl font-bold ${headingColor} mb-4 text-center md:text-left`}
+          >
             Transaction History
           </h5>
 
@@ -220,7 +249,10 @@ export default function AddFund() {
               <tbody>
                 {transactions.length === 0 ? (
                   <tr>
-                    <td colSpan="4" className="py-5 text-center text-gray-400 italic">
+                    <td
+                      colSpan="4"
+                      className="py-5 text-center text-gray-400 italic"
+                    >
                       No transactions yet.
                     </td>
                   </tr>
@@ -228,10 +260,14 @@ export default function AddFund() {
                   transactions.map((tx, i) => (
                     <tr
                       key={i}
-                      className={`border-b ${borderColor} hover:${darkMode ? "bg-[#1c1c1e]" : "bg-gray-100"} transition`}
+                      className={`border-b ${borderColor} hover:${
+                        darkMode ? "bg-[#1c1c1e]" : "bg-gray-100"
+                      } transition`}
                     >
                       <td className="py-2 px-3">{tx.utr}</td>
-                      <td className="py-2 px-3">{new Date(tx.createdAt).toLocaleString()}</td>
+                      <td className="py-2 px-3">
+                        {new Date(tx.createdAt).toLocaleString()}
+                      </td>
                       <td className="py-2 px-3 capitalize">{tx.payment_type}</td>
                       <td className="py-2 px-3 text-yellow-500 font-semibold">
                         ₹{tx.payment_amount}
@@ -245,10 +281,12 @@ export default function AddFund() {
         </div>
       </div>
 
-      {/* Popup */}
+      {/* ✅ Popup */}
       {popup.visible && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm z-50 p-4">
-          <div className={`${bgCard} border ${borderColor} rounded-2xl p-6 max-w-sm w-full text-center`}>
+          <div
+            className={`${bgCard} border ${borderColor} rounded-2xl p-6 max-w-sm w-full text-center`}
+          >
             <div
               className={`mx-auto mb-4 w-14 h-14 flex items-center justify-center rounded-full ${
                 popup.success ? "bg-green-600" : "bg-red-600"
@@ -270,10 +308,18 @@ export default function AddFund() {
             <p className="mb-4 text-sm sm:text-base">{popup.message}</p>
 
             {popup.transaction && (
-              <div className={`${bgMain} border ${borderColor} rounded-xl p-3 mb-4 text-sm`}>
-                <p><strong>UTR:</strong> {popup.transaction.utr}</p>
-                <p><strong>Amount:</strong> ₹{popup.transaction.payment_amount}</p>
-                <p><strong>Type:</strong> {popup.transaction.payment_type}</p>
+              <div
+                className={`${bgMain} border ${borderColor} rounded-xl p-3 mb-4 text-sm`}
+              >
+                <p>
+                  <strong>UTR:</strong> {popup.transaction.utr}
+                </p>
+                <p>
+                  <strong>Amount:</strong> ₹{popup.transaction.payment_amount}
+                </p>
+                <p>
+                  <strong>Type:</strong> {popup.transaction.payment_type}
+                </p>
               </div>
             )}
 
