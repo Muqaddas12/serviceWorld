@@ -1,8 +1,12 @@
-export default function ServicesPage() {
+'use server'
+import { getServices } from "@/lib/services";
+import ServicesPage from "./ServicesPage";
+export default async function Services({services}) {
+const Allservices=await getServices()
+console.log(Allservices)
   return (
-    <div>
-      <h1 className="text-2xl font-semibold mb-4">Services</h1>
-      <p>Manage all SMM panel services here.</p>
-    </div>
+   <>
+   <ServicesPage services={Allservices}/>
+   </>
   );
 }

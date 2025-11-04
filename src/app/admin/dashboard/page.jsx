@@ -1,8 +1,33 @@
+'use client'
+import { getAllUsers } from "@/lib/adminServices";
+import { getServices } from "@/lib/services";
+import { useEffect, useState } from "react";
 export default function AdminDashboard() {
+  const [totalUsers,setTotalUsers]=useState(0)
+  const [totalOrders,setTotalOrders]=useState(0)
+  const [totalServices,setTotalServices]=useState(0)
+  useEffect(()=>{
+    const fetchData=async () => {
+      const users=await getAllUsers()
+      const services=await getServices()
+
+      console.log(services)
+      if(users.success){
+        setTotalUsers(users.count)
+      }
+      if(services){
+        setTotalServices(services.length)
+      }
+
+      
+    }
+fetchData()
+  },[])
+
   const stats = [
-    { title: "Total Users", value: "1,245", icon: "👥" },
+    { title: "Total Users", value: `${totalUsers}`, icon: "👥" },
     { title: "Total Orders", value: "82,045,541", icon: "🧾" },
-    { title: "Active Services", value: "342", icon: "⚙️" },
+    { title: "Active Services", value: `${totalServices}`, icon: "⚙️" },
     { title: "Pending Deposits", value: "₹18,450", icon: "💰" },
   ];
 

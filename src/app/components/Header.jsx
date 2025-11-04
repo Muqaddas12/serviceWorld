@@ -1,22 +1,35 @@
 "use client";
-import { useState } from "react";
+import { useState ,useEffect} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaCogs, FaCode, FaBlog } from "react-icons/fa";
 import Link from "next/link";
+import { getSetting } from "@/lib/adminServices";
 
 export default function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);
 
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [logo,setLogo]=useState('')
+useEffect(()=>{
+  const getLogo= async () => {
+    const result= await getSetting('logo')
+    if(result){
+      setLogo(result)
+    }
+    
+  }
+  getLogo()
+})
   return (
     <nav className="sticky top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md shadow-md border-b border-gray-100 rounded-b-3xl md:rounded-none transition-all duration-300">
       <div className="flex justify-between items-center px-6 py-3 max-w-7xl mx-auto">
         {/* 🌟 Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <img
-            src="https://storage.perfectcdn.com/81013d/wzprcb8ileadr37i.png"
-            alt="SMM World Panel"
-            className="h-15 w-auto hover:scale-105 transition-transform duration-200"
-          />
+       <img
+  src={logo}
+  alt="SMM World Panel Logo"
+  className="h-14 sm:h-16 w-auto hover:scale-105 transition-transform duration-300 drop-shadow-[0_0_8px_rgba(250,204,21,0.2)]"
+/>
+
         </Link>
 
         {/* 🌍 Desktop Menu */}

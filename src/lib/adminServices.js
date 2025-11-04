@@ -2,7 +2,8 @@
 
 import clientPromise from "./mongodb";
 import { ObjectId } from "mongodb";
-
+import fs from 'fs/promises'
+import path from 'path'
 // 🗃️ Database and Collection names
 const DB_SMM_PANEL = "smmpanel";
 const DB_ADMIN = "smmadmin";
@@ -231,5 +232,84 @@ export async function ValidateTransactionBharatPe(internalUtr, amount) {
   } catch (error) {
     console.error("❌ BharatPe Validation Error:", error);
     return { success: false, error: error.message };
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function getSetting(key) {
+  try {
+    // Resolve the path to settings.json
+    const filePath = path.join(process.cwd(), "data", "settings.json");
+
+    // Read the file
+    const fileData = await fs.readFile(filePath, "utf-8");
+    const settings = JSON.parse(fileData);
+
+    // If key exists, return it, otherwise return a fallback
+    if (key in settings) {
+      return settings[key];
+    } else {
+      return `Setting "${key}" not found`;
+    }
+  } catch (error) {
+    console.error("Error reading settings:", error);
+    return "Error loading setting";
+  }
+}
+
+export async function getSettings(keys = []) {
+  try {
+    const filePath = path.join(process.cwd(), "data", "settings.json");
+    const fileData = await fs.readFile(filePath, "utf-8");
+    const settings = JSON.parse(fileData);
+
+    // If keys are provided, filter them
+    if (Array.isArray(keys) && keys.length > 0) {
+      const result = {};
+      for (const key of keys) {
+        result[key] = settings[key] || null;
+      }
+      console.log(result)
+      return result;
+    }
+
+    // Otherwise return everything
+    return settings;
+  } catch (error) {
+    console.error("Error reading settings:", error);
+    return {};
   }
 }

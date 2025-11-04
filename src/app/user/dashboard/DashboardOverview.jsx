@@ -65,7 +65,7 @@ export default function DashboardLayout() {
   ];
 
   return (
-    <div className="w-full min-h-screen bg-[#0e0e0f] text-gray-100 py-4 sm:py-6 flex justify-center">
+    <div className="w-full min-h-screen text-gray-100 py-4 sm:py-6 flex justify-center">
       <div className="w-full max-w-6xl px-3 sm:px-6 space-y-8">
 
         {/* ================= STATS ================= */}
@@ -127,40 +127,70 @@ export default function DashboardLayout() {
           </Card>
         </section>
 
-         {/* ================= QUICK ACTIONS ================= */}
-        <section>
-          <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-yellow-400 tracking-wide">
-            Quick Actions
-          </h3>
-
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 max-w-4xl mx-auto">
-            {quickActions.map((action, idx) => (
-              <Card
-                key={idx}
-                onClick={() => (window.location.href = action.href)}
-                className={`flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-4 lg:py-5 text-yellow-300 transition-all ${
-                  action.neon
-                    ? "hover:shadow-[0_0_20px_rgba(255,255,0,0.7)] hover:bg-yellow-500/10"
-                    : "hover:bg-yellow-500/10"
-                }`}
-              >
-                <div
-                  className={`text-yellow-400 ${
-                    action.neon
-                      ? "drop-shadow-[0_0_6px_rgba(255,255,0,0.8)] animate-pulse"
-                      : ""
-                  }`}
-                >
-                  {action.icon}
-                </div>
-                <span className="text-sm sm:text-base font-medium">{action.label}</span>
-              </Card>
-            ))}
-          </div>
-        </section>
-
+     
 
 <CategoryFilter/>
+  {/* ================= QUICK ACTIONS ================= */}
+<section className="w-full">
+  <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-yellow-400 tracking-wide text-center lg:text-left">
+    Quick Actions
+  </h3>
+
+  <div
+    className="
+      grid
+      grid-cols-2
+      sm:grid-cols-3
+      lg:grid-cols-4
+      xl:grid-cols-5
+      gap-3
+      sm:gap-4
+      lg:gap-5
+      max-w-6xl
+      mx-auto
+      px-2
+      lg:px-0
+    "
+  >
+    {quickActions.map((action, idx) => (
+      <Card
+        key={idx}
+        onClick={() => (window.location.href = action.href)}
+        className={`
+          flex flex-col sm:flex-row items-center justify-center
+          gap-2 sm:gap-3
+          py-3 sm:py-4 lg:py-5
+          text-yellow-300
+          transition-all
+          cursor-pointer
+          bg-[#151517]
+          border border-yellow-500/20
+          rounded-2xl
+          hover:scale-105
+          ${
+            action.neon
+              ? "hover:shadow-[0_0_25px_rgba(255,255,0,0.6)] hover:bg-yellow-500/10"
+              : "hover:bg-yellow-500/10 hover:shadow-[0_0_12px_rgba(234,179,8,0.25)]"
+          }
+        `}
+      >
+        <div
+          className={`text-yellow-400 ${
+            action.neon
+              ? "drop-shadow-[0_0_8px_rgba(255,255,0,0.8)] animate-pulse"
+              : ""
+          }`}
+        >
+          {action.icon}
+        </div>
+        <span className="text-sm sm:text-base font-medium text-center">
+          {action.label}
+        </span>
+      </Card>
+    ))}
+  </div>
+</section>
+
 
 <OrderForm />
  <LatestOrders />   

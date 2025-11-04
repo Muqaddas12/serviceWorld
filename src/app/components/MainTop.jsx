@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import axios from "axios";
@@ -9,6 +9,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { getSetting } from "@/lib/adminServices";
 
 // ✅ Validation Schema
 const schema = yup.object().shape({
@@ -24,6 +25,7 @@ export default function MainTop() {
   const recaptchaRef = useRef(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [websiteName,setWebsiteName]=useState('')
 
   const {
     register,
@@ -55,7 +57,16 @@ export default function MainTop() {
       setLoading(false);
     }
   };
-
+useEffect(()=>{
+  const webName= async () => {
+    const result= await getSetting('siteName')
+    if(result){
+      setWebsiteName(result)
+    }
+    
+  }
+  webName()
+})
   return (
     <section
       id="main-top"
@@ -94,7 +105,7 @@ export default function MainTop() {
                      shadow-lg rounded-2xl p-6 sm:p-8"
         >
            <p className="text-blue-600 font-semibold text-lg">
-            website.com
+           {websiteName}
           </p>
 
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800 leading-tight flex items-center gap-3 flex-wrap">

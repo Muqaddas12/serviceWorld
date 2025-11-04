@@ -19,6 +19,7 @@ import {
   uploadProfilePicture,
 } from "@/lib/userActions";
 import { logoutUser } from "@/lib/authentication";
+import { getSetting } from "@/lib/adminServices";
 
 export default function Layout({ children }) {
   const [user, setUser] = useState(null);
@@ -29,6 +30,7 @@ export default function Layout({ children }) {
   const [uploading, setUploading] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [currency, setCurrency] = useState("INR");
+  const [websitename,setWebsiteName]=useState('')
   const fileInputRef = useRef(null);
 
   const router = useRouter();
@@ -44,7 +46,19 @@ export default function Layout({ children }) {
     { icon: <MdLink />, text: "Referral", href: "/user/referral" },
     { icon: <MdDns />, text: "ChildPanel", href: "/user/child-panel" },
   ];
+  useEffect(() => {
+    const fetchWebsiteName = async () => {
+      try {
+        const result = await getSetting('siteName');
+        console.log(result);
+        if (result) setWebsiteName(result);
+      } catch (err) {
+        console.error("Error fetching website name:", err);
+      }
+    };
 
+    fetchWebsiteName();
+  }, []);
   // 🔹 Handle scroll shadow
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 5);
@@ -172,7 +186,7 @@ export default function Layout({ children }) {
         {/* Header */}
         <div className="flex justify-between items-center px-4 py-4 border-b border-yellow-500/20">
           <h1 className="text-lg font-semibold tracking-wide text-yellow-400">
-            Navigation
+            {websitename}
           </h1>
           <button
             className="p-2 rounded-lg hover:bg-yellow-500/10 transition"
@@ -293,7 +307,7 @@ export default function Layout({ children }) {
               href="/"
               className="text-xl sm:text-2xl font-bold text-yellow-400 tracking-wide"
             >
-              InstantSMM
+             {websitename}
             </Link>
           </div>
 

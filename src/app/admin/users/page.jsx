@@ -17,7 +17,7 @@ export default function UsersPage() {
   const getUsers = async () => {
     try {
       const res = await getAllUsers();
-      console.log(res);
+
 
       if (!res.success) { // ❗ if success is false, then show error
         setError(res.error || "Failed to fetch users");
@@ -25,9 +25,9 @@ export default function UsersPage() {
         return;
       }
 
-      const users = res.plainUsers || [];
-      setUsers(users);
-      setFilteredUsers(users);
+      
+      setUsers(res.users);
+      setFilteredUsers(res.users);
       setLoading(false);
     } catch (err) {
       console.error(err);
