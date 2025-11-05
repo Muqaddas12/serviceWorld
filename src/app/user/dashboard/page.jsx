@@ -1,15 +1,15 @@
-"use client"
+'use server'
 
 import DashboardOverview from "./DashboardOverview";
 import Loader from "../components/Loader";
+import { getUserDetails } from "@/lib/userActions";
 
 
-
-export default function DashboardPage() {
-    
+export default async function DashboardPage() {
+    const user=await getUserDetails()
     return (
       <>
-        <DashboardOverview />
+        <DashboardOverview user={user} />
     
 
       </>

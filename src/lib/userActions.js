@@ -27,7 +27,6 @@ export async function getUserDetails() {
       .findOne({ email: decoded.email }, { projection: { password: 0 } });
 
     if (!user) return { error: "User not found" };
-
     return {
   success:true,
     avatar:user.avatar,

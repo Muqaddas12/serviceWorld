@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 
-export default function Footer() {
+export default function Footer({siteName}) {
   return (
     <footer className="relative bg-gradient-to-r from-indigo-700 via-purple-700 to-blue-700 text-white py-6 md:py-8 mt-16 rounded-t-[30px] shadow-xl overflow-hidden backdrop-blur-md">
       {/* 🌈 Animated Gradient Glow Background */}
@@ -72,7 +72,7 @@ export default function Footer() {
         className="text-center text-xs md:text-sm text-gray-300 mt-3 tracking-wide px-3"
       >
         Made with ❤️ by{" "}
-        <span className="text-yellow-300 font-semibold">websitename.com</span>
+        <span className="text-yellow-300 font-semibold">{siteName}</span>
       </motion.p>
     </footer>
   );

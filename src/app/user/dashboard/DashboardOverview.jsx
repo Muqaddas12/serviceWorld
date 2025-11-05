@@ -10,7 +10,6 @@ import {
 import { FaUserCircle } from "react-icons/fa";
 import Announcements from "./Announcements";
 import LatestOrders from "./LatestOrders";
-import { getUserBalance, getUserDetails } from "@/lib/userActions";
 import OrderForm from "./OrderForm";
 import SupportSection from "./SupportSection";
 import CategoryFilter from "./CategoryFilter";
@@ -23,27 +22,11 @@ const Card = ({ children, className = "", onClick }) => (
   </div>
 );
 
-export default function DashboardLayout() {
-  const [user, setUser] = useState({});
+export default function DashboardLayout({user}) {
+ 
   const [spent, setSpent] = useState(0);
   const [orders, setOrders] = useState(0);
-  const [balance, setBalance] = useState(0);
 
-
-  useEffect(() => {
-    async function getUser() {
-      try {
-        const data = await getUserDetails();
-        if (data) {
-          setUser(data);
-          setBalance(Number(data.balance )|| 0);
-        }
-      } catch (err) {
-        console.error("user fetch error:", err);
-      }
-    }
-    getUser();
-  }, []);
 
   useEffect(() => {
     setSpent(1245.75);
@@ -92,7 +75,7 @@ export default function DashboardLayout() {
               <div>
                 <p className="text-[11px] sm:text-sm text-gray-400">Balance</p>
                 <h4 className="text-sm sm:text-lg font-semibold text-yellow-300">
-                  ₹{balance.toFixed(2)}
+                  ₹{user?.balance?user.balance.toFixed():'0.00'}
                 </h4>
               </div>
             </div>

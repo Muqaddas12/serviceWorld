@@ -9,7 +9,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { getSetting } from "@/lib/adminServices";
+import { loginUser } from "@/lib/authentication";
 
 // ✅ Validation Schema
 const schema = yup.object().shape({
@@ -20,12 +20,12 @@ const schema = yup.object().shape({
   password: yup.string().required("Password is required"),
 });
 
-export default function MainTop() {
+export default function MainTop({websiteName}) {
   const router = useRouter();
   const recaptchaRef = useRef(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [websiteName,setWebsiteName]=useState('')
+ 
 
   const {
     register,
@@ -43,30 +43,20 @@ export default function MainTop() {
 
     setLoading(true);
     try {
-      const res = await axios.post("/api/auth/login", {
-        email: data.email,
-        password: data.password,
-        captcha,
-      });
-      setMessage(res.data.message || "Login successful!");
+      const res= await loginUser({...data,captcha})
+      if(!res.success){
+        setMessage(res.message || res.error     );
       router.push("/user/dashboard");
+      }else {
+        setMessage(res.message)
+      }
     } catch (err) {
-      setMessage(err.response?.data?.error || "Login failed. Try again.");
+      setMessage(err?.message || "Login failed. Try again.");
     } finally {
       recaptchaRef.current?.reset();
       setLoading(false);
     }
   };
-useEffect(()=>{
-  const webName= async () => {
-    const result= await getSetting('siteName')
-    if(result){
-      setWebsiteName(result)
-    }
-    
-  }
-  webName()
-})
   return (
     <section
       id="main-top"

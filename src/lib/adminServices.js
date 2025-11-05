@@ -318,6 +318,75 @@ export async function deleteUserById(id) {
 
 
 
+export async function restoreUserById(id) {
+  try {
+    const client = await clientPromise;
+    const db = client.db(DB_SMM_PANEL);
+
+    // 🧩 Validate ID
+    if (!ObjectId.isValid(id)) {
+      return { success: false, error: "Invalid user ID" };
+    }
+
+    const userId = new ObjectId(id);
+
+    // 🟢 Find user in deleted_users
+    const deletedUser = await db
+      .collection("deleted_users")
+      .findOne({ _id: userId });
+
+    if (!deletedUser) {
+      // If not found in deleted_users
+      return {
+        success: false,
+        error: "No deleted user found with this ID.",
+      };
+    }
+
+    // 🟣 Ensure users collection exists
+    const collections = await db.listCollections().toArray();
+    const collectionNames = collections.map((c) => c.name);
+
+    if (!collectionNames.includes("users")) {
+      await db.createCollection("users");
+      console.log("🆕 Created users collection.");
+    }
+
+    // 🟠 Prepare restored user document
+    const { deletedAt, deletedBy, originalCollection, ...restoredUserDoc } =
+      deletedUser;
+
+    restoredUserDoc.restoredAt = new Date();
+    restoredUserDoc.restoredBy = "admin"; // can be dynamic based on session
+
+    // 🔵 Move user back to users collection
+    await db.collection("users").insertOne(restoredUserDoc);
+
+    // 🔴 Remove from deleted_users
+    const result = await db
+      .collection("deleted_users")
+      .deleteOne({ _id: userId });
+
+    if (result.deletedCount === 0) {
+      return {
+        success: false,
+        error: "User could not be removed from deleted_users.",
+      };
+    }
+
+    return {
+      success: true,
+      message: "User restored to users collection successfully.",
+    };
+  } catch (error) {
+    console.error("❌ Error restoring user:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+
+
+
 
 
 
