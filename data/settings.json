@@ -1,7 +1,7 @@
 {
   "siteName": "My Website",
   "panelName": "Admin Panel",
-  "maintenanceMode": false,
+  "maintenanceMode": true,
   "services": false,
   "logo": "/uploads/logo_1761804478576.png",
   "favicon": "/uploads/favicon_1761804478580.png",
