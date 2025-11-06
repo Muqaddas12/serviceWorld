@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Switch } from "@headlessui/react";
+import { updateWebsiteSettings,getWebsiteSettings } from "@/lib/adminServices";
 
 export default function EditWebsite() {
   const [formData, setFormData] = useState({
@@ -26,9 +27,11 @@ export default function EditWebsite() {
 
     (async () => {
       try {
-        const res = await fetch("/api/updateWebsite", { cache: "no-store" });
-        if (res.ok) {
-          const data = await res.json();
+       const res= await getWebsiteSettings()
+       console.log(res)
+        if (res.success) {
+          const settings=res.plainsettings
+          const data = await JSON.parse(settings)
           setFormData((prev) => ({ ...prev, ...data }));
         }
       } catch (err) {
@@ -58,14 +61,11 @@ export default function EditWebsite() {
     Object.entries(formData).forEach(([key, val]) => data.append(key, val));
 
     try {
-      const res = await fetch("/api/updateWebsite", {
-        method: "POST",
-        body: data,
-      });
-      const result = await res.json();
-      if (result.success) {
+      const res = await updateWebsiteSettings(formData)
+    
+      if (res.success) {
         alert("✅ Settings updated successfully!");
-        setFormData(result.settings);
+        setFormData(res.settings);
       } else {
         alert("❌ Failed to update settings.");
       }

@@ -10,6 +10,10 @@ const DB_SMM_PANEL = "smmpanel";
 const DB_ADMIN = "smmadmin";
 const PAYMENT_COLLECTION = "payment_methods";
 
+const SETTINGS_COLLECTION = "settings";
+
+// 📂 Uploads directory
+const uploadDir = path.join(process.cwd(), "public/uploads");
 
 
 /* -------------------------------------------------------------------------- */
@@ -592,50 +596,117 @@ export async function ValidateTransactionBharatPe(internalUtr, amount) {
 
 
 
-
-
-
-export async function getSetting(key) {
+// 🟢 GET — Fetch settings from MongoDB
+export async function getWebsiteSettings() {
   try {
-    // Resolve the path to settings.json
-    const filePath = path.join(process.cwd(), "data", "settings.json");
+    const client = await clientPromise;
+    const db = client.db(DB_SMM_PANEL);
+    const collection = db.collection(SETTINGS_COLLECTION);
 
-    // Read the file
-    const fileData = await fs.readFile(filePath, "utf-8");
-    const settings = JSON.parse(fileData);
+    let settings = await collection.findOne({});
 
-    // If key exists, return it, otherwise return a fallback
-    if (key in settings) {
-      return settings[key];
-    } else {
-      return `Setting "${key}" not found`;
+    // 🧩 Create default settings if not found
+    if (!settings) {
+      const defaultSettings = {
+        siteName: "My Website",
+        panelName: "Admin Panel",
+        maintenanceMode: false,
+        servicesEnabled: true,
+        // Default base64 placeholders (transparent 1x1 PNG)
+        logo: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQYV2N89hEABAgBDAFGhWoAAAAASUVORK5CYII=",
+        favicon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQYV2N89hEABAgBDAFGhWoAAAAASUVORK5CYII=",
+        bronzeMember: "Bronze",
+        silverMember: "Silver",
+        goldMember: "Gold",
+        reseller: "Reseller",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      await collection.insertOne(defaultSettings);
+      settings = defaultSettings;
     }
-  } catch (error) {
-    console.error("Error reading settings:", error);
-    return "Error loading setting";
+const plainsettings=JSON.stringify(settings)
+    return {
+      success:true,
+      plainsettings
+    } ;
+  } catch (err) {
+    console.error("getWebsiteSettings error:", err);
+    return {
+      success:false,
+
+    }
   }
 }
 
-export async function getSettings(keys = []) {
+// 🟠 POST — Insert or update settings (store images in DB as Base64)
+export async function updateWebsiteSettings(formData) {
+  
   try {
-    const filePath = path.join(process.cwd(), "data", "settings.json");
-    const fileData = await fs.readFile(filePath, "utf-8");
-    const settings = JSON.parse(fileData);
+    const client = await clientPromise;
+    const db = client.db(DB_SMM_PANEL);
+    const collection = db.collection(SETTINGS_COLLECTION);
 
-    // If keys are provided, filter them
-    if (Array.isArray(keys) && keys.length > 0) {
-      const result = {};
-      for (const key of keys) {
-        result[key] = settings[key] || null;
-      }
-      console.log(result)
-      return result;
+    // 🧠 Extract form data fields
+    const siteName = formData.siteName
+    const panelName = formData.panelName
+    const maintenanceMode = formData.maintenanceMode
+    const servicesEnabled = formData.servicesEnabled
+    const bronzeMember = formData.bronzeMember
+    const silverMember = formData.silverMember
+    const goldMember = formData.goldMember
+    const reseller = formData.reseller
+
+    // 🧩 Prepare updated data
+    let updated = {
+      siteName,
+      panelName,
+      maintenanceMode,
+      servicesEnabled,
+      bronzeMember,
+      silverMember,
+      goldMember,
+      reseller,
+      updatedAt: new Date(),
+    };
+
+    // 🟡 Handle logo upload (convert to Base64)
+    const logo = formData?.logo
+    if (logo && typeof logo !== "string") {
+      const bytes = await logo.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const base64 = buffer.toString("base64");
+      const mimeType = logo.type || "image/png";
+      updated.logo = `data:${mimeType};base64,${base64}`;
     }
 
-    // Otherwise return everything
-    return settings;
-  } catch (error) {
-    console.error("Error reading settings:", error);
-    return {};
+    // 🟠 Handle favicon upload (convert to Base64)
+    const favicon = formData?.favicon
+    if (favicon && typeof favicon !== "string") {
+      const bytes = await favicon.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const base64 = buffer.toString("base64");
+      const mimeType = favicon.type || "image/png";
+      updated.favicon = `data:${mimeType};base64,${base64}`;
+    }
+
+    // 🧠 Fetch existing settings
+    const existing = await collection.findOne({});
+
+    // 💾 Insert or Update
+    if (!existing) {
+      updated.createdAt = new Date();
+      await collection.insertOne(updated);
+    } else {
+      await collection.updateOne({}, { $set: updated }, { upsert: true });
+    }
+
+    return { success: true, settings: updated };
+  } catch (err) {
+    console.error("updateWebsiteSettings error:", err);
+    return {
+      success:false
+    }
   }
 }
