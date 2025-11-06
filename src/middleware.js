@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
+
 const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET);
 
 // 🧠 Auto-detect base URL (works on local + deployed)
@@ -12,19 +13,11 @@ const BASE_URL =
 
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
+ 
 
   // 🔹 Fetch maintenance settings safely
   let maintenanceMode = false;
-  try {
-    const res = await fetch(`${BASE_URL}/api/maintenance`, {
-      cache: "no-store",
-    });
-    const data = await res.json();
-    maintenanceMode = data?.maintenanceMode;
-  } catch (err) {
-    console.error("⚠️ Failed to check maintenance mode:", err);
-  }
-
+ 
   const token = request.cookies.get("token")?.value;
 
   const isUserRoute = pathname.startsWith("/user");

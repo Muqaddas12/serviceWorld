@@ -23,6 +23,7 @@ export default function AdminLogin() {
 
       if (res.success) {
         setMessage("✅ Login successful!");
+        console.log('hello')
         // redirect to dashboard
        router.replace('/admin/dashboard')
       } else {

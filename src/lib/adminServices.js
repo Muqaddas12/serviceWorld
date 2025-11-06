@@ -710,3 +710,85 @@ export async function updateWebsiteSettings(formData) {
     }
   }
 }
+
+
+
+
+
+export async function getAllTickets() {
+  try {
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+
+    const tickets = await db
+      .collection("tickets")
+      .find({})
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    // 🧩 Convert MongoDB ObjectIds to string + format fields if needed
+    const newTickets = tickets.map((t) => ({
+      _id: t._id.toString(),
+      username: t.username || "Unknown",
+      subject: t.subject || "No subject",
+      message: t.message || "",
+      status: t.status || "open",
+      replies: t.replies || [],
+      created_at: t.createdAt || t.created_at || null,
+      updatedAt: t.updatedAt || null,
+    }));
+
+    return {
+      success: true,
+      count: newTickets.length,
+      tickets: newTickets,
+    };
+  } catch (error) {
+    console.error("Error fetching tickets:", error);
+    throw new Error("Failed to fetch tickets");
+  }
+}
+
+
+
+export async function getUnansweredTickets() {
+  try {
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+
+    // 🧠 Match tickets that are still open or have no replies
+    const unanswered = await db
+      .collection("tickets")
+      .find({
+        $or: [
+          { status: "open" },
+          { status: "unanswered" },
+          { replies: { $exists: true, $size: 0 } },
+          { adminReplied: { $ne: true } },
+        ],
+      })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    // 🧩 Normalize data for frontend (convert ObjectIds, fill defaults)
+    const cleanTickets = unanswered.map((t) => ({
+      _id: t._id?.toString(),
+      username: t.username || "Unknown",
+      subject: t.subject || "No subject",
+      message: t.message || "",
+      status: t.status || "open",
+      replies: Array.isArray(t.replies) ? t.replies : [],
+      created_at: t.createdAt || t.created_at || null,
+      updatedAt: t.updatedAt || null,
+    }));
+
+    return {
+      success: true,
+      count: cleanTickets.length,
+      tickets: cleanTickets,
+    };
+  } catch (error) {
+    console.error("❌ Error fetching unanswered tickets:", error);
+    throw new Error("Failed to fetch unanswered tickets");
+  }
+}

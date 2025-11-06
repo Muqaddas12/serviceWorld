@@ -10,16 +10,19 @@ import MainTop from './components/MainTop'
 import PaymentMethods from './components/PaymentMethods'
 import FaqSection from './components/FAQ'
 import HowItWorks from './components/HowItWork'
-import { getSetting } from '@/lib/adminServices'
+import { getWebsiteSettings } from '@/lib/adminServices'
 
 export default async function Home() {
 
-const logo=await getSetting('logo')
-const sietName=await getSetting('siteName')
+const data= await getWebsiteSettings()
+const result = JSON.parse(data.plainsettings)
+const logo=result.logo
+const websiteName=result.sietName
+
   return (
     <main className="min-h-screen bg-gray-50 text-slate-900">
       <Header logo={logo}/>
-      <MainTop websiteName={sietName}/>
+      <MainTop websiteName={websiteName}/>
       <WhyChooseUs/>
       <HowItWorks/>
       <FaqSection/>
