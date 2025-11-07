@@ -2,16 +2,17 @@
 import LoginForm from "./LoginForm";
 import Navbar from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
-import { getSetting } from "@/lib/adminServices";
+import { getWebsiteSettings } from "@/lib/adminServices";
 export default async function Login(){
-    const logo=await getSetting('logo')
-    const siteName= await getSetting('siteName')
+    const siteSetting=await getWebsiteSettings()
+    const settings=await JSON.parse(siteSetting.plainsettings)
+    
    return (
     <>
     <div className="bg-gradient-to-br from-indigo-700 via-purple-700 to-pink-600">
-<Navbar logo={logo}/>
+<Navbar logo={settings.logo }/>
     <LoginForm/>
-    <Footer siteName={siteName}/>
+    <Footer siteName={settings.siteName}/>
     </div>
     
     </>

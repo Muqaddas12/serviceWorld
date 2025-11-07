@@ -2,18 +2,15 @@
 
 import clientPromise from "./mongodb";
 import { ObjectId } from "mongodb";
-import fs from 'fs/promises'
-import path from 'path'
 import bcrypt from "bcrypt"; 
+import { cookies } from "next/headers";
+import jwt from 'jsonwebtoken'
 // 🗃️ Database and Collection names
 const DB_SMM_PANEL = "smmpanel";
 const DB_ADMIN = "smmadmin";
 const PAYMENT_COLLECTION = "payment_methods";
 
 const SETTINGS_COLLECTION = "settings";
-
-// 📂 Uploads directory
-const uploadDir = path.join(process.cwd(), "public/uploads");
 
 
 /* -------------------------------------------------------------------------- */
@@ -751,6 +748,92 @@ export async function getAllTickets() {
 
 
 
+
+export async function getUserTickets() {
+  try {
+    // 🍪 Get token from cookies
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+
+    if (!token) {
+      return { error: "Unauthorized. No token found." };
+    }
+
+    // 🔓 Verify and decode JWT
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return { error: "Invalid or expired token." };
+    }
+
+    const userId = decoded.id;
+    const username = decoded.username;
+
+    if (!userId && !username) {
+      return { error: "Invalid token: missing user information." };
+    }
+
+    // 🧩 Connect to DB
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+
+    let query = {};
+
+    // Try matching by userId first
+    if (userId && ObjectId.isValid(userId)) {
+      query.userId = new ObjectId(userId);
+    } else if (username) {
+      // fallback by username
+      query.username = username;
+    }
+
+    // 🔍 Fetch tickets
+    let tickets = await db
+      .collection("tickets")
+      .find(query)
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    // 🧠 If none found with userId, try again by username
+    if (tickets.length === 0 && username && query.userId) {
+      tickets = await db
+        .collection("tickets")
+        .find({ username })
+        .sort({ createdAt: -1 })
+        .toArray();
+    }
+
+    return {
+      success: true,
+      count: tickets.length,
+      tickets: formatTickets(tickets),
+    };
+  } catch (error) {
+    console.error("❌ Error fetching user tickets:", error);
+    return { error: "Failed to fetch user tickets" };
+  }
+}
+
+// 🧩 Helper function to format tickets
+function formatTickets(tickets) {
+  return tickets.map((t) => ({
+    _id: t._id.toString(),
+    username: t.username || "Unknown",
+    userId: t.userId ? t.userId.toString() : null,
+    subject: t.subject || "No subject",
+    message: t.message || "",
+    status: t.status || "open",
+    replies: t.replies || [],
+    created_at: t.createdAt || t.created_at || null,
+    updatedAt: t.updatedAt || null,
+  }));
+}
+
+
+
+
+
 export async function getUnansweredTickets() {
   try {
     const client = await clientPromise;
@@ -790,5 +873,181 @@ export async function getUnansweredTickets() {
   } catch (error) {
     console.error("❌ Error fetching unanswered tickets:", error);
     throw new Error("Failed to fetch unanswered tickets");
+  }
+}
+
+
+
+
+
+export async function replyToTicket({ ticketId, message }) {
+  try {
+    if (!ticketId || !message)
+      return { error: "Missing required fields (ticketId or message)" };
+
+    // 🍪 Get and verify admin token
+    const cookieStore = await cookies()
+   const token= cookieStore.get("token")?.value;
+    if (!token) return { error: "Unauthorized: no token found." };
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      return { error: "Invalid or expired token." };
+    }
+
+    if (decoded.role !== "admin")
+      return { error: "Access denied: only admins can reply." };
+
+    // 🗄️ Connect to database
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+    const tickets = db.collection("tickets");
+
+    // 🧩 Create reply object
+    const reply = {
+      message,
+      type: "admin",
+      sender: decoded.username || "Admin",
+      created_at: new Date(),
+    };
+
+    // 🔄 Update the ticket (append reply + set status)
+    const result = await tickets.updateOne(
+      { _id: new ObjectId(ticketId) },
+      {
+        $push: { replies: reply },
+        $set: { status: "answered", updatedAt: new Date() },
+      }
+    );
+
+    if (result.modifiedCount === 0)
+      return { error: "Failed to update ticket or ticket not found." };
+
+    return {
+      success: true,
+      message: "Reply added successfully.",
+      reply,
+    };
+  } catch (err) {
+    console.error("❌ Error in replyToTicket:", err);
+    return { error: "Server error while replying to ticket." };
+  }
+}
+
+export async function updateAdminReply({ ticketId, newMessage }) {
+  try {
+    if (!ticketId || !newMessage)
+      return { error: "Missing required fields." };
+
+    const token = cookies().get("token")?.value;
+    if (!token) return { error: "Unauthorized: No token found." };
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      return { error: "Invalid or expired token." };
+    }
+
+    if (decoded.role !== "admin")
+      return { error: "Access denied: Only admins can edit replies." };
+
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+
+    const result = await db.collection("tickets").updateOne(
+      { _id: new ObjectId(ticketId), "replies.type": "admin" },
+      {
+        $set: {
+          "replies.$.message": newMessage,
+          "replies.$.updated_at": new Date(),
+          updatedAt: new Date(),
+        },
+      }
+    );
+
+    if (result.modifiedCount === 0)
+      return { error: "Reply not found or update failed." };
+
+    return {
+      success: true,
+      message: "Reply updated successfully.",
+      updatedMessage: newMessage,
+    };
+  } catch (error) {
+    console.error("Error updating admin reply:", error);
+    return { error: "Server error while updating reply." };
+  }
+}
+
+
+
+
+
+
+
+
+
+export async function createTicket({ subject, message }) {
+  try {
+    // 🧠 1. Validate fields
+    if (!subject || !message) {
+      return { error: "Missing required fields." };
+    }
+
+    // 🍪 2. Get token from cookies
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
+    if (!token) return { error: "Unauthorized. No token found." };
+
+    // 🔓 3. Verify and decode JWT
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      return { error: "Invalid or expired token." };
+    }
+
+    const userId = decoded.id;
+    const username = decoded.username;
+    const role = decoded.role || "user"; // optional fallback
+
+    if (!userId && !username)
+      return { error: "Invalid user token. Please log in again." };
+
+    // 🗄️ 4. Connect to database
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+
+    // 🧩 5. Build ticket document
+    const ticket = {
+      userId: userId ? new ObjectId(userId) : null,
+      username: username || "Unknown",
+      subject,
+      message,
+      type: "user", // ✅ added ticket type
+      status: "open",
+      replies: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    // 💾 6. Insert ticket
+    const result = await db.collection("tickets").insertOne(ticket);
+
+    // ✅ 7. Return success response
+    return {
+      success: true,
+      message: "Ticket created successfully.",
+      ticket: {
+        ...ticket,
+        _id: result.insertedId.toString(),
+      },
+    };
+  } catch (error) {
+    console.error("❌ Error creating ticket:", error);
+    return { error: "Failed to create ticket." };
   }
 }

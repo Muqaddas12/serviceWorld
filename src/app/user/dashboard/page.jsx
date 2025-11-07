@@ -3,14 +3,15 @@
 import DashboardOverview from "./DashboardOverview";
 import Loader from "../components/Loader";
 import { getUserDetails } from "@/lib/userActions";
-import { getWebsiteSettings } from "@/lib/getSiteSettings";
+import { getWebsiteSettings } from "@/lib/adminServices";
 
 export default async function DashboardPage() {
     const user=await getUserDetails()
   const data = await getWebsiteSettings();
+  const result=await JSON.parse(data.plainsettings)
     return (
       <>
-        <DashboardOverview user={user} serviceEnabled={data.services} />
+        <DashboardOverview user={user} serviceEnabled={result.services} />
     
 
       </>

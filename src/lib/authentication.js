@@ -104,7 +104,7 @@ export async function loginUser({ email, password, captcha, ip = "127.0.0.1" }) 
     // 🔍 5. Find user
     const user = await db.collection("users").findOne({ email: email.toLowerCase() });
     if (!user) return { error: "Invalid credentials." };
-console.log(user)
+
     // 🧊 6. Check if frozen
     if (user.frozen === true) {
       return { error: "Your account is frozen. Please contact support." };
@@ -113,9 +113,10 @@ console.log(user)
     // 🔑 7. Verify password
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) return { error: "Invalid credentials." };
-
+const id = user._id.toString();
     // 🔒 8. Create JWT token
     const tokenPayload = {
+      id:id,
       username: user.username,
       email: user.email,
       frozen: user?.frozen || false,

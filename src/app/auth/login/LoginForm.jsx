@@ -39,6 +39,7 @@ export default function LoginForm() {
       const res = await loginUser({ ...data, captcha: captchaValue });
       if (res.error) {
         setMessage(res.error);
+        setLoading(false)
         return;
       }
 
@@ -46,6 +47,7 @@ export default function LoginForm() {
       router.push("/user/dashboard");
     } catch (err) {
       setMessage("❌ Login failed");
+      setLoading(false)
     }
     setLoading(false);
   };

@@ -67,7 +67,8 @@ export default function DashboardLayout({ user, serviceEnabled }) {
               <div>
                 <p className="text-[11px] sm:text-sm text-gray-400">Balance</p>
                 <h4 className="text-sm sm:text-lg font-semibold text-yellow-300">
-                  ₹{user?.balance ? user.balance.toFixed(2) : "0.00"}
+                ₹{user?.balance ? Number(user.balance).toFixed(2) : "0.00"}
+
                 </h4>
               </div>
             </div>

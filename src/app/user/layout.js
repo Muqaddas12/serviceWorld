@@ -19,7 +19,7 @@ import {
   uploadProfilePicture,
 } from "@/lib/userActions";
 import { logoutUser } from "@/lib/authentication";
-import { getSetting } from "@/lib/adminServices";
+import { getWebsiteSettings } from "@/lib/adminServices";
 
 export default function Layout({ children }) {
   const [user, setUser] = useState(null);
@@ -49,9 +49,12 @@ export default function Layout({ children }) {
   useEffect(() => {
     const fetchWebsiteName = async () => {
       try {
-        const result = await getSetting('siteName');
-        console.log(result);
-        if (result) setWebsiteName(result);
+        const result = await getWebsiteSettings()
+       
+        const data= await JSON.parse(result.plainsettings)
+
+       
+        if (result.success) setWebsiteName(data.siteName);
       } catch (err) {
         console.error("Error fetching website name:", err);
       }
