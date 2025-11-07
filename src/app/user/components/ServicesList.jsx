@@ -11,6 +11,7 @@ import {
   FaGlobe,
   FaSearch,
 } from "react-icons/fa";
+import { createOrderAction } from "@/lib/userActions";
 
 export default function ServicesList({ services = [] }) {
   // 🔹 Core states
@@ -162,24 +163,15 @@ export default function ServicesList({ services = [] }) {
     setResponseMessage("");
 
     try {
-      const res = await fetch("/api/orders/createorder", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          service: selectedService.service,
-          link,
-          quantity,
-          charge,
-        }),
-        credentials: "include",
-      });
-      const data = await res.json();
+      const service=selectedService.service
+      const res = await createOrderAction(service,link,quantity,charge)
+    
 
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to create order.");
+      if (!res.success) {
+        setResponseMessage('Failed to create order',res?.message||res?.providerError)
       }
 
-      setResponseMessage(`✅ Order created successfully! ID: ${data.orderId}`);
+      setResponseMessage(`✅ Order created successfully! ID: ${res.orderId}`);
       setResponseType("success");
       setLink("");
       setQuantity("");

@@ -5,7 +5,8 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import fs from "fs";
 import path from "path";
-
+import { revalidatePath } from "next/cache";
+import { createOrder } from "./services";
 import crypto from "crypto";
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -185,5 +186,136 @@ export async function generateApiKey() {
   } catch (err) {
     console.error("❌ API key generation failed:", err);
     return { success: false, error: "Failed to generate API key." };
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function createOrderAction(service, link, qua, paying ) {
+  try {
+    // 🧩 1️⃣ Get user token from cookies
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+
+    if (!token) {
+      return { success: false, message: "Unauthorized — please log in first." };
+    }
+
+    // 🧠 2️⃣ Verify JWT token
+    let userData;
+    try {
+      userData = jwt.verify(token, JWT_SECRET);
+    } catch (err) {
+      return { success: false, message: "Invalid or expired token." };
+    }
+
+    // 🧱 3️⃣ Connect to DB
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+    const usersCollection = db.collection("users");
+
+    // 👤 4️⃣ Validate user existence
+    const user = await usersCollection.findOne({ _id: userData.id });
+    if (!user) {
+      return { success: false, message: "User not found." };
+    }
+
+    // 📦 5️⃣ Extract and validate input
+   
+    const quantity = Number(qua);
+    const charge = Number(paying);
+
+    if (!service || !link || !quantity || quantity <= 0) {
+      return {
+        success: false,
+        message: "Invalid input. Ensure service, link, and quantity are provided.",
+      };
+    }
+
+    if (isNaN(charge) || charge <= 0) {
+      return { success: false, message: "Invalid charge amount." };
+    }
+
+    // 💰 6️⃣ Check balance
+    if (user.balance < charge) {
+      return {
+        success: false,
+        message: "Insufficient balance. Please add funds to your account.",
+      };
+    }
+
+    // 🧾 7️⃣ Prepare data for SMM API
+    const orderData = { service, link, quantity };
+
+    // 🌐 8️⃣ Call external API
+    const response = await createOrder(orderData);
+    console.log("📦 SMM API Response:", response);
+
+    if (!response || response.error) {
+      return {
+        success: false,
+        message: "Failed to create order on provider side.",
+        providerError: response?.error || "No response from API.",
+      };
+    }
+
+    // 🧮 9️⃣ Deduct balance securely
+    const updatedBalance = user.balance - charge;
+    await usersCollection.updateOne(
+      { _id: user._id },
+      { $set: { balance: updatedBalance } }
+    );
+
+    // 💾 🔟 Save order in DB
+    const ordersCollection = db.collection("orders");
+    const newOrder = {
+      userId: user._id,
+      service,
+      link,
+      quantity,
+      charge,
+      status: "Processing",
+      startCount: 0,
+      remains: 0,
+      providerOrderId: response.order,
+      createdAt: new Date(),
+    };
+
+    await ordersCollection.insertOne(newOrder);
+
+    // 🔁 11️⃣ Revalidate order page
+ revalidatePath("/user/dashboard");
+
+    // ✅ 12️⃣ Return success
+    return {
+      success: true,
+      message: "Order created successfully!",
+      orderId: response.order,
+      balanceAfter: updatedBalance,
+      details: newOrder,
+    };
+  } catch (err) {
+    console.error("❌ Error creating order:", err);
+
+    return {
+      success: false,
+      message: "Internal server error. Please try again later.",
+      details: err.message,
+    };
   }
 }

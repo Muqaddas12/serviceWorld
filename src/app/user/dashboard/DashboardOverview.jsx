@@ -26,6 +26,7 @@ const Card = ({ children, className = "", onClick }) => (
 
 
 export default function DashboardLayout({ user, serviceEnabled }) {
+  console.log(serviceEnabled)
   const [spent, setSpent] = useState(0);
   const [orders, setOrders] = useState(0);
 

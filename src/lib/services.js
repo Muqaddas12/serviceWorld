@@ -46,8 +46,41 @@ export async function getServices() {
   }
 }
 
-// // ✅ Create an order
-// export const createOrder = (data) => postAction("add", data);
+
+// ✅ Create a new order
+export async function createOrder(data) {
+  try {
+    const { service, link, quantity } = data;
+
+    if (!service || !link || !quantity) {
+      throw new Error("Missing required fields: service, link, or quantity");
+    }
+
+    const params = new URLSearchParams();
+    params.append("key", API_KEY);
+    params.append("action", "add");
+    params.append("service", service);
+    params.append("link", link);
+    params.append("quantity", quantity);
+
+    // 🚀 Send the order to your SMM provider
+    const res = await axios.post(API_URL, params, {
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      timeout: 15000, // 15s timeout
+    });
+
+    // ✅ Return API response
+    return res.data;
+  } catch (error) {
+    console.error("SMM API Order Error:", error.response?.data || error.message);
+
+    return {
+      error: error.response?.data || error.message,
+      success: false,
+    };
+  }
+}
+
 
 // // ✅ Get single order status
 // export const getOrderStatus = (orderId) => postAction("status", { order: orderId });

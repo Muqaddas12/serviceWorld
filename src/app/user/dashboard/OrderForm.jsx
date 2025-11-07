@@ -4,7 +4,7 @@ import { getServices } from "@/lib/services";
 import { useState, useEffect, useRef } from "react";
 import { FaSearch, FaSpinner } from "react-icons/fa";
 import { MdReceipt, MdAccessTime } from "react-icons/md";
-
+import { createOrderAction } from "@/lib/userActions";
 export default function OrderForm() {
   const [category, setCategory] = useState("");
   const [service, setService] = useState("");
@@ -131,19 +131,14 @@ export default function OrderForm() {
     setResponseMessage(null);
 
     try {
-      const res = await fetch("/api/orders/createorder", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ service, link, quantity, charge }),
-        credentials: "include",
-      });
+      const res = await createOrderAction(service,link,quantity,charge)
 
-      const data = await res.json();
-      if (!res.ok) {
+     
+      if (!res.success) {
         setResponseMessage(`❌ ${data.error || "Failed to create order."}`);
         setResponseType("error");
       } else {
-        setResponseMessage(`✅ Order created successfully! ID: ${data.orderId}`);
+        setResponseMessage(`✅ Order created successfully! ID: ${res?.orderId}`);
         setResponseType("success");
         setService("");
         setLink("");

@@ -11,7 +11,7 @@ export default async function DashboardPage() {
   const result=await JSON.parse(data.plainsettings)
     return (
       <>
-        <DashboardOverview user={user} serviceEnabled={result.services} />
+        <DashboardOverview user={user} serviceEnabled={result.servicesEnabled} />
     
 
       </>
