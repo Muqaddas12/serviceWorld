@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -13,9 +14,6 @@ import {
   FileDown,
   FileText,
   FileType,
-  Lock,
-  Ban,
-  Trash2,
   X,
 } from "lucide-react";
 import jsPDF from "jspdf";
@@ -103,21 +101,6 @@ export default function ViewUserDetails({ user }) {
     URL.revokeObjectURL(url);
   };
 
-  // ⚙️ Account Management
-  const handleAction = (type) => {
-    const confirmText =
-      type === "delete"
-        ? "Are you sure you want to permanently delete this account?"
-        : type === "freeze"
-        ? "Freeze this account temporarily?"
-        : "Deactivate this account (user can’t log in)?";
-
-    if (!confirm(confirmText)) return;
-
-    alert(`✅ ${type.toUpperCase()} action triggered for ${user.name}`);
-    // TODO: call your API endpoint for actual action
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0b0b0c] via-[#0e0e0f] to-[#141414] text-gray-100 p-4 sm:p-6 md:p-10">
       {/* Header */}
@@ -193,28 +176,6 @@ export default function ViewUserDetails({ user }) {
             </p>
           </div>
         </div>
-      </div>
-
-      {/* Account Actions */}
-      <div className="flex flex-wrap gap-3 mb-10">
-        <button
-          onClick={() => handleAction("freeze")}
-          className="flex items-center justify-center gap-2 bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/30 text-blue-300 px-4 py-2 rounded-lg transition-all"
-        >
-          <Lock size={16} /> Freeze Account
-        </button>
-        <button
-          onClick={() => handleAction("deactivate")}
-          className="flex items-center justify-center gap-2 bg-yellow-600/30 hover:bg-yellow-600/50 border border-yellow-500/30 text-yellow-300 px-4 py-2 rounded-lg transition-all"
-        >
-          <Ban size={16} /> Deactivate Account
-        </button>
-        <button
-          onClick={() => handleAction("delete")}
-          className="flex items-center justify-center gap-2 bg-red-700/30 hover:bg-red-700/50 border border-red-500/30 text-red-300 px-4 py-2 rounded-lg transition-all"
-        >
-          <Trash2 size={16} /> Delete Account
-        </button>
       </div>
 
       {/* Info Grid */}
