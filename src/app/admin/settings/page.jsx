@@ -20,6 +20,10 @@ export default function SettingsPage() {
           name: "Edit Website",
           onClick: () => router.push("/admin/settings/edit-website"),
         },
+        {
+          name: "Refferal",
+          onClick: () => router.push("/admin/settings/affiliate"),
+        },
       ],
     },
     {

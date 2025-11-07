@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   MdLink,
   MdPercent,
@@ -12,10 +12,31 @@ import {
   MdTouchApp,
 } from "react-icons/md";
 
+import { getAffiliateSettings } from "@/lib/adminServices";
+
 export default function Referral() {
   const [copied, setCopied] = useState(false);
+  const [commissionRate, setCommissionRate] = useState(5);
+  const [minimumPayout, setMinimumPayout] = useState(50);
+  const [loading, setLoading] = useState(true);
 
   const referralLink = "https://website.com/affiliates?ref=2a5afb";
+
+  // 🧠 Load live settings on mount
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const data = await getAffiliateSettings();
+        setCommissionRate(data.commission_rate || 5);
+        setMinimumPayout(data.minimum_payout || 50);
+      } catch (err) {
+        console.error("Failed to load affiliate settings:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSettings();
+  }, []);
 
   const copyLink = async () => {
     try {
@@ -71,7 +92,9 @@ export default function Referral() {
                 <MdPercent className="text-yellow-400" />
                 <span>Commission rate</span>
               </div>
-              <span className="text-yellow-400 font-semibold">5%</span>
+              <span className="text-yellow-400 font-semibold">
+                {loading ? "..." : `${commissionRate}%`}
+              </span>
             </div>
 
             {/* Minimum Payout */}
@@ -80,7 +103,9 @@ export default function Referral() {
                 <MdAttachMoney className="text-yellow-400" />
                 <span>Minimum payout</span>
               </div>
-              <span className="text-yellow-400 font-semibold">$50</span>
+              <span className="text-yellow-400 font-semibold">
+                {loading ? "..." : `$${minimumPayout}`}
+              </span>
             </div>
           </div>
         </div>

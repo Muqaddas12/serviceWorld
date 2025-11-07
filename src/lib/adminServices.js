@@ -5,7 +5,10 @@ import { ObjectId } from "mongodb";
 import bcrypt from "bcrypt"; 
 import { cookies } from "next/headers";
 import jwt from 'jsonwebtoken'
+import { revalidatePath } from 'next/cache'
 
+
+const COLLECTION = "affiliate_settings"
 // 🗃️ Database and Collection names
 const DB_SMM_PANEL = "smmpanel";
 const DB_ADMIN = "smmadmin";
@@ -1298,3 +1301,60 @@ if (payment_type?.toLowerCase() === "bharatpe") {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 🧱 Get current affiliate settings
+export async function getAffiliateSettings() {
+  try {
+    const client = await clientPromise
+    const db = client.db(DB_ADMIN)
+    const settings = await db.collection(COLLECTION).findOne({ _id: "affiliate_settings" })
+
+    // Default if not set yet
+    return settings || { commission_rate: 5, minimum_payout: 50 }
+  } catch (err) {
+    console.error("Failed to fetch affiliate settings:", err)
+    return { commission_rate: 5, minimum_payout: 50 }
+  }
+}
+
+// 🧰 Admin updates settings
+export async function updateAffiliateSettings({ commission_rate, minimum_payout }) {
+  try {
+    const client = await clientPromise
+    const db = client.db(DB_ADMIN)
+
+    await db.collection(COLLECTION).updateOne(
+      { _id: "affiliate_settings" },
+      {
+        $set: {
+          commission_rate: Number(commission_rate),
+          minimum_payout: Number(minimum_payout),
+          updatedAt: new Date(),
+        },
+      },
+      { upsert: true }
+    )
+
+    revalidatePath('/admin/affiliate') // if admin has a page
+    return { success: true }
+  } catch (err) {
+    console.error("Failed to update affiliate settings:", err)
+    return { success: false, error: err.message }
+  }
+}
