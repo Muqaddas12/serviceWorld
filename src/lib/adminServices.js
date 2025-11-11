@@ -476,10 +476,10 @@ export async function getPaymentMethodDetails(id) {
 
 export async function putPaymentMethodDetails(
   type,
-  { merchantId, token, active = true, qrBase64 = null }
+  { merchantId, token, active = true, qrBase64 = null,instruction,Name }
 ) {
   try {
-    if (!type || !merchantId || !token) {
+    if (!type || !merchantId || !token ||!Name || !instruction) {
       return { success: false, error: "Missing required fields" };
     }
 
@@ -492,7 +492,10 @@ export async function putPaymentMethodDetails(
       merchantId: merchantId.trim(),
       token: token.trim(),
       active: Boolean(active),
+      Name:Name,
+      instruction,instruction,
       updatedAt: new Date(),
+
     };
 
     // Only add qrImage if valid base64 provided

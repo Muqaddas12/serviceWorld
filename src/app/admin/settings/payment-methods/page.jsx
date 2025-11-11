@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAllPaymentMethods } from "@/lib/adminServices";
-
+import PaymentMethodPopupModal from "./PaymentMethodPopupModal";
 export default function PaymentMethodsPage() {
   const [methods, setMethods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMethod, setSelectedMethod] = useState(null); // 👈 For popup
+ 
   const router = useRouter();
 
   useEffect(() => {
@@ -56,9 +57,19 @@ export default function PaymentMethodsPage() {
                 key={method._id}
                 className="bg-[#151517] border border-yellow-500/20 rounded-2xl shadow p-5 flex flex-col items-center transition hover:shadow-[0_0_10px_rgba(234,179,8,0.2)]"
               >
-                <h2 className="text-lg font-bold mb-2 text-yellow-400">
-                  {method.type}
-                </h2>
+                 <div className="flex items-center gap-2">
+  <h2 className="text-lg font-bold text-yellow-400">{method.type}</h2>
+  <span
+    className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+      method.active
+        ? "bg-green-500/20 text-green-400 border border-green-500/30"
+        : "bg-red-500/20 text-red-400 border border-red-500/30"
+    }`}
+  >
+    {method.active ? "Active" : "Inactive"}
+  </span>
+</div>
+
                 <p className="text-gray-400 text-sm mb-2 text-center">
                   Merchant ID:{" "}
                   <span className="font-medium text-gray-300">
@@ -98,54 +109,11 @@ export default function PaymentMethodsPage() {
         </div>
       )}
 
-      {/* Popup / Modal */}
-      {selectedMethod && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-[#151517] border border-yellow-500/30 rounded-2xl p-6 w-[90%] sm:w-[400px] relative shadow-lg">
-            <button
-              className="absolute top-3 right-3 text-gray-400 hover:text-yellow-400 text-xl"
-              onClick={() => setSelectedMethod(null)}
-            >
-              ✕
-            </button>
-
-            <h2 className="text-xl font-bold text-yellow-400 mb-4 text-center">
-              {selectedMethod.type} Details
-            </h2>
-
-            <div className="space-y-3 text-sm">
-              <p>
-                <span className="text-yellow-400">Merchant ID:</span>{" "}
-                {selectedMethod.merchantId || "N/A"}
-              </p>
-              <p>
-                <span className="text-yellow-400">Token ID:</span>{" "}
-                {selectedMethod.token || "N/A"}
-              </p>
-              <p>
-                <span className="text-yellow-400">type:</span>{" "}
-                {selectedMethod.type || "N/A"}
-              </p>
-             <p>
-  <span className="text-yellow-400">Updated At:</span>{" "}
-  {selectedMethod.updatedAt
-    ? new Date(selectedMethod.updatedAt).toLocaleString()
-    : "N/A"}
-</p>
-              
-              {selectedMethod.qrImage && (
-                <div className="flex justify-center mt-4">
-                  <img
-                    src={selectedMethod.qrImage}
-                    alt="QR Code"
-                    className="w-40 h-40 object-contain rounded-lg border border-yellow-500/30"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+  {/* Popup Modal */}
+    <PaymentMethodPopupModal
+      selectedMethod={selectedMethod}
+      setSelectedMethod={setSelectedMethod}
+    />
     </div>
   );
 }
