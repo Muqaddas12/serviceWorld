@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import ServicesList from "@/components/ServicesList";
+import ServicesList from "./ServicesList";
 
 export default function ServicesPage() {
   const [services, setServices] = useState([]);
