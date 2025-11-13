@@ -1361,3 +1361,218 @@ export async function updateAffiliateSettings({ commission_rate, minimum_payout 
     return { success: false, error: err.message }
   }
 }
+
+
+
+
+
+
+
+export async function getAllOrdersAction() {
+  try {
+    // 🗄️ Connect DB
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+
+    // ✔ Ensure collection exists first
+    const collections = await db.listCollections().toArray();
+    const collectionExists = collections.some(col => col.name === "orders");
+
+    if (!collectionExists) {
+      return {
+        success: false,
+        message: "No orders found (collection does not exist).",
+        orders: []
+      };
+    }
+
+    const ordersCollection = db.collection("orders");
+
+    // 📦 Fetch all orders (sorted latest first)
+    const orders = await ordersCollection
+      .find({})
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    // ✔ No orders inside collection
+    if (!orders || orders.length === 0) {
+      return {
+        success: false,
+        message: "No orders found.",
+        orders: []
+      };
+    }
+
+    return {
+      success: true,
+      count: orders.length,
+      orders,
+    };
+
+  } catch (err) {
+    console.error("❌ Error fetching orders:", err);
+
+    return {
+      success: false,
+      message: "Internal server error.",
+      details: err.message,
+    };
+  }
+}
+
+
+export async function updateOrderUrlAction(orderId, newUrl) {
+  try {
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+    const ordersCollection = db.collection("orders");
+
+    await ordersCollection.updateOne(
+      { _id: new ObjectId(orderId) },
+      { $set: { link: newUrl } }
+    );
+
+    return { success: true, message: "Order URL updated." };
+  } catch (err) {
+    return { success: false, message: err.message };
+  }
+}
+
+
+
+
+export async function resendOrderAction(orderId) {
+  try {
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+    const ordersCollection = db.collection("orders");
+
+    await ordersCollection.updateOne(
+      { _id: new ObjectId(orderId) },
+      { $set: { status: "pending" } }
+    );
+
+    return { success: true, message: "Order resent successfully!" };
+  } catch (err) {
+    return { success: false, message: err.message };
+  }
+}
+
+
+export async function cancelOrderAction(orderId, reason) {
+  try {
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+    const ordersCollection = db.collection("orders");
+
+    await ordersCollection.updateOne(
+      { _id: new ObjectId(orderId) },
+      {
+        $set: {
+          status: "cancelled",
+          cancelReason: reason,
+        },
+      }
+    );
+
+    return { success: true, message: "Order cancelled successfully." };
+  } catch (err) {
+    return { success: false, message: err.message };
+  }
+}
+
+
+
+
+export async function markPartialAction(orderId, partialQty) {
+  try {
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+    const ordersCollection = db.collection("orders");
+
+    await ordersCollection.updateOne(
+      { _id: new ObjectId(orderId) },
+      {
+        $set: {
+          status: "partial",
+          remains: Number(partialQty),
+        },
+      }
+    );
+
+    return { success: true, message: "Order marked as partial." };
+  } catch (err) {
+    return { success: false, message: err.message };
+  }
+}
+
+
+export async function updateStartCountAction(orderId, startCount) {
+  try {
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+    const ordersCollection = db.collection("orders");
+
+    await ordersCollection.updateOne(
+      { _id: new ObjectId(orderId) },
+      { $set: { startCount: Number(startCount) } }
+    );
+
+    return { success: true, message: "Start count updated." };
+  } catch (err) {
+    return { success: false, message: err.message };
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function addTestOrdersAction() {
+  try {
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+    const ordersCollection = db.collection("orders");
+
+    // Generate 20 fake orders
+    const fakeOrders = Array.from({ length: 20 }, (_, i) => ({
+      userId: `user_${1000 + (i % 10)}`,
+      service: `Instagram Likes Package #${i + 1}`,
+      link: `https://instagram.com/post/${i + 1}`,
+      quantity: Math.floor(Math.random() * 1000) + 100,
+      charge: Number((Math.random() * 10).toFixed(5)),
+      startCount: 3000 + Math.floor(Math.random() * 1000),
+      remains: Math.floor(Math.random() * 200),
+      status: ["confirm", "partial", "pending", "cancelled"][Math.floor(Math.random() * 4)],
+      providerOrderId: `prov_${Math.floor(Math.random() * 999999)}`,
+      createdAt: new Date(),
+    }));
+
+    // Insert into DB
+    const result = await ordersCollection.insertMany(fakeOrders);
+
+    return {
+      success: true,
+      message: "20 test orders added successfully!",
+      inserted: result.insertedCount,
+    };
+
+  } catch (err) {
+    console.error("❌ Error inserting test orders:", err);
+
+    return {
+      success: false,
+      message: "Failed to insert test orders.",
+      error: err.message,
+    };
+  }
+}
