@@ -1,7 +1,7 @@
 // app/user/layout.js
 import { getWebsiteSettings } from "@/lib/adminServices";
 import { getUserDetails } from "@/lib/userActions";
-import Page from "@/app/user/components/layout/Page";
+import Page from "./components/layout/page";
 
 export default async function UserLayout({ children }) {
   // 🧩 Server-side fetches
