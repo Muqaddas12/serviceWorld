@@ -1,3 +1,4 @@
+'use server'
 import Link from "next/link";
 import { getChildPanels } from "@/lib/adminServices";
 import { FaCog } from "react-icons/fa";

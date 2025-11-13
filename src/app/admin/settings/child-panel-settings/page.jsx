@@ -1,3 +1,4 @@
+'use server'
 import { getChildPanelSettings } from "@/lib/adminServices";
 import ChildPanel from "./ChildPanel";
 
