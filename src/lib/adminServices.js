@@ -773,10 +773,10 @@ export async function getUserTickets() {
     } catch (err) {
       return { error: "Invalid or expired token." };
     }
-console.log(decoded)
+
     const userId = decoded.id;
     const username = decoded.username;
-console.log(userId)
+
     if (!userId && !username) {
       return { error: "Invalid token: missing user information." };
     }
