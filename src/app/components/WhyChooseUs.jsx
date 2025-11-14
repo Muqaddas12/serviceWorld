@@ -29,12 +29,40 @@ export default function WhyChooseUs() {
   return (
     <section
       id="why-choose"
-      className="
-                 
-                 px-6 md:px-12  "
+      className="relative px-6 md:px-12 overflow-hidden"
     >
+      {/* ✨ Moving Gold Particles Background */}
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        {[...Array(45)].map((_, i) => {
+          const size = Math.random() * 3 + 2; // 2px - 5px
+          const startX = Math.random() * 100;
+          const startY = Math.random() * 100;
+          const endX = Math.random() * 100;
+          const endY = Math.random() * 100;
+
+          return (
+            <motion.span
+              key={i}
+              initial={{ opacity: 0, x: `${startX}vw`, y: `${startY}vh` }}
+              animate={{
+                opacity: [0.1, 0.8, 0.1],
+                x: [`${startX}vw`, `${endX}vw`, `${startX}vw`],
+                y: [`${startY}vh`, `${endY}vh`, `${startY}vh`],
+              }}
+              transition={{
+                duration: 15 + Math.random() * 15,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+              className="absolute bg-yellow-400 rounded-full blur-[2px]"
+              style={{ width: size, height: size }}
+            />
+          );
+        })}
+      </div>
+
       {/* ⭐ Heading */}
-      <div className="text-center mb-12">
+      <div className="text-center mb-12 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -63,16 +91,15 @@ export default function WhyChooseUs() {
       </div>
 
       {/* ⭐ Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
         {items.map((item, index) => (
           <motion.div
             key={index}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: index * 0.1 }}
-            className="bg-[#151517] border border-yellow-500/20 p-6 rounded-2xl
-                       shadow-[0_0_25px_rgba(255,221,64,0.1)]
-                       hover:shadow-[0_0_30px_rgba(255,221,64,0.3)]
+            className="
+                      
                        transition-all duration-300 text-center 
                        flex flex-col items-center"
           >

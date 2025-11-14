@@ -6,9 +6,39 @@ import { MdHomeRepairService } from "react-icons/md";
 
 export default function HowItWorks() {
   return (
-    <section className="relative bg-[#0e0e0f] text-gray-300 py-24 overflow-hidden">
+    <section className="relative text-gray-300 py-24">
       
-      {/* 🔥 Golden Glow Background */}
+      {/* ✨ Floating Golden Particles */}
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        {[...Array(45)].map((_, i) => {
+          const size = Math.random() * 3 + 2;
+          const startX = Math.random() * 100;
+          const startY = Math.random() * 100;
+          const endX = Math.random() * 100;
+          const endY = Math.random() * 100;
+
+          return (
+            <motion.span
+              key={i}
+              initial={{ opacity: 0, x: `${startX}vw`, y: `${startY}vh` }}
+              animate={{
+                opacity: [0.1, 1, 0.1],
+                x: [`${startX}vw`, `${endX}vw`, `${startX}vw`],
+                y: [`${startY}vh`, `${endY}vh`, `${startY}vh`],
+              }}
+              transition={{
+                duration: 12 + Math.random() * 10,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+              className="absolute bg-yellow-400 rounded-full blur-[2px]"
+              style={{ width: size, height: size }}
+            />
+          );
+        })}
+      </div>
+
+      {/* Golden Glow Background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute w-[400px] h-[400px] bg-yellow-500/20 rounded-full blur-[140px] top-10 left-10 animate-pulse" />
         <div className="absolute w-[600px] h-[600px] bg-yellow-600/20 rounded-full blur-[180px] bottom-0 right-0 animate-pulse delay-1000" />
@@ -85,7 +115,7 @@ function Step({ icon, title, text, delay }) {
           animate={{
             boxShadow: [
               "0 0 20px rgba(255,221,64,0.3)",
-              "0 0 35px rgba(255,221,64,0.5)",
+              "0 0 35px rgba(255,221,64,0.6)",
               "0 0 20px rgba(255,221,64,0.3)",
             ],
           }}
@@ -94,7 +124,7 @@ function Step({ icon, title, text, delay }) {
           {icon}
         </motion.div>
 
-        {/* Rotating thin ring */}
+        {/* Rotating ring */}
         <motion.span
           className="absolute inset-0 rounded-full border border-yellow-500/30"
           animate={{ rotate: 360 }}
@@ -116,7 +146,6 @@ function Step({ icon, title, text, delay }) {
 function AnimatedConnector() {
   return (
     <div className="hidden md:flex items-center justify-center w-20 h-[2px] relative">
-      {/* Glowing line */}
       <motion.div
         className="absolute w-full h-[3px] 
                    bg-gradient-to-r from-yellow-500 via-yellow-300 to-yellow-500 rounded-full"
@@ -125,7 +154,6 @@ function AnimatedConnector() {
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* Moving dot */}
       <motion.div
         className="absolute w-4 h-4 
                    bg-gradient-to-r from-yellow-600 to-yellow-400 

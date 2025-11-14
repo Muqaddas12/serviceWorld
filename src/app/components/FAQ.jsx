@@ -46,9 +46,39 @@ export default function FaqSection() {
   return (
     <section
       id="faqSection"
-      className="relative py-20 px-6 bg-[#0e0e0f] overflow-hidden rounded-3xl shadow-[0_0_40px_rgba(255,221,64,0.1)] mt-20"
+      className="relative py-20 px-6 "
     >
-      {/* 🔥 Golden Glow Background */}
+      {/* ✨ Floating Golden Particles */}
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        {[...Array(50)].map((_, i) => {
+          const size = Math.random() * 3 + 2;
+          const startX = Math.random() * 100;
+          const startY = Math.random() * 100;
+          const endX = Math.random() * 100;
+          const endY = Math.random() * 100;
+
+          return (
+            <motion.span
+              key={i}
+              initial={{ opacity: 0, x: `${startX}vw`, y: `${startY}vh` }}
+              animate={{
+                opacity: [0.15, 1, 0.15],
+                x: [`${startX}vw`, `${endX}vw`, `${startX}vw`],
+                y: [`${startY}vh`, `${endY}vh`, `${startY}vh`],
+              }}
+              transition={{
+                duration: 12 + Math.random() * 6,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+              className="absolute bg-yellow-400 rounded-full blur-[2px]"
+              style={{ width: size, height: size }}
+            />
+          );
+        })}
+      </div>
+
+      {/* Yellow Glow Background */}
       <div className="absolute -top-32 -right-32 w-[400px] h-[400px] bg-yellow-500/20 rounded-full blur-[130px] opacity-30 -z-10"></div>
 
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -65,9 +95,9 @@ export default function FaqSection() {
           </h2>
 
           <p className="text-gray-400 text-base leading-relaxed">
-            Our SMM Panel allows you to purchase real engagement including 
+            Our SMM Panel allows you to purchase real engagement including
             followers, likes, views, and more.  
-            Here are answers to the most common questions to help you understand 
+            Here are answers to the most common questions to help you understand
             how the{" "}
             <span className="font-semibold text-yellow-400">
               Cheapest SMM Panel
