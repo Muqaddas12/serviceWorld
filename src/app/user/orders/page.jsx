@@ -47,26 +47,26 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F1117] text-gray-200 p-4 md:p-6">
+    <div className="min-h-screen bg-gray-100 dark:bg-[#0F1117] text-gray-800 dark:text-gray-200 p-4 md:p-6">
 
-      {/* 🔵 Filter Bar */}
+      {/* ░ FILTER BAR ░ */}
       <OrderFilter
         statusFilter={statusFilter}
         handleStatusFilter={handleStatusFilter}
       />
 
-      {/* 🔄 Loading */}
+      {/* ░ LOADING STATE ░ */}
       {loading ? (
-        <div className="text-center py-10 text-gray-400 font-medium flex flex-col items-center">
-          <FaSpinner className="animate-spin text-3xl mb-2 text-[#4A6CF7]" />
-          Loading orders...
+        <div className="text-center py-10 flex flex-col items-center">
+          <FaSpinner className="animate-spin text-3xl mb-2 text-gray-500 dark:text-gray-400" />
+          <p className="text-gray-600 dark:text-gray-400">Loading orders...</p>
         </div>
       ) : filteredOrders.length === 0 ? (
-        
-        /* ❗ No Orders Found */
-        <div className="text-center py-10 text-gray-400 font-medium flex flex-col items-center">
-          <FaClipboardList className="text-3xl mb-2 text-gray-500" />
-          <p>No orders found.</p>
+
+        /* ░ EMPTY STATE ░ */
+        <div className="text-center py-10 flex flex-col items-center">
+          <FaClipboardList className="text-3xl mb-3 text-gray-500 dark:text-gray-500" />
+          <p className="text-gray-600 dark:text-gray-400">No orders found.</p>
         </div>
 
       ) : (

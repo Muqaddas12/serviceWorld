@@ -8,13 +8,16 @@ import {
   FaLayerGroup,
 } from "react-icons/fa";
 
+/* Neutral Gray Icons */
 const STATUS_ICONS = {
-  Pending: <FaClock className="inline mr-1 text-[#4A6CF7]" />,
-  Completed: <FaCheckCircle className="inline mr-1 text-[#16D1A5]" />,
-  Processing: <FaSpinner className="inline animate-spin mr-1 text-[#4A6CF7]" />,
-  Canceled: <FaTimesCircle className="inline mr-1 text-red-400" />,
-  Partial: <FaBolt className="inline mr-1 text-yellow-400" />,
-  Inprogress: <FaLayerGroup className="inline mr-1 text-gray-300" />,
+  Pending: <FaClock className="inline mr-1 text-gray-500 dark:text-gray-300" />,
+  Completed: <FaCheckCircle className="inline mr-1 text-green-500 dark:text-green-400" />,
+  Processing: (
+    <FaSpinner className="inline animate-spin mr-1 text-gray-500 dark:text-gray-300" />
+  ),
+  Canceled: <FaTimesCircle className="inline mr-1 text-red-400 dark:text-red-400" />,
+  Partial: <FaBolt className="inline mr-1 text-yellow-500 dark:text-yellow-400" />,
+  Inprogress: <FaLayerGroup className="inline mr-1 text-gray-400 dark:text-gray-300" />,
 };
 
 export default function OrderFilter({ statusFilter, handleStatusFilter }) {
@@ -32,14 +35,17 @@ export default function OrderFilter({ statusFilter, handleStatusFilter }) {
             className={`
               px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 
               transition-all duration-300 border
+
               ${
                 isActive
-                  ? "bg-[#4A6CF7]/20 border-[#4A6CF7] text-[#4A6CF7] shadow-[0_0_12px_rgba(74,108,247,0.3)] scale-[1.05]"
-                  : "bg-[#1A1F2B] border border-[#2B3143] text-gray-300 hover:border-[#4A6CF7] hover:text-[#4A6CF7]"
+                  ? "bg-gray-300 dark:bg-gray-700 border-gray-500 dark:border-gray-500 text-gray-900 dark:text-gray-200 shadow-sm"
+                  : "bg-gray-200 dark:bg-[#1A1F2B] border border-gray-300 dark:border-[#2B3143] text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700"
               }
             `}
           >
-            {STATUS_ICONS[status] || <FaClipboardList className="text-gray-400" />} 
+            {STATUS_ICONS[status] || (
+              <FaClipboardList className="text-gray-500 dark:text-gray-300" />
+            )}
             {status}
           </button>
         );

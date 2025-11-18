@@ -26,7 +26,6 @@ export default function TicketForm({ setTicketList }) {
       }
 
       alert("✅ " + res.message);
-
       setTicketList((prev) => [res.ticket, ...prev]);
 
       setSubject("");
@@ -42,10 +41,10 @@ export default function TicketForm({ setTicketList }) {
   return (
     <div
       className="
-        bg-[#161617]/90 
-        border border-[#4A6CF7]/30 
+        bg-white dark:bg-[#1A1F2B]
+        border border-gray-300 dark:border-[#2B3143]
         rounded-2xl 
-        shadow-[0_0_18px_rgba(74,108,247,0.25)] 
+        shadow-md dark:shadow-lg 
         overflow-hidden
       "
     >
@@ -53,9 +52,9 @@ export default function TicketForm({ setTicketList }) {
       <div
         className="
           flex items-center gap-2 
-          bg-gradient-to-r from-[#4A6CF7] to-[#16D1A5] 
-          p-4 text-black font-semibold text-lg 
-          shadow-[0_0_10px_rgba(74,108,247,0.6)]
+          bg-gray-200 dark:bg-gray-700
+          text-gray-900 dark:text-gray-100
+          p-4 font-semibold text-lg
         "
       >
         <FaTicketAlt /> New Ticket
@@ -67,33 +66,32 @@ export default function TicketForm({ setTicketList }) {
           
           {/* Subject */}
           <div>
-            <label className="block text-gray-300 font-medium mb-1">
+            <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">
               Subject
             </label>
             <select
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               className="
-                w-full bg-[#0e0e0f] text-gray-100 
-                border border-[#4A6CF7]/40 
+                w-full bg-gray-100 dark:bg-[#0E0F13] 
+                text-gray-900 dark:text-gray-200
+                border border-gray-300 dark:border-[#2B3143]
                 rounded-lg p-3 
-                focus:ring-2 focus:ring-[#4A6CF7] 
-                transition
+                focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-600
+                outline-none transition
               "
             >
               <option value="">Select subject</option>
               <option value="Order">Order</option>
               <option value="Payment">Payment</option>
-              <option value="Complaint & Suggestion">
-                Complaint & Suggestion
-              </option>
+              <option value="Complaint & Suggestion">Complaint & Suggestion</option>
               <option value="Others">Others</option>
             </select>
           </div>
 
           {/* Message */}
           <div>
-            <label className="block text-gray-300 font-medium mb-1">
+            <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">
               Message
             </label>
             <textarea
@@ -101,26 +99,27 @@ export default function TicketForm({ setTicketList }) {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               className="
-                w-full bg-[#0e0e0f] text-gray-100 
-                border border-[#4A6CF7]/40 
+                w-full bg-gray-100 dark:bg-[#0E0F13] 
+                text-gray-900 dark:text-gray-200
+                border border-gray-300 dark:border-[#2B3143]
                 rounded-lg p-3 
-                focus:ring-2 focus:ring-[#4A6CF7] 
-                resize-none 
-                transition
+                focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-600
+                resize-none transition outline-none
               "
             ></textarea>
           </div>
 
-          {/* Button */}
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
             className={`
-              w-full font-semibold py-3 rounded-xl transition text-black
+              w-full font-semibold py-3 rounded-xl transition
+              text-white
               ${
                 loading
-                  ? "bg-[#4A6CF7]/40 cursor-not-allowed"
-                  : "bg-gradient-to-r from-[#4A6CF7] to-[#16D1A5] hover:shadow-[0_0_20px_rgba(74,108,247,0.35)]"
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 shadow-md"
               }
             `}
           >
