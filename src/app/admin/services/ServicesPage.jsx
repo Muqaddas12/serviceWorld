@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { FaSearch, FaTimes } from "react-icons/fa";
 
 export default function ServicesPage({ services }) {
@@ -8,16 +8,7 @@ export default function ServicesPage({ services }) {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedService, setSelectedService] = useState(null);
 
-  // 🌗 ONLY READ DARK MODE FROM LOCAL STORAGE
-  const [theme, setTheme] = useState("dark");
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") || "dark";
-    setTheme(savedTheme);
-    document.documentElement.classList.toggle("dark", savedTheme === "dark");
-  }, []);
-
-  // 🔍 Filter logic
+  // Filtering logic
   const filtered = useMemo(() => {
     return services.filter((srv) => {
       const s = search.toLowerCase();
@@ -35,7 +26,7 @@ export default function ServicesPage({ services }) {
     });
   }, [search, selectedCategory, services]);
 
-  // 🗂️ Group by category
+  // Group by category
   const grouped = useMemo(() => {
     const groups = {};
     filtered.forEach((srv) => {
@@ -46,51 +37,44 @@ export default function ServicesPage({ services }) {
     return groups;
   }, [filtered]);
 
-  // 📊 Category dropdown list
   const allCategories = [
     "All",
     ...new Set(services.map((s) => s.category).filter(Boolean)),
   ];
 
   return (
-    <div
-      className={`min-h-screen ${
-        theme === "dark"
-          ? "bg-[#0e0e0f] text-gray-300"
-          : "bg-gray-100 text-gray-900"
-      } px-3 sm:px-6 lg:px-10 py-8 transition-all duration-300`}
-    >
+    <div className="min-h-screen px-3 sm:px-6 lg:px-10 py-8 bg-gray-100 text-gray-800 dark:bg-[#0F1117] dark:text-gray-200 transition-all">
+
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-2xl font-bold text-yellow-500 tracking-wide">
+        
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
           All Services
         </h1>
 
-        {/* Search */}
+        {/* 🔍 Search */}
         <div className="relative w-full sm:w-1/3">
-          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-yellow-400" />
+          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
+          
           <input
             type="text"
             placeholder="Search services..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className={`w-full ${
-              theme === "dark"
-                ? "bg-[#151517] border border-yellow-500/20 text-gray-200"
-                : "bg-white border border-gray-300 text-gray-800"
-            } rounded-lg py-2 pl-9 pr-3 text-sm focus:ring-2 focus:ring-yellow-500 outline-none`}
+            className="w-full rounded-lg py-2 pl-9 pr-3 text-sm outline-none
+              bg-white border border-gray-300 text-gray-800 focus:ring-2 focus:ring-gray-400
+              dark:bg-[#1A1C1F] dark:border-gray-700 dark:text-gray-200 dark:focus:ring-gray-600"
           />
         </div>
 
-        {/* Category filter */}
+        {/* Category Filter */}
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          className={`rounded-lg py-2 px-3 text-sm focus:ring-2 focus:ring-yellow-500 w-full sm:w-auto ${
-            theme === "dark"
-              ? "bg-[#151517] border border-yellow-500/20 text-gray-300"
-              : "bg-white border border-gray-300 text-gray-800"
-          }`}
+          className="rounded-lg py-2 px-3 text-sm outline-none
+            bg-white border border-gray-300 text-gray-800 focus:ring-2 focus:ring-gray-400
+            dark:bg-[#1A1C1F] dark:border-gray-700 dark:text-gray-300 dark:focus:ring-gray-600
+            w-full sm:w-auto"
         >
           {allCategories.map((cat, i) => (
             <option key={i} value={cat}>
@@ -100,23 +84,15 @@ export default function ServicesPage({ services }) {
         </select>
       </div>
 
-      {/* TABLE */}
-      <div
-        className={`rounded-2xl shadow-lg overflow-hidden border ${
-          theme === "dark"
-            ? "bg-[#151517] border-yellow-500/20"
-            : "bg-white border-gray-300"
-        }`}
-      >
+      {/* TABLE WRAPPER */}
+      <div className="rounded-2xl shadow-lg overflow-hidden border
+        bg-white border-gray-300
+        dark:bg-[#1A1C1F] dark:border-gray-700">
+
+        {/* DESKTOP TABLE */}
         <div className="hidden md:block overflow-x-auto">
-          <table className="min-w-full text-sm border-collapse">
-            <thead
-              className={`border-b ${
-                theme === "dark"
-                  ? "bg-[#1a1a1c] text-yellow-400 border-yellow-500/20"
-                  : "bg-gray-200 text-black border-gray-300"
-              }`}
-            >
+          <table className="min-w-full text-sm">
+            <thead className="border-b bg-gray-200 text-gray-900 border-gray-300 dark:bg-[#1E1F23] dark:text-gray-200 dark:border-gray-700">
               <tr>
                 <th className="px-4 py-3 text-left">ID</th>
                 <th className="px-4 py-3 text-left">Service</th>
@@ -128,11 +104,10 @@ export default function ServicesPage({ services }) {
               </tr>
             </thead>
 
-            {/* ONLY ONE TBODY */}
             <tbody>
               {Object.keys(grouped).length === 0 && (
                 <tr>
-                  <td colSpan={7} className="text-center py-10">
+                  <td colSpan={7} className="text-center py-10 text-gray-500 dark:text-gray-400">
                     No services found.
                   </td>
                 </tr>
@@ -140,57 +115,49 @@ export default function ServicesPage({ services }) {
 
               {Object.keys(grouped).map((category) => (
                 <React.Fragment key={category}>
-                  {/* CATEGORY HEADER ROW */}
-                  <tr
-                    key={`cat-${category}`}
-                    className={
-                      theme === "dark"
-                        ? "bg-[#1a1a1c] text-yellow-400"
-                        : "bg-gray-200 text-gray-900"
-                    }
-                  >
-                    <td
-                      colSpan={7}
-                      className="px-4 py-3 font-bold text-lg tracking-wide"
-                    >
+                  
+                  {/* Category Row */}
+                  <tr className="bg-gray-200 text-gray-800 dark:bg-[#1E1F23] dark:text-gray-200">
+                    <td colSpan={7} className="px-4 py-3 font-bold text-lg">
                       {category}
                     </td>
                   </tr>
 
-                  {/* SERVICE ROWS */}
+                  {/* Service Rows */}
                   {grouped[category].map((srv) => (
                     <tr
-                      key={`srv-${category}-${srv.service}`}
-                      className={`border-b transition-all ${
-                        theme === "dark"
-                          ? "border-yellow-500/10 hover:bg-yellow-500/10"
-                          : "border-gray-300 hover:bg-gray-100"
-                      }`}
+                      key={srv.service}
+                      className="border-b transition
+                        border-gray-300 hover:bg-gray-100
+                        dark:border-gray-700 dark:hover:bg-gray-800"
                     >
                       <td className="px-4 py-3">{srv.service}</td>
-                      <td className="px-4 py-3 font-semibold text-yellow-500">
-                        {srv.name}
-                      </td>
-                      <td className="px-4 py-3 text-green-500 font-semibold">
-                        ₹{srv.rate}
-                      </td>
+                      <td className="px-4 py-3">{srv.name}</td>
+                      <td className="px-4 py-3">₹{srv.rate}</td>
                       <td className="px-4 py-3">{srv.min}</td>
                       <td className="px-4 py-3">{srv.max}</td>
+
+                      {/* Status Badge */}
                       <td className="px-4 py-3">
                         <span
-                          className={`px-2 py-1 text-xs rounded-full ${
-                            srv.status === "Enabled"
-                              ? "bg-green-500/20 text-green-400"
-                              : "bg-red-500/20 text-red-400"
-                          }`}
+                          className={`px-2 py-1 text-xs rounded-md
+                            ${srv.status === "Enabled"
+                              ? "bg-green-300/20 text-green-600 dark:bg-green-900/30 dark:text-green-300"
+                              : "bg-red-300/20 text-red-600 dark:bg-red-900/30 dark:text-red-300"
+                            }`}
                         >
                           {srv.status}
                         </span>
                       </td>
+
+                      {/* View Button */}
                       <td className="px-4 py-3 text-center">
                         <button
                           onClick={() => setSelectedService(srv)}
-                          className="px-4 py-1 text-xs bg-yellow-500/20 border border-yellow-500/30 rounded-lg text-yellow-500 hover:bg-yellow-500/30 transition"
+                          className="px-4 py-1 text-xs border rounded-md
+                            border-gray-400 text-gray-700 hover:bg-gray-200
+                            dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700
+                            transition"
                         >
                           View
                         </button>
@@ -207,45 +174,30 @@ export default function ServicesPage({ services }) {
         <div className="md:hidden">
           {Object.keys(grouped).map((category) => (
             <div key={category}>
-              <h2
-                className={`px-4 py-3 font-bold ${
-                  theme === "dark"
-                    ? "bg-[#1a1a1c] text-yellow-400"
-                    : "bg-gray-200 text-gray-900"
-                }`}
-              >
+              
+              <h2 className="px-4 py-3 font-bold bg-gray-200 text-gray-800 dark:bg-[#1E1F23] dark:text-gray-200">
                 {category}
               </h2>
 
               {grouped[category].map((srv) => (
                 <div
-                  key={`${category}-${srv.service}`}
-                  className={`p-4 border-b ${
-                    theme === "dark"
-                      ? "border-yellow-500/10 hover:bg-[#1a1a1c]"
-                      : "border-gray-300 hover:bg-gray-100"
-                  }`}
+                  key={srv.service}
+                  className="p-4 border-b
+                    border-gray-300 hover:bg-gray-100
+                    dark:border-gray-700 dark:hover:bg-gray-800"
                 >
-                  <h3 className="font-semibold text-lg text-yellow-500">
-                    {srv.name}
-                  </h3>
-
+                  <h3 className="font-semibold text-lg">{srv.name}</h3>
+                  <p className="text-sm">ID: {srv.service}</p>
+                  <p className="text-sm">Rate: ₹{srv.rate}</p>
                   <p className="text-sm">
-                    <span className="text-yellow-500">ID:</span> {srv.service}
-                  </p>
-
-                  <p className="text-sm text-green-500">
-                    <span className="text-yellow-500">Rate:</span> ₹{srv.rate}
-                  </p>
-
-                  <p className="text-sm">
-                    <span className="text-yellow-500">Min:</span> {srv.min} |
-                    <span className="text-yellow-500"> Max:</span> {srv.max}
+                    Min: {srv.min} | Max: {srv.max}
                   </p>
 
                   <button
                     onClick={() => setSelectedService(srv)}
-                    className="mt-2 px-3 py-1 text-xs bg-yellow-500/20 border border-yellow-500/30 rounded-lg text-yellow-500 hover:bg-yellow-500/30"
+                    className="mt-2 px-3 py-1 text-xs border rounded-md
+                      border-gray-400 hover:bg-gray-200
+                      dark:border-gray-600 dark:hover:bg-gray-700"
                   >
                     View Details
                   </button>
@@ -258,22 +210,19 @@ export default function ServicesPage({ services }) {
 
       {/* MODAL */}
       {selectedService && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-          <div
-            className={`max-w-lg w-full p-6 rounded-2xl shadow-lg border relative ${
-              theme === "dark"
-                ? "bg-[#151517] border-yellow-500/30"
-                : "bg-white border-gray-300"
-            }`}
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="max-w-lg w-full p-6 rounded-2xl shadow-lg border
+            bg-white border-gray-300 text-gray-800
+            dark:bg-[#1A1C1F] dark:border-gray-700 dark:text-gray-200 relative"
           >
             <button
               onClick={() => setSelectedService(null)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-yellow-500"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
             >
               <FaTimes size={20} />
             </button>
 
-            <h2 className="text-2xl font-bold text-yellow-500 mb-3">
+            <h2 className="text-2xl font-semibold mb-3">
               {selectedService.name}
             </h2>
 
@@ -282,30 +231,18 @@ export default function ServicesPage({ services }) {
             </p>
 
             <div className="space-y-2 text-sm">
-              <p>
-                <span className="font-medium text-yellow-500">Category:</span>{" "}
-                {selectedService.category}
-              </p>
-              <p>
-                <span className="font-medium text-yellow-500">Rate:</span> ₹
-                {selectedService.rate}
-              </p>
-              <p>
-                <span className="font-medium text-yellow-500">Min:</span>{" "}
-                {selectedService.min} |{" "}
-                <span className="font-medium">Max:</span>{" "}
-                {selectedService.max}
-              </p>
-              <p>
-                <span className="font-medium text-yellow-500">Status:</span>{" "}
-                {selectedService.status}
-              </p>
+              <p><strong>Category:</strong> {selectedService.category}</p>
+              <p><strong>Rate:</strong> ₹{selectedService.rate}</p>
+              <p><strong>Min:</strong> {selectedService.min} | <strong>Max:</strong> {selectedService.max}</p>
+              <p><strong>Status:</strong> {selectedService.status}</p>
             </div>
 
             <div className="mt-6 flex justify-end">
               <button
                 onClick={() => setSelectedService(null)}
-                className="px-5 py-2 bg-yellow-500/20 border border-yellow-500/30 rounded-lg text-yellow-500 hover:bg-yellow-500/30 transition"
+                className="px-5 py-2 rounded-md border
+                  border-gray-400 text-gray-700 hover:bg-gray-200
+                  dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 transition"
               >
                 Close
               </button>
@@ -313,6 +250,7 @@ export default function ServicesPage({ services }) {
           </div>
         </div>
       )}
+
     </div>
   );
 }

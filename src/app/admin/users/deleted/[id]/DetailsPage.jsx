@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -13,9 +14,6 @@ import {
   FileDown,
   FileText,
   FileType,
-  Lock,
-  Ban,
-  Trash2,
   X,
 } from "lucide-react";
 import jsPDF from "jspdf";
@@ -28,14 +26,14 @@ export default function DetailsPage({ user }) {
 
   if (error)
     return (
-      <div className="flex items-center justify-center min-h-screen text-red-400 text-lg p-4 text-center">
+      <div className="flex items-center justify-center min-h-screen text-red-500 text-lg">
         {error}
       </div>
     );
 
   if (!user)
     return (
-      <div className="flex items-center justify-center min-h-screen text-yellow-400 text-lg p-4 text-center">
+      <div className="flex items-center justify-center min-h-screen text-gray-500 text-lg">
         Loading user...
       </div>
     );
@@ -43,38 +41,30 @@ export default function DetailsPage({ user }) {
   const profilePic =
     user.profilePic || user.avatar || user.image || user.photo || null;
 
-  // 🟡 Export as JSON
+  // JSON Export
   const exportAsJSON = () => {
     const blob = new Blob([JSON.stringify(user, null, 2)], {
       type: "application/json",
     });
-    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.href = url;
+    link.href = URL.createObjectURL(blob);
     link.download = `${user.name || "user-details"}.json`;
     link.click();
-    URL.revokeObjectURL(url);
   };
 
-  // 🔵 Export as PDF
+  // PDF Export
   const exportAsPDF = () => {
     const doc = new jsPDF();
-    doc.setFontSize(14);
     doc.text("User Details", 14, 20);
-    doc.setFontSize(10);
     let y = 30;
     for (const [key, value] of Object.entries(user)) {
       doc.text(`${key}: ${String(value)}`, 14, y);
-      y += 8;
-      if (y > 280) {
-        doc.addPage();
-        y = 20;
-      }
+      y += 7;
     }
     doc.save(`${user.name || "user-details"}.pdf`);
   };
 
-  // 🔴 Export as Word
+  // Word Export
   const exportAsWord = async () => {
     const paragraphs = [
       new Paragraph({
@@ -83,67 +73,45 @@ export default function DetailsPage({ user }) {
       ...Object.entries(user).map(
         ([key, value]) =>
           new Paragraph({
-            children: [
-              new TextRun({
-                text: `${key}: ${String(value)}`,
-                size: 24,
-              }),
-            ],
+            children: [new TextRun({ text: `${key}: ${String(value)}` })],
           })
       ),
     ];
 
     const doc = new Document({ sections: [{ children: paragraphs }] });
     const blob = await Packer.toBlob(doc);
-    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.href = url;
+    link.href = URL.createObjectURL(blob);
     link.download = `${user.name || "user-details"}.docx`;
     link.click();
-    URL.revokeObjectURL(url);
-  };
-
-  // ⚙️ Account Management
-  const handleAction = (type) => {
-    const confirmText =
-      type === "delete"
-        ? "Are you sure you want to permanently delete this account?"
-        : type === "freeze"
-        ? "Freeze this account temporarily?"
-        : "Deactivate this account (user can’t log in)?";
-
-    if (!confirm(confirmText)) return;
-
-    alert(`✅ ${type.toUpperCase()} action triggered for ${user.name}`);
-    // TODO: call your API endpoint for actual action
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0b0b0c] via-[#0e0e0f] to-[#141414] text-gray-100 p-4 sm:p-6 md:p-10">
+    <div className="min-h-screen bg-gray-100 dark:bg-[#0F1117] text-gray-800 dark:text-gray-200 p-4 sm:p-6 md:p-10">
+
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
         <div className="flex items-center gap-3">
-          <UserCircle2 className="text-yellow-400 shrink-0" size={32} />
+          <UserCircle2 size={32} className="text-gray-500 dark:text-gray-400" />
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-yellow-400">
+            <h1 className="text-2xl md:text-3xl font-bold">
               {user.name || "User Details"}
             </h1>
-            <p className="text-gray-400 text-sm sm:text-base">
-              Detailed profile view
-            </p>
+            <p className="text-gray-500 dark:text-gray-400">Detailed profile view</p>
           </div>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
           <button
             onClick={() => setShowExportModal(true)}
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-600/40 to-yellow-500/30 hover:from-yellow-600/60 hover:to-yellow-500/40 border border-yellow-500/20 text-yellow-300 px-4 py-2 rounded-xl transition-all w-full sm:w-auto"
+            className="flex items-center justify-center gap-2 bg-gray-200 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700 transition"
           >
             <Download size={16} /> Export
           </button>
+
           <button
             onClick={() => router.back()}
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-gray-700/40 to-gray-600/30 hover:from-gray-700/60 hover:to-gray-600/40 border border-gray-500/20 text-gray-300 px-4 py-2 rounded-xl transition-all w-full sm:w-auto"
+            className="flex items-center justify-center gap-2 bg-gray-200 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700 transition"
           >
             <ArrowLeft size={16} /> Back
           </button>
@@ -151,112 +119,100 @@ export default function DetailsPage({ user }) {
       </div>
 
       {/* Profile Card */}
-      <div className="bg-[#151517] border border-yellow-500/20 rounded-2xl p-5 sm:p-6 shadow-lg mb-10 hover:border-yellow-500/40 transition-all duration-300">
-        <div className="flex flex-col sm:flex-row items-center gap-6">
+      <div className="bg-white dark:bg-[#1A1C1F] border border-gray-300 dark:border-gray-700 rounded-2xl p-6 shadow-sm mb-10">
+        <div className="flex flex-col sm:flex-row gap-6 items-center">
+
           {/* Profile Picture */}
-          <div className="relative w-28 h-28 rounded-full overflow-hidden border-2 border-yellow-500/30 shadow-md">
+          <div className="w-28 h-28 rounded-full overflow-hidden border border-gray-400 dark:border-gray-600">
             {profilePic ? (
-              <img
-                src={profilePic}
-                alt={user.name || "Profile"}
-                className="object-cover w-full h-full"
-              />
+              <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full bg-gradient-to-tr from-yellow-700/40 to-yellow-400/20 flex items-center justify-center">
-                <ImageOff size={40} className="text-yellow-400/70" />
+              <div className="w-full h-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
+                <ImageOff size={40} className="text-gray-400" />
               </div>
             )}
           </div>
 
-          <div className="text-center sm:text-left w-full sm:flex-1">
-            <h2 className="text-2xl font-semibold text-yellow-400 break-words">
-              {user.name || "Unnamed User"}
-            </h2>
+          <div className="w-full sm:flex-1 text-center sm:text-left">
+            <h2 className="text-xl font-semibold">{user.name || "Unnamed User"}</h2>
 
-            <p className="text-gray-400 flex justify-center sm:justify-start items-center gap-2 mt-1 text-sm sm:text-base">
-              <Mail size={16} className="text-gray-500" />{" "}
-              {user.email || "No Email"}
+            <p className="flex justify-center sm:justify-start gap-2 text-gray-500 dark:text-gray-400 mt-1">
+              <Mail size={16} /> {user.email || "No Email"}
             </p>
 
-            <p className="text-gray-400 flex justify-center sm:justify-start items-center gap-2 mt-1 text-sm sm:text-base">
-              <Shield size={16} className="text-gray-500" /> Role:{" "}
-              <span className="capitalize text-yellow-300">
-                {user.role || "user"}
-              </span>
+            <p className="flex justify-center sm:justify-start gap-2 text-gray-500 dark:text-gray-400 mt-1">
+              <Shield size={16} /> Role: <span>{user.role || "user"}</span>
             </p>
 
-            <p className="text-gray-400 flex justify-center sm:justify-start items-center gap-2 mt-1 text-sm sm:text-base">
-              <Calendar size={16} className="text-gray-500" /> Joined:{" "}
-              {user.createdAt
-                ? new Date(user.createdAt).toLocaleString()
-                : "N/A"}
+            <p className="flex justify-center sm:justify-start gap-2 text-gray-500 dark:text-gray-400 mt-1">
+              <Calendar size={16} /> Joined:{" "}
+              {user.createdAt ? new Date(user.createdAt).toLocaleString() : "N/A"}
             </p>
           </div>
         </div>
       </div>
 
-
-
       {/* Info Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {Object.entries(user).map(([key, value]) => (
           <div
             key={key}
-            className="bg-gradient-to-b from-[#1a1a1c] to-[#101010] border border-yellow-500/10 rounded-2xl p-4 sm:p-5 shadow-md hover:shadow-yellow-500/10 hover:border-yellow-500/30 transition-all duration-300"
+            className="bg-white dark:bg-[#1A1C1F] border border-gray-300 dark:border-gray-700 rounded-xl p-4 shadow-sm"
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs sm:text-sm text-gray-400 uppercase tracking-wide break-words">
-                {key}
-              </span>
-              <Hash size={14} className="text-gray-500 shrink-0" />
+              <span className="text-xs uppercase text-gray-500 dark:text-gray-400">{key}</span>
+              <Hash size={14} className="text-gray-400" />
             </div>
-            <p className="text-gray-200 text-sm sm:text-base break-words">
-              {String(value) || "—"}
-            </p>
+            <p className="break-words">{String(value) || "—"}</p>
           </div>
         ))}
       </div>
 
       {/* Export Modal */}
       {showExportModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-[#141414] border border-yellow-500/30 rounded-2xl p-6 w-[90%] max-w-2xl text-gray-100 relative shadow-2xl">
+        <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 px-4 py-4">
+          <div className="bg-white dark:bg-[#1A1C1F] border border-gray-300 dark:border-gray-700 rounded-2xl p-6 w-full max-w-xl relative shadow-lg">
+
             <button
               onClick={() => setShowExportModal(false)}
-              className="absolute top-3 right-3 text-gray-400 hover:text-gray-200"
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
             >
               <X size={20} />
             </button>
-            <h2 className="text-xl font-bold text-yellow-400 mb-4">
-              Export User Details
-            </h2>
 
-            <div className="max-h-[300px] overflow-y-auto border border-yellow-500/10 rounded-xl p-3 bg-[#1a1a1c] mb-4 text-sm">
-              <pre className="text-gray-300 whitespace-pre-wrap">
+            <h2 className="text-lg font-semibold mb-4">Export User Details</h2>
+
+            <div className="max-h-[300px] overflow-y-auto bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg p-3 text-sm">
+              <pre className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">
                 {JSON.stringify(user, null, 2)}
               </pre>
             </div>
 
-            <div className="flex flex-wrap gap-3 justify-center">
+            <div className="mt-4 flex flex-wrap gap-3 justify-center">
+
               <button
                 onClick={exportAsJSON}
-                className="flex items-center gap-2 bg-green-600/30 hover:bg-green-600/50 border border-green-500/30 text-green-300 px-4 py-2 rounded-lg transition-all"
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition"
               >
-                <FileType size={16} /> Export JSON
+                <FileType size={16} /> JSON
               </button>
+
               <button
                 onClick={exportAsPDF}
-                className="flex items-center gap-2 bg-red-600/30 hover:bg-red-600/50 border border-red-500/30 text-red-300 px-4 py-2 rounded-lg transition-all"
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition"
               >
-                <FileDown size={16} /> Export PDF
+                <FileDown size={16} /> PDF
               </button>
+
               <button
                 onClick={exportAsWord}
-                className="flex items-center gap-2 bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/30 text-blue-300 px-4 py-2 rounded-lg transition-all"
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition"
               >
-                <FileText size={16} /> Export Word
+                <FileText size={16} /> Word
               </button>
+
             </div>
+
           </div>
         </div>
       )}
