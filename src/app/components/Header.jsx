@@ -84,7 +84,7 @@ export default function Navbar({ logo }) {
         </div>
 <div className="flex ">
   
-<div className="mr-3">
+<div className="mr-3 md:hidden">
   <ThemeSwitcher/>
 </div>
         {/* Mobile Menu Button */}
