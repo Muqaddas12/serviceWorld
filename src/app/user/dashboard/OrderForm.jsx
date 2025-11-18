@@ -182,164 +182,171 @@ return (
       <form onSubmit={handleSubmit} className="space-y-4">
 
         {/* SEARCH */}
-        <div className="relative" ref={searchRef}>
-          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400" />
+     {/* SEARCH */}
+<div className="relative z-40" ref={searchRef}>
+  <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400" />
 
-          <input
-            type="text"
-            placeholder="Search service..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setSearchDropdownOpen(true);
+  <input
+    type="text"
+    placeholder="Search service..."
+    value={searchTerm}
+    onChange={(e) => {
+      setSearchTerm(e.target.value);
+      setSearchDropdownOpen(true);
+    }}
+    className="
+      w-full pl-10 pr-3 py-2 rounded-lg 
+      bg-gray-100 dark:bg-[#0F1117]
+      border border-gray-300 dark:border-[#2B3143]
+      text-gray-700 dark:text-white
+    "
+  />
+
+  {searchTerm && searchDropdownOpen && (
+    <div
+      className="
+        absolute left-0 top-full mt-2
+        w-full max-h-64 overflow-y-auto
+        bg-gray-50 dark:bg-[#1A1F2B]
+        border border-gray-300 dark:border-[#2B3143]
+        rounded-lg shadow-lg
+        z-50
+      "
+    >
+      {loading ? (
+        <div className="p-4 text-center">
+          <FaSpinner className="animate-spin inline-block mr-2" />
+          Searching...
+        </div>
+      ) : filteredServices.length > 0 ? (
+        filteredServices.map((srv) => (
+          <div
+            key={srv.service}
+            onClick={() => {
+              setSearchTerm(srv.name);
+              setService(srv.service);
+              setSelectedService(srv);
+              setCategory(srv.category);
+              setSearchDropdownOpen(false);
             }}
             className="
-            w-full pl-10 pr-3 py-2 rounded-lg 
-            bg-gray-100 dark:bg-[#0F1117]
-            border border-gray-300 dark:border-[#2B3143]
-            text-gray-700 dark:text-white
-            placeholder-gray-500 dark:placeholder-gray-400
-            focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-600
-          "
-          />
-
-          {searchTerm && searchDropdownOpen && (
-            <div
-              className="
-              absolute mt-2 w-full rounded-lg z-20 
-              bg-gray-50 dark:bg-[#1A1F2B]
-              border border-gray-300 dark:border-[#2B3143]
-              shadow-lg max-h-64 overflow-y-auto
+              px-4 py-3 cursor-pointer 
+              hover:bg-gray-200 dark:hover:bg-white/10 
             "
-            >
-              {loading ? (
-                <div className="p-4 text-center text-gray-600 dark:text-gray-300">
-                  <FaSpinner className="animate-spin inline-block mr-2" />
-                  Searching...
-                </div>
-              ) : filteredServices.length > 0 ? (
-                filteredServices.map((srv) => (
-                  <div
-                    key={srv.service}
-                    onClick={() => {
-                      setSearchTerm(srv.name);
-                      setService(srv.service);
-                      setSelectedService(srv);
-                      setCategory(srv.category);
-                      setSearchDropdownOpen(false);
-                    }}
-                    className="
-                    px-4 py-3 cursor-pointer 
-                    hover:bg-gray-200 dark:hover:bg-white/10 
-                    transition
-                  "
-                  >
-                    <p className="font-semibold text-gray-700 dark:text-gray-200">{srv.name}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {srv.description}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-center p-3 text-gray-500 dark:text-gray-400">
-                  No results found.
-                </p>
-              )}
-            </div>
-          )}
-        </div>
+          >
+            <p className="font-semibold">{srv.name}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {srv.description}
+            </p>
+          </div>
+        ))
+      ) : (
+        <p className="text-center p-3 text-gray-500">No results found.</p>
+      )}
+    </div>
+  )}
+</div>
+
 
         {/* CATEGORY */}
-        <div ref={categoryRef}>
-          <label className="block mb-1 text-sm font-medium text-gray-600 dark:text-gray-300">
-            Category
-          </label>
-          <div
-            className="
-            bg-gray-100 dark:bg-[#0F1117]
-            border border-gray-300 dark:border-[#2B3143]
-            px-3 py-2 rounded-lg cursor-pointer
-          "
-            onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
-          >
-            {category || "Select category"}
-          </div>
+  {/* CATEGORY */}
+<div className="relative z-50" ref={categoryRef}>
+  <label className="block mb-1 text-sm font-medium dark:text-gray-300">
+    Category
+  </label>
 
-          {categoryDropdownOpen && (
-            <ul
-              className="
-              absolute mt-2 w-full rounded-lg z-20 
-              bg-gray-50 dark:bg-[#1A1F2B]
-              border border-gray-300 dark:border-[#2B3143]
-              max-h-56 overflow-y-auto shadow-lg
-            "
-            >
-              {categories.map((cat) => (
-                <li
-                  key={cat}
-                  onClick={() => {
-                    setCategory(cat);
-                    setCategoryDropdownOpen(false);
-                  }}
-                  className="
-                  px-4 py-2 hover:bg-gray-200 dark:hover:bg-white/10 cursor-pointer
-                  text-gray-700 dark:text-white
-                "
-                >
-                  {cat}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+  <div
+    onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+    className="
+      bg-gray-100 dark:bg-[#0F1117]
+      border border-gray-300 dark:border-[#2B3143]
+      px-3 py-2 rounded-lg cursor-pointer
+    "
+  >
+    {category || "Select category"}
+  </div>
+
+  {categoryDropdownOpen && (
+    <ul
+      className="
+        absolute left-0 top-full mt-2 
+        w-full max-h-56 overflow-y-auto
+        bg-gray-50 dark:bg-[#1A1F2B]
+        border border-gray-300 dark:border-[#2B3143]
+        rounded-lg shadow-lg
+        z-50
+      "
+    >
+      {categories.map((cat) => (
+        <li
+          key={cat}
+          onClick={() => {
+            setCategory(cat);
+            setCategoryDropdownOpen(false);
+          }}
+          className="
+            px-4 py-2 hover:bg-gray-200 dark:hover:bg-white/10 cursor-pointer
+          "
+        >
+          {cat}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
 
         {/* SERVICE */}
-        <div ref={dropdownRef}>
-          <label className="block mb-1 text-sm font-medium text-gray-600 dark:text-gray-300">
-            Service
-          </label>
+      {/* SERVICE */}
+<div className="relative z-40" ref={dropdownRef}>
+  <label className="block mb-1 text-sm font-medium dark:text-gray-300">
+    Service
+  </label>
 
-          <div
-            className="
-            bg-gray-100 dark:bg-[#0F1117]
-            border border-gray-300 dark:border-[#2B3143]
-            px-3 py-2 rounded-lg cursor-pointer
+  <div
+    onClick={() => setDropdownOpen(!dropdownOpen)}
+    className="
+      bg-gray-100 dark:bg-[#0F1117]
+      border border-gray-300 dark:border-[#2B3143]
+      px-3 py-2 rounded-lg cursor-pointer
+    "
+  >
+    {service
+      ? `${selectedService?.service} | ${selectedService?.name} | ₹${selectedService?.rate}`
+      : "Select a service"}
+  </div>
+
+  {dropdownOpen && filteredServices.length > 0 && (
+    <ul
+      className="
+        absolute left-0 top-full mt-2
+        w-full max-h-56 overflow-y-auto
+        bg-gray-50 dark:bg-[#1A1F2B]
+        border border-gray-300 dark:border-[#2B3143]
+        rounded-lg shadow-lg
+        z-50
+      "
+    >
+      {filteredServices.map((srv) => (
+        <li
+          key={srv.service}
+          onClick={() => {
+            setService(srv.service);
+            setSelectedService(srv);
+            setDropdownOpen(false);
+          }}
+          className="
+            px-4 py-2 hover:bg-gray-200 dark:hover:bg-white/10 cursor-pointer
           "
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-          >
-            {service
-              ? `${selectedService?.service} | ${selectedService?.name} | ₹${selectedService?.rate}`
-              : "Select a service"}
-          </div>
+        >
+          {srv.service} — {srv.name} — ₹{srv.rate}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
 
-          {dropdownOpen && filteredServices.length > 0 && (
-            <ul
-              className="
-              absolute mt-2 w-full rounded-lg z-20 
-              bg-gray-50 dark:bg-[#1A1F2B]
-              border border-gray-300 dark:border-[#2B3143]
-              max-h-56 overflow-y-auto shadow-lg
-            "
-            >
-              {filteredServices.map((srv) => (
-                <li
-                  key={srv.service}
-                  onClick={() => {
-                    setService(srv.service);
-                    setSelectedService(srv);
-                    setDropdownOpen(false);
-                  }}
-                  className="
-                  px-4 py-2 hover:bg-gray-200 dark:hover:bg-white/10 cursor-pointer
-                  text-gray-700 dark:text-white
-                "
-                >
-                  {srv.service} — {srv.name} — ₹{srv.rate}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+
 
         {/* SERVICE INFO */}
         {selectedService && (
