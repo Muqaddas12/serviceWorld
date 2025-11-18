@@ -15,6 +15,8 @@ import OrderForm from "./OrderForm";
 import SupportSection from "./SupportSection";
 import CategoryFilter from "./CategoryFilter";
 import Card from "./Card";
+import BalanceCard from "./BalanceCard";
+import SpentCard from "./SpentCard";
 
 export default function DashboardLayout({ user, serviceEnabled }) {
   const [spent, setSpent] = useState(0);
@@ -60,46 +62,10 @@ export default function DashboardLayout({ user, serviceEnabled }) {
   </Card>
 
   {/* Balance */}
-  <Card className="py-3 sm:py-4 px-2">
-    <div className="flex items-center gap-2 sm:gap-3">
-      <div className="
-        p-2 sm:p-3 rounded-full 
-        bg-gray-200 text-gray-700
-        dark:bg-white/10 dark:text-white
-      ">
-        <MdAccountBalanceWallet size={20} />
-      </div>
-      <div className="leading-tight">
-        <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
-          Balance
-        </p>
-        <h4 className="text-sm sm:text-base font-semibold text-green-600 dark:text-green-400 mt-0.5">
-          ₹{user?.balance ? Number(user.balance).toFixed(2) : "0.00"}
-        </h4>
-      </div>
-    </div>
-  </Card>
+  <BalanceCard balance={user?.balance}/>
 
   {/* Total Spent */}
-  <Card className="py-3 sm:py-4 px-2">
-    <div className="flex items-center gap-2 sm:gap-3">
-      <div className="
-        p-2 sm:p-3 rounded-full 
-        bg-gray-200 text-gray-700
-        dark:bg-white/10 dark:text-white
-      ">
-        <MdTrendingUp size={20} />
-      </div>
-      <div className="leading-tight">
-        <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
-          Total Spent
-        </p>
-        <h4 className="text-sm sm:text-base font-semibold text-green-600 dark:text-green-400 mt-0.5">
-          ₹{spent.toFixed(2)}
-        </h4>
-      </div>
-    </div>
-  </Card>
+<SpentCard spent={spent} />
 
   {/* Total Orders */}
   <Card className="py-3 sm:py-4 px-2">
