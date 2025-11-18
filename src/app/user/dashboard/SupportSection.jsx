@@ -16,24 +16,18 @@ export default function SupportSection() {
 
         /* Dark Mode Box */
         dark:bg-[#1A1F2B] dark:border-[#2B3143]
-        dark:shadow-lg dark:shadow-[#4A6CF7]/10
-        dark:hover:shadow-[#4A6CF7]/20
+        dark:shadow-lg dark:shadow-black/20
 
         /* Light Mode Box */
-        bg-white border-gray-200
+        bg-gray-50 border border-gray-300
         shadow-md hover:shadow-lg
       "
     >
-      {/* Glow Background */}
+      {/* Soft Neutral Glow */}
       <div
         className="
-          absolute inset-0 blur-2xl rounded-2xl opacity-40
-
-          /* Dark Mode Glow */
-          dark:bg-[#4A6CF7]/10
-
-          /* Light Mode Glow */
-          bg-[#4A6CF7]/5
+          absolute inset-0 blur-2xl rounded-2xl opacity-20
+          bg-gray-300 dark:bg-gray-700
         "
       ></div>
 
@@ -41,13 +35,7 @@ export default function SupportSection() {
       <MdSupportAgent
         className="
           relative text-5xl sm:text-6xl 
-
-          /* Dark Mode */
-          dark:text-[#4A6CF7] 
-          dark:drop-shadow-[0_0_12px_rgba(74,108,247,0.6)]
-
-          /* Light Mode */
-          text-[#3B4B7D]
+          text-gray-700 dark:text-gray-200
         "
       />
 
@@ -55,13 +43,7 @@ export default function SupportSection() {
       <h3
         className="
           relative text-2xl sm:text-3xl font-bold mt-3
-
-          /* Dark Mode Title */
-          dark:text-[#4A6CF7]
-          dark:drop-shadow-[0_0_8px_rgba(74,108,247,0.6)]
-
-          /* Light Mode Title */
-          text-[#2D3A63]
+          text-gray-800 dark:text-gray-200
         "
       >
         Need Support?
@@ -71,12 +53,7 @@ export default function SupportSection() {
       <p
         className="
           relative mb-5 max-w-md leading-relaxed mt-2
-
-          /* Dark Mode Description */
-          dark:text-[#A0AEC3]
-
-          /* Light Mode Description */
-          text-gray-600
+          text-gray-600 dark:text-gray-400
         "
       >
         We’re here 24/7 to help with orders, payments, or technical issues.
@@ -89,16 +66,15 @@ export default function SupportSection() {
           relative px-8 py-3 font-semibold rounded-full 
           transition-all duration-300
 
-          /* Dark Mode Button */
-          dark:bg-[#4A6CF7] dark:text-white
-          dark:hover:bg-[#3c59e4]
-          dark:shadow-md dark:shadow-[#4A6CF7]/40 
-          dark:hover:shadow-[#4A6CF7]/60
+          /* Neutral Button */
+          bg-gray-800 text-white 
+          hover:bg-gray-700
 
-          /* Light Mode Button */
-          bg-[#4A6CF7] text-white
-          hover:bg-[#3A5BE0]
-          shadow-md shadow-[#4A6CF7]/30 hover:shadow-[#4A6CF7]/40
+          /* Dark Mode Button */
+          dark:bg-gray-200 dark:text-black
+          dark:hover:bg-gray-300
+
+          shadow-md hover:shadow-lg
         "
       >
         Contact Support

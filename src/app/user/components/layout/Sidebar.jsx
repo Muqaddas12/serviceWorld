@@ -13,17 +13,14 @@ export default function Sidebar({
   setIsSidebarOpen,
   user,
   menuItems,
-  darkMode = false,
 }) {
- 
-
   const router = useRouter();
   const pathname = usePathname();
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [currency, setCurrency] = useState("INR");
 
-  // Upload profile picture
+  // Upload profile pic
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -43,28 +40,35 @@ export default function Sidebar({
     <aside
       className={clsx(
         "fixed z-50 flex flex-col w-64 h-full transition-transform duration-300 shadow-2xl border-r",
-        darkMode
-          ? "bg-[#0F1117] border-[#2B3143] text-white"
-          : "bg-white border-gray-300 text-[#1A1A1A]",
+
+        /* Light Mode */
+        "bg-white border-gray-300 text-gray-800",
+
+        /* Dark Mode */
+        "dark:bg-[#0F1117] dark:border-gray-800 dark:text-white",
+
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}
     >
       {/* Profile Section */}
       <div
-        className="
-          flex flex-col items-center gap-2 px-4 py-6
-          border-b border-[#2B3143]
-        "
+        className={clsx(
+          "flex flex-col items-center gap-2 px-4 py-6 border-b",
+          "border-gray-300 dark:border-gray-800"
+        )}
       >
+        {/* Avatar */}
         <div
-          className="
-            w-20 h-20 rounded-full 
-            bg-[#4A6CF7]/15 text-[#4A6CF7]
-            flex items-center justify-center 
-            shadow-lg shadow-[#4A6CF7]/30
-            overflow-hidden cursor-pointer group relative
-          "
           onClick={() => fileInputRef.current?.click()}
+          className={clsx(
+            "w-20 h-20 rounded-full flex items-center justify-center cursor-pointer group relative overflow-hidden",
+
+            /* Light */
+            "bg-gray-200 text-gray-700",
+
+            /* Dark */
+            "dark:bg-white/10 dark:text-white"
+          )}
         >
           {user?.avatar ? (
             <img
@@ -75,10 +79,7 @@ export default function Sidebar({
               }`}
             />
           ) : (
-            <FaUserCircle
-              size={60}
-              className={uploading ? "opacity-40" : ""}
-            />
+            <FaUserCircle size={60} className={uploading ? "opacity-40" : ""} />
           )}
 
           <div
@@ -101,13 +102,20 @@ export default function Sidebar({
           />
         </div>
 
-        <h2 className="text-lg font-semibold text-[#4A6CF7]">
+        {/* Username */}
+        <h2
+          className="
+            text-lg font-semibold
+            text-gray-800 dark:text-white
+          "
+        >
           {user?.username || "Guest"}
         </h2>
 
+        {/* Balance + Currency */}
         <div className="flex items-center gap-3">
           {user?.balance != null && (
-            <p className="text-sm text-[#A0AEC3]">
+            <p className="text-sm text-gray-500 dark:text-gray-300">
               Balance: {currency === "USD" ? "$" : "₹"}
               {Number(user.balance).toFixed(2)}
             </p>
@@ -118,10 +126,9 @@ export default function Sidebar({
             value={currency}
             onChange={(e) => setCurrency(e.target.value)}
             className="
-              bg-[#1A1F2B] text-[#A0AEC3]
-              border border-[#2B3143] rounded-lg 
-              px-3 py-1 text-sm focus:outline-none
-              focus:border-[#4A6CF7]
+              rounded-lg px-3 py-1 text-sm focus:outline-none
+              bg-white text-gray-700 border border-gray-300 focus:border-gray-500
+              dark:bg-[#1A1F2B] dark:text-gray-300 dark:border-gray-700 dark:focus:border-gray-500
             "
           >
             <option value="INR">INR ₹</option>
@@ -137,53 +144,46 @@ export default function Sidebar({
           const isActive = pathname === item.href;
 
           return (
-            <div
-              key={idx}
-              onClick={() => {
-                router.push(item.href);
-                setIsSidebarOpen(false);
-              }}
-              className={clsx(
-                "flex items-center gap-3 p-3 rounded-xl cursor-pointer font-medium transition-all duration-200",
+  <div
+    key={idx}
+    onClick={() => {
+      router.push(item.href);
+      setIsSidebarOpen(false);
+    }}
+    className={clsx(
+      "flex items-center gap-3 p-3 cursor-pointer font-medium text-sm transition-all",
 
-                // Active item
-                isActive &&
-                  `
-                  bg-[#4A6CF7]/20 
-                  text-[#4A6CF7]
-                  shadow-md shadow-[#4A6CF7]/30
-                `,
+      // ACTIVE item (text only)
+      isActive &&
+        `
+        text-gray-900 
+        dark:text-white
+      `,
 
-                // Inactive item
-                !isActive &&
-                  `
-                  text-[#A0AEC3]
-                  hover:bg-[#4A6CF7]/10 
-                  hover:text-[#4A6CF7]
-                  transition 
-                `
-              )}
-            >
-              <span className="text-lg">{item.icon}</span>
-              <span>{item.text}</span>
-            </div>
-          );
+      // INACTIVE item
+      !isActive &&
+        `
+        text-gray-600 hover:text-gray-900
+        dark:text-gray-400 dark:hover:text-white
+      `
+    )}
+  >
+    <span className="text-lg">{item.icon}</span>
+    <span>{item.text}</span>
+  </div>
+);
+
         })}
       </nav>
 
       {/* Logout */}
-      <div
-        className="
-          p-4 border-t border-[#2B3143]
-        "
-      >
+      <div className="p-4 border-t border-gray-300 dark:border-gray-800">
         <button
           onClick={logoutUser}
           className="
-            w-full flex items-center gap-3 justify-center
-            bg-red-500/20 hover:bg-red-500/30 
-            text-red-400 font-semibold 
-            py-2 rounded-xl transition
+            w-full flex items-center gap-3 justify-center font-semibold py-2 rounded-xl transition
+            bg-red-100 text-red-600 hover:bg-red-200
+            dark:bg-red-500/20 dark:text-red-400 dark:hover:bg-red-500/30
           "
         >
           <FiLogOut /> Logout

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   MdDashboard,
@@ -17,18 +17,28 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import clsx from "clsx";
 
-export default function Page({
-  user,
-  children,
-  darkMode: initialDark,
-  websiteName,
-}) {
-  const [darkMode, setDarkMode] = useState(initialDark);
+export default function Page({ user, children, websiteName }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
 
-  // 🧭 Sidebar Menu Items
+  // Read theme from localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    }
+  }, []);
+
+  // 🌙 Toggle Theme
+  const toggleDarkMode = () => {
+    const html = document.documentElement;
+    const isDark = html.classList.toggle("dark");
+
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  };
+
+  // 🧭 Sidebar Menu Items (unchanged)
   const menuItems = [
     { icon: <MdDashboard />, text: "New Order", href: "/user/dashboard" },
     { icon: <MdInventory />, text: "Mass Order", href: "/user/mass-order" },
@@ -40,26 +50,13 @@ export default function Page({
     { icon: <MdDns />, text: "Child Panel", href: "/user/child-panel" },
   ];
 
-  // 🌙 Toggle Dark/Light Mode
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-
-    document.documentElement.classList.toggle("dark", newMode);
-    localStorage.setItem("theme", newMode ? "dark" : "light");
-  };
-
   // 🚪 Logout
   const handleLogout = async () => {
-    try {
-      const res = await logoutUser();
-      if (!res.error) {
-        localStorage.removeItem("email");
-        localStorage.removeItem("token");
-        router.replace("/auth/login");
-      } else alert("Logout failed.");
-    } catch (err) {
-      console.error(err);
+    const res = await logoutUser();
+    if (!res.error) {
+      localStorage.removeItem("email");
+      localStorage.removeItem("token");
+      router.replace("/auth/login");
     }
   };
 
@@ -68,16 +65,14 @@ export default function Page({
       className={clsx(
         "flex h-screen overflow-hidden transition-colors duration-500",
 
-        // 🌙 DARK MODE
-        darkMode &&
-          "bg-[#0F1117] text-white",
+        // Light Mode
+        "bg-gray-100 text-gray-800",
 
-        // 🌞 LIGHT MODE
-        !darkMode &&
-          "bg-[#F5F7FA] text-[#1A1A1A]"
+        // Dark Mode
+        "dark:bg-[#0F1117] dark:text-white"
       )}
     >
-      {/* 🔹 Mobile Overlay for Sidebar */}
+      {/* 🔹 Mobile Overlay */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40"
@@ -85,21 +80,20 @@ export default function Page({
         />
       )}
 
-      {/* 🔹 SIDEBAR */}
+      {/* 🔹 Sidebar */}
       <Sidebar
         menuItems={menuItems}
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         user={user}
-        darkMode={darkMode}
+        darkMode={false} // Sidebar now uses pure .dark classes inside, no prop needed
       />
 
-      {/* 🔹 MAIN CONTENT */}
+      {/* 🔹 Main Content */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden transition-all duration-300">
         
         {/* Header */}
         <Header
-          dark={darkMode}
           user={user}
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
@@ -110,14 +104,14 @@ export default function Page({
           websitename={websiteName}
         />
 
-        {/* Page Content Wrapper */}
-        <div className="
-          flex-1 
-          overflow-y-auto 
-          md:p-6 
-          bg-[#F5F7FA] dark:bg-[#0F1117]
-          text-[#1A1A1A] dark:text-white
-        ">
+        {/* Content Wrapper */}
+        <div
+          className="
+          flex-1 overflow-y-auto md:p-6 
+          bg-gray-100 text-gray-800
+          dark:bg-[#0F1117] dark:text-white
+        "
+        >
           {children}
         </div>
       </div>

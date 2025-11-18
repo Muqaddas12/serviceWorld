@@ -44,7 +44,7 @@ export default function CategoryFilter({ selectedCategory, onCategorySelect }) {
           gap-3 
           w-full 
           max-w-6xl 
-          py-6
+         
         "
       >
         {icons.map((item, i) => {
