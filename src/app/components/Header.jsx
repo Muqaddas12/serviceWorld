@@ -82,7 +82,11 @@ export default function Navbar({ logo }) {
             Signup
           </Link>
         </div>
-
+<div className="flex ">
+  
+<div className="mr-3">
+  <ThemeSwitcher/>
+</div>
         {/* Mobile Menu Button */}
         <button
           className="
@@ -104,6 +108,7 @@ export default function Navbar({ logo }) {
             </svg>
           )}
         </button>
+</div>
       </div>
 
       {/* Mobile Dropdown */}
