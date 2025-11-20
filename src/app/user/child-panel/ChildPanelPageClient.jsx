@@ -67,219 +67,235 @@ export default function ChildPanelPageClient({ settings, balance }) {
     });
   };
 
-  return (
-    <div className="min-h-screen bg-gray-100 dark:bg-[#0F1117] text-gray-900 dark:text-gray-200 p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
+return (
+  <div className="min-h-screen bg-gray-100 dark:bg-[#0F1117] text-gray-700 dark:text-gray-300 p-6">
+    <div className="max-w-7xl mx-auto space-y-8">
 
-        {/* HEADER */}
-        <div>
-          <h1 className="text-3xl font-bold">Create Your Child Panel</h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Fill out the details below to generate your own SMM child panel.
-          </p>
-        </div>
+      {/* HEADER */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-700 dark:text-gray-300">Create Your Child Panel</h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          Fill out the details below to generate your own SMM child panel.
+        </p>
+      </div>
 
-        {/* CONTAINER */}
-        <div className="bg-white dark:bg-[#1A1F2B] border border-gray-300 dark:border-[#2B3143] rounded-2xl p-6 shadow-md dark:shadow-lg">
-          <h2 className="text-xl font-bold mb-4">Panel Details</h2>
+      {/* CONTAINER */}
+      <div className="bg-white dark:bg-[#1A1F2B] border border-gray-300 dark:border-[#2B3143] rounded-2xl p-6 shadow-md dark:shadow-lg">
+        <h2 className="text-xl font-bold mb-4 text-gray-700 dark:text-gray-300">Panel Details</h2>
 
-          {/* LOW BALANCE ALERT */}
-          {isLowBalance && (
-            <div className="md:col-span-2 mb-4 p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-lg text-sm">
-              <p>
-                ⚠ Your balance is too low. You need{" "}
-                <strong>
-                  {symbol}
-                  {convertedPrice - convertedBalance}
-                </strong>{" "}
-                more to create this child panel.
-              </p>
-              <p className="mt-1 text-xs">
-                Your Balance: <strong>{symbol}{convertedBalance}</strong> | Price:{" "}
-                <strong>{symbol}{convertedPrice}</strong>
-              </p>
-              <Link
-                href="/add-funds"
-                className="inline-block mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-              >
-                Add Balance
-              </Link>
+        {/* LOW BALANCE ALERT */}
+        {isLowBalance && (
+          <div className="md:col-span-2 mb-4 p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-lg text-sm">
+            <p>
+              ⚠ Your balance is too low. You need{" "}
+              <strong>{symbol}{convertedPrice - convertedBalance}</strong> more to create this panel.
+            </p>
+            <p className="mt-1 text-xs">
+              Your Balance: <strong>{symbol}{convertedBalance}</strong> | Price:{" "}
+              <strong>{symbol}{convertedPrice}</strong>
+            </p>
+            <Link
+              href="/add-funds"
+              className="inline-block mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            >
+              Add Balance
+            </Link>
+          </div>
+        )}
+
+        {/* FORM */}
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          {/* DOMAIN TYPE */}
+          <div className="md:col-span-2">
+            <label className="block font-semibold mb-1 text-gray-700 dark:text-gray-300">
+              Choose Domain Type
+            </label>
+
+            <div className="flex gap-6 text-gray-700 dark:text-gray-300">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  value="subdomain"
+                  checked={domainType === "subdomain"}
+                  onChange={() => setDomainType("subdomain")}
+                />
+                Subdomain
+              </label>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  value="owndomain"
+                  checked={domainType === "owndomain"}
+                  onChange={() => setDomainType("owndomain")}
+                />
+                Your Domain
+              </label>
+            </div>
+          </div>
+
+          {/* SUBDOMAIN */}
+          {domainType === "subdomain" && (
+            <div>
+              <label className="block mb-1 font-semibold text-gray-700 dark:text-gray-300">
+                Subdomain
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={subdomain}
+                  onChange={handleDomainChange}
+                  placeholder="mypanel"
+                  className="w-full bg-gray-100 dark:bg-[#0F1117] border border-gray-300 dark:border-[#2B3143] rounded-lg px-3 py-2 pr-32"
+                  required
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
+                  .{adminDomain}
+                </span>
+              </div>
             </div>
           )}
 
-          {/* FORM */}
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            {/* 🌐 DOMAIN TYPE SELECTOR */}
+          {/* OWN DOMAIN */}
+          {domainType === "owndomain" && (
             <div className="md:col-span-2">
-              <label className="block font-semibold mb-1">Choose Domain Type</label>
-
-              <div className="flex gap-6">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    value="subdomain"
-                    checked={domainType === "subdomain"}
-                    onChange={() => setDomainType("subdomain")}
-                  />
-                  Use Free Subdomain
-                </label>
-
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    value="owndomain"
-                    checked={domainType === "owndomain"}
-                    onChange={() => setDomainType("owndomain")}
-                  />
-                  Use Own Domain
-                </label>
-              </div>
-            </div>
-
-            {/* SUBDOMAIN INPUT */}
-            {domainType === "subdomain" && (
-              <div>
-                <label className="block mb-1 font-semibold">Subdomain</label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={subdomain}
-                    onChange={handleDomainChange}
-                    placeholder="mypanel"
-                    className="w-full bg-gray-100 dark:bg-[#0F1117] border border-gray-300 dark:border-[#2B3143] rounded-lg px-3 py-2 pr-32"
-                    required
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
-                    .{adminDomain}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* OWN DOMAIN INPUT */}
-            {domainType === "owndomain" && (
-              <div>
-                <label className="block mb-1 font-semibold">Your Own Domain</label>
-                <input
-                  type="text"
-                  value={ownDomain}
-                  onChange={(e) => setOwnDomain(e.target.value.trim())}
-                  placeholder="example.com"
-                  className="w-full bg-gray-100 dark:bg-[#0F1117] border border-gray-300 dark:border-[#2B3143] rounded-lg px-3 py-2"
-                  required
-                />
-              </div>
-            )}
-
-            {/* CURRENCY */}
-            <div>
-              <label className="block mb-1 font-semibold">Currency</label>
-              <select
-                name="currency"
-                defaultValue={currency}
-                className="w-full bg-gray-100 dark:bg-[#0F1117] border border-gray-300 dark:border-[#2B3143] rounded-lg px-3 py-2"
-              >
-                <option value="INR">INR (₹)</option>
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-              </select>
-            </div>
-
-            {/* USERNAME */}
-            <div>
-              <label className="block mb-1 font-semibold">Username</label>
+              <label className="block mb-1 font-semibold text-gray-700 dark:text-gray-300">
+                Your Own Domain
+              </label>
               <input
                 type="text"
-                name="username"
-                placeholder="admin123"
+                value={ownDomain}
+                onChange={(e) => setOwnDomain(e.target.value.trim())}
+                placeholder="example.com"
                 className="w-full bg-gray-100 dark:bg-[#0F1117] border border-gray-300 dark:border-[#2B3143] rounded-lg px-3 py-2"
                 required
               />
-            </div>
 
-            {/* PASSWORD */}
-            <div>
-              <label className="block mb-1 font-semibold">Password</label>
-              <div className="relative">
-                <input
-                  type={showPass ? "text" : "password"}
-                  name="password"
-                  placeholder="••••••••"
-                  className="w-full bg-gray-100 dark:bg-[#0F1117] border border-gray-300 dark:border-[#2B3143] rounded-lg px-3 py-2"
-                  required
-                />
-                <span
-                  className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
-                  onClick={() => setShowPass(!showPass)}
-                >
-                  {showPass ? <FaEyeSlash /> : <FaEye />}
-                </span>
+              {/* DNS INSTRUCTIONS */}
+              <div className="mt-3 p-3 bg-gray-200 dark:bg-[#2B3143] rounded-lg border border-gray-300 dark:border-gray-600">
+                <p className="font-semibold text-gray-700 dark:text-gray-300 text-sm">
+                  Use this DNS in your Name Server:
+                </p>
+                <ul className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                  <li>• ns1.{adminDomain}</li>
+                  <li>• ns2.{adminDomain}</li>
+                </ul>
               </div>
             </div>
+          )}
 
-            {/* CONFIRM PASSWORD */}
-            <div>
-              <label className="block mb-1 font-semibold">Confirm Password</label>
-              <div className="relative">
-                <input
-                  type={showConfirm ? "text" : "password"}
-                  name="confirmPassword"
-                  placeholder="••••••••"
-                  className="w-full bg-gray-100 dark:bg-[#0F1117] border border-gray-300 dark:border-[#2B3143] rounded-lg px-3 py-2"
-                  required
-                />
-                <span
-                  className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
-                  onClick={() => setShowConfirm(!showConfirm)}
-                >
-                  {showConfirm ? <FaEyeSlash /> : <FaEye />}
-                </span>
-              </div>
-            </div>
+          {/* CURRENCY */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700 dark:text-gray-300">Currency</label>
+            <select
+              name="currency"
+              defaultValue={currency}
+              className="w-full bg-gray-100 dark:bg-[#0F1117] border border-gray-300 dark:border-[#2B3143] rounded-lg px-3 py-2"
+            >
+              <option value="INR">INR (₹)</option>
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+            </select>
+          </div>
 
-            {/* PRICE */}
-            <div>
-              <label className="block mb-1 font-semibold">Price</label>
+          {/* USERNAME */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700 dark:text-gray-300">Admin Username</label>
+            <input
+              type="text"
+              name="username"
+              placeholder="admin123"
+              className="w-full bg-gray-100 dark:bg-[#0F1117] border border-gray-300 dark:border-[#2B3143] rounded-lg px-3 py-2"
+              required
+            />
+          </div>
+
+          {/* PASSWORD */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700 dark:text-gray-300">Admin Password</label>
+            <div className="relative">
               <input
-                type="text"
-                readOnly
-                value={`${symbol}${convertedPrice}`}
-                className="w-full bg-gray-100 dark:bg-[#0F1117] border border-gray-300 dark:border-[#2B3143] rounded-lg px-3 py-2 text-gray-700 dark:text-gray-300"
+                type={showPass ? "text" : "password"}
+                name="password"
+                placeholder="••••••••"
+                className="w-full bg-gray-100 dark:bg-[#0F1117] border border-gray-300 dark:border-[#2B3143] rounded-lg px-3 py-2"
+                required
               />
+              <span
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
+                onClick={() => setShowPass(!showPass)}
+              >
+                {showPass ? <FaEyeSlash /> : <FaEye />}
+              </span>
             </div>
+          </div>
 
-            {/* SUBMIT BUTTON */}
-            <div className="md:col-span-2">
-              <button
-                type="submit"
-                disabled={isPending || isLowBalance}
-                className={`w-full py-3 rounded-lg font-semibold transition ${
-                  isLowBalance
-                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                    : "bg-gray-800 dark:bg-gray-700 text-white hover:bg-gray-700 dark:hover:bg-gray-600"
+          {/* CONFIRM PASSWORD */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700 dark:text-gray-300">
+              Confirm Admin Password
+            </label>
+            <div className="relative">
+              <input
+                type={showConfirm ? "text" : "password"}
+                name="confirmPassword"
+                placeholder="••••••••"
+                className="w-full bg-gray-100 dark:bg-[#0F1117] border border-gray-300 dark:border-[#2B3143] rounded-lg px-3 py-2"
+                required
+              />
+              <span
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500"
+                onClick={() => setShowConfirm(!showConfirm)}
+              >
+                {showConfirm ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
+          </div>
+
+          {/* PRICE */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700 dark:text-gray-300">Price</label>
+            <input
+              type="text"
+              readOnly
+              value={`${symbol}${convertedPrice}`}
+              className="w-full bg-gray-100 dark:bg-[#0F1117] border border-gray-300 dark:border-[#2B3143] rounded-lg px-3 py-2"
+            />
+          </div>
+
+          {/* SUBMIT */}
+          <div className="md:col-span-2">
+            <button
+              type="submit"
+              disabled={isPending || isLowBalance}
+              className={`w-full py-3 rounded-lg font-semibold transition ${
+                isLowBalance
+                  ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                  : "bg-gray-800 dark:bg-gray-700 text-white hover:bg-gray-700 dark:hover:bg-gray-600"
+              }`}
+            >
+              {isPending
+                ? "Submitting..."
+                : isLowBalance
+                ? "Low Balance — Cannot Submit"
+                : "Submit Order"}
+            </button>
+
+            {message && (
+              <p
+                className={`text-center mt-3 text-sm ${
+                  message.startsWith("✔") ? "text-green-500" : "text-red-400"
                 }`}
               >
-                {isPending
-                  ? "Submitting..."
-                  : isLowBalance
-                  ? "Low Balance — Cannot Submit"
-                  : "Submit Order"}
-              </button>
-
-              {message && (
-                <p
-                  className={`text-center mt-3 text-sm ${
-                    message.startsWith("✔") ? "text-green-500" : "text-red-400"
-                  }`}
-                >
-                  {message}
-                </p>
-              )}
-            </div>
-          </form>
-        </div>
+                {message}
+              </p>
+            )}
+          </div>
+        </form>
       </div>
     </div>
-  );
+  </div>
+);
+
 }
