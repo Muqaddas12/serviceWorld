@@ -76,16 +76,6 @@ export default function SignupForm() {
     return () => clearTimeout(delay);
   }, [emailValue]);
 
-  // Password Strength
-  const getStrength = () => {
-    if (!passwordValue) return 0;
-    let s = 0;
-    if (passwordValue.length >= 6) s++;
-    if (/[A-Z]/.test(passwordValue)) s++;
-    if (/[0-9]/.test(passwordValue)) s++;
-    if (/[^A-Za-z0-9]/.test(passwordValue)) s++;
-    return s;
-  };
 
   // Submit Handler
   const onSubmit = async (data) => {
@@ -214,14 +204,6 @@ export default function SignupForm() {
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
-          </div>
-
-          {/* Password Strength Bar */}
-          <div className="h-2 w-full bg-gray-200 dark:bg-[#0F1117] rounded">
-            <div
-              style={{ width: `${(getStrength() / 4) * 100}%` }}
-              className="h-2 bg-[#16D1A5] rounded transition-all"
-            />
           </div>
 
           {/* Confirm Password */}
