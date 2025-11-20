@@ -16,7 +16,12 @@ export default function SettingsPage() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState("");
+
+  // Separate messages
+  const [passwordMessage, setPasswordMessage] = useState("");
+  const [apiMessage, setApiMessage] = useState("");
+  const [preferencesMessage, setPreferencesMessage] = useState("");
+
   const [apiKey, setApiKey] = useState(null);
   const [isPending, startTransition] = useTransition();
   const [isGenerating, startGenerate] = useTransition();
@@ -25,22 +30,25 @@ export default function SettingsPage() {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  /* ------------------------------
+      Password Update Handler
+  ------------------------------ */
   const handlePasswordUpdate = () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setMessage("⚠️ Please fill all fields.");
+      setPasswordMessage("⚠️ Please fill all fields.");
       return;
     }
     if (newPassword !== confirmPassword) {
-      setMessage("⚠️ Passwords do not match.");
+      setPasswordMessage("⚠️ Passwords do not match.");
       return;
     }
 
     startTransition(async () => {
-      setMessage("Updating password...");
+      setPasswordMessage("Updating password...");
       const res = await changePassword({ currentPassword, newPassword });
 
-      if (res.error) setMessage(`❌ ${res.error}`);
-      else setMessage("✔ Password updated successfully!");
+      if (res.error) setPasswordMessage(`❌ ${res.error}`);
+      else setPasswordMessage("✔ Password updated successfully!");
 
       setCurrentPassword("");
       setNewPassword("");
@@ -48,18 +56,28 @@ export default function SettingsPage() {
     });
   };
 
+  /* ------------------------------
+      API Key Handler
+  ------------------------------ */
   const handleGenerateApiKey = () => {
     startGenerate(async () => {
-      setMessage("Generating API key...");
+      setApiMessage("Generating API key...");
       const res = await generateApiKey();
 
       if (res.success) {
         setApiKey(res.apiKey);
-        setMessage("✔ API key generated!");
+        setApiMessage("✔ API key generated!");
       } else {
-        setMessage(`❌ ${res.error}`);
+        setApiMessage(`❌ ${res.error}`);
       }
     });
+  };
+
+  /* ------------------------------
+      Save Preferences
+  ------------------------------ */
+  const handlePreferencesSave = () => {
+    setPreferencesMessage("✔ Preferences saved successfully!");
   };
 
   return (
@@ -81,6 +99,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
         {/* User Info */}
         <Section
           icon={<FaUserCircle />}
@@ -130,11 +149,9 @@ export default function SettingsPage() {
                 onClick={handlePasswordUpdate}
               />
 
-              {message && (
-                <p className="mt-3 text-sm p-2 rounded-lg text-center
-                bg-gray-200 dark:bg-[#1A1F2B] border border-gray-300 dark:border-[#2B3143]">
-                  {message}
-                </p>
+              {/* Password Message */}
+              {passwordMessage && (
+                <AlertBox message={passwordMessage} />
               )}
             </>
           }
@@ -155,13 +172,22 @@ export default function SettingsPage() {
                 onClick={handleGenerateApiKey}
               />
 
-              {apiKey && (
-                <div
-                  className="mt-4 p-3 rounded-lg text-center font-mono text-sm 
-                             bg-gray-200 dark:bg-[#1A1F2B] border border-gray-300 dark:border-[#2B3143]"
-                >
-                  🔑 {apiKey}
-                </div>
+             {apiKey && (
+  <div
+    className="mt-4 w-full p-3 rounded-lg text-sm font-mono 
+               bg-gray-100 dark:bg-[#141823]
+               border border-gray-300 dark:border-[#2B3143]
+               text-gray-900 dark:text-gray-200
+               break-all"
+  >
+    🔑 {apiKey}
+  </div>
+)}
+
+
+              {/* API Message */}
+              {apiMessage && (
+                <AlertBox message={apiMessage} />
               )}
 
               <div
@@ -175,7 +201,7 @@ export default function SettingsPage() {
           }
         />
 
-        {/* Language */}
+        {/* Language + Timezone */}
         <Section
           icon={<FaLanguage />}
           title="Language & Timezone"
@@ -204,10 +230,16 @@ export default function SettingsPage() {
                 />
               </div>
 
-              <PrimaryButton text="Save Preferences" />
+              <PrimaryButton text="Save Preferences" onClick={handlePreferencesSave} />
+
+              {/* Preferences Message */}
+              {preferencesMessage && (
+                <AlertBox message={preferencesMessage} />
+              )}
             </>
           }
         />
+
       </div>
     </motion.div>
   );
@@ -239,6 +271,23 @@ function Section({ icon, title, content }) {
 }
 
 /* ----------------------------------------
+   Alert Box (Reusable)
+---------------------------------------- */
+function AlertBox({ message }) {
+  return (
+    <div
+      className="mt-4 px-4 py-3 rounded-lg text-sm
+                 bg-gray-100 dark:bg-[#141823]
+                 border border-gray-300 dark:border-[#2B3143]
+                 text-gray-800 dark:text-gray-200
+                 shadow-sm"
+    >
+      {message}
+    </div>
+  );
+}
+
+/* ----------------------------------------
    Password Input
 ---------------------------------------- */
 function PasswordInput({ label, value, onChange, show, setShow }) {
@@ -255,8 +304,7 @@ function PasswordInput({ label, value, onChange, show, setShow }) {
         className="w-full rounded-lg px-4 py-2.5 pr-10
                   bg-gray-100 dark:bg-[#0F1117]
                   border border-gray-300 dark:border-[#2B3143]
-                  text-gray-900 dark:text-gray-200
-                  focus:outline-none"
+                  text-gray-900 dark:text-gray-200"
       />
 
       <button
@@ -285,8 +333,7 @@ function Input({ label, value, readOnly }) {
         className="w-full rounded-lg px-4 py-2.5
                   bg-gray-100 dark:bg-[#0F1117]
                   border border-gray-300 dark:border-[#2B3143]
-                  text-gray-900 dark:text-gray-300
-                  focus:outline-none"
+                  text-gray-900 dark:text-gray-300"
       />
     </div>
   );
@@ -305,8 +352,7 @@ function Select({ label, options }) {
         className="w-full rounded-lg px-4 py-2.5
                    bg-gray-100 dark:bg-[#0F1117]
                    border border-gray-300 dark:border-[#2B3143]
-                   text-gray-900 dark:text-gray-200
-                   focus:outline-none"
+                   text-gray-900 dark:text-gray-200"
       >
         {options.map((opt, i) => (
           <option key={i} className="text-black dark:text-white">
@@ -319,7 +365,7 @@ function Select({ label, options }) {
 }
 
 /* ----------------------------------------
-   Gray Button
+   Button
 ---------------------------------------- */
 function PrimaryButton({ text, onClick }) {
   return (

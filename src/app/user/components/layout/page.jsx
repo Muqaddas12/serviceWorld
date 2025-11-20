@@ -47,6 +47,7 @@ export default function Page({ user, children, websiteName }) {
     { icon: <MdPayment />, text: "Add Funds", href: "/user/addfunds" },
     { icon: <MdHelp />, text: "Tickets Support", href: "/user/support" },
     { icon: <MdLink />, text: "Referral", href: "/user/referral" },
+    { icon: <MdLink />, text: "Api", href: "/user/api" },
     { icon: <MdDns />, text: "Child Panel", href: "/user/child-panel" },
   ];
 

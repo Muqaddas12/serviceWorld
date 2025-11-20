@@ -95,7 +95,7 @@ return (
               <strong>{symbol}{convertedPrice}</strong>
             </p>
             <Link
-              href="/add-funds"
+              href="/user/addfunds"
               className="inline-block mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
             >
               Add Balance

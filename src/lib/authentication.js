@@ -319,8 +319,9 @@ export async function adminLoginAction(email,password) {
     const token = jwt.sign({ email,role:'admin' }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
     // Set cookie
-   await cookies().set({
-      name: "token",
+  const cookieStore= await cookies()
+  cookieStore.set({
+      name: "admin_token",
       value: token,
       httpOnly: true,
       secure: true,
@@ -331,5 +332,21 @@ export async function adminLoginAction(email,password) {
     return { success: true, message: "Login successful" };
   } else {
     return { success: false, message: "Invalid credentials" };
+  }
+}
+
+
+
+
+// =========================
+// LOGOUT USER
+// =========================
+export async function LogoutAdmin() {
+  try {
+    const cookieStore = await cookies();
+    cookieStore.delete("admin_token");
+    return { message: "Logged out successfully" };
+  } catch (err) {
+    return { error: err.message };
   }
 }

@@ -97,9 +97,7 @@ export default function OrdersPage({ sorders = [] }) {
                 <td className="p-3 font-medium">{order.service}</td>
 
                 <td className="p-3 text-blue-600 dark:text-blue-400 underline truncate max-w-[150px]">
-                  <a href={order.link} target="_blank">
-                    {order.link}
-                  </a>
+                  <a href={order.link} target="_blank">{order.link}</a>
                 </td>
 
                 <td className="p-3">{order.quantity}</td>
@@ -121,23 +119,36 @@ export default function OrdersPage({ sorders = [] }) {
                       Options
                     </summary>
 
-                    <div className="absolute mt-2 bg-white dark:bg-[#1b1b1b] border border-gray-300 dark:border-gray-700 rounded p-2 w-44 z-50 shadow-lg">
+                    <div className="absolute mt-2 bg-white dark:bg-[#1b1b1b] border border-gray-300 dark:border-gray-700 
+rounded-xl p-2 w-48 z-50 shadow-xl transition-all duration-200">
+
                       {[
                         ["editUrl", "Edit URL"],
                         ["editStart", "Edit Start Count"],
                         ["partial", "Mark Partial"],
                         ["resend", "Resend Order"],
                         ["cancelReason", "Reason of Cancel"],
-                      ].map(([type, label]) => (
-                        <button
-                          key={type}
-                          onClick={() => openPopup(type, order)}
-                          className="block w-full text-left px-2 py-1 hover:bg-gray-200 dark:hover:bg-gray-700"
-                        >
-                          {label}
-                        </button>
-                      ))}
+                      ]
+                        .filter(([type]) => {
+                          const status = String(order?.status)?.toLowerCase();
+
+                          if (status === "completed") return false;              // no options
+                          if (status === "cancelled") return true;               // all options
+                          if (type === "cancelReason") return false;             // hide reason cancel
+                          return true;
+                        })
+                        .map(([type, label]) => (
+                          <button
+                            key={type}
+                            onClick={() => openPopup(type, order)}
+                            className="block w-full text-left px-3 py-2 rounded-lg 
+hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                          >
+                            {label}
+                          </button>
+                        ))}
                     </div>
+
                   </details>
                 </td>
               </motion.tr>
@@ -182,23 +193,36 @@ export default function OrdersPage({ sorders = [] }) {
                   Options
                 </summary>
 
-                <div className="mt-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded p-2">
+                <div className="mt-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 
+rounded-xl p-2 shadow">
+
                   {[
                     ["editUrl", "Edit URL"],
                     ["editStart", "Edit Start Count"],
                     ["partial", "Mark Partial"],
-                    ["resend", "Resend Order"],
+                   
                     ["cancelReason", "Reason of Cancel"],
-                  ].map(([type, label]) => (
-                    <button
-                      key={type}
-                      onClick={() => openPopup(type, order)}
-                      className="block w-full text-left px-2 py-1 hover:bg-gray-200 dark:hover:bg-gray-600"
-                    >
-                      {label}
-                    </button>
-                  ))}
+                  ]
+                    .filter(([type]) => {
+                      const status = String(order?.status)?.toLowerCase();
+
+                      if (status === "completed") return false;       
+                      if (status === "cancelled") return true;        
+                      if (type === "cancelReason") return false;      
+                      return true;
+                    })
+                    .map(([type, label]) => (
+                      <button
+                        key={type}
+                        onClick={() => openPopup(type, order)}
+                        className="block w-full text-left px-3 py-2 rounded-lg
+hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                      >
+                        {label}
+                      </button>
+                    ))}
                 </div>
+
               </details>
             </div>
           </motion.div>

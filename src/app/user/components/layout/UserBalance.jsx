@@ -7,8 +7,12 @@ export default function UserBalance({ user }) {
     <div className="flex items-center gap-3">
 
       {/* Balance */}
-      {user?.balance != null && (
+      {user?.balance != null ? (
         <p className="text-sm text-gray-600 dark:text-gray-300">
+          Balance: {symbol}{convert(user.balance).toFixed(2)}
+        </p>
+      ):(
+         <p className="text-sm text-gray-600 dark:text-gray-300">
           Balance: {symbol}{convert(user.balance).toFixed(2)}
         </p>
       )}

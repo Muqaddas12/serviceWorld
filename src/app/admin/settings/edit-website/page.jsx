@@ -102,19 +102,7 @@ export default function EditWebsite() {
             onChange={(v) => setFormData((p) => ({ ...p, servicesEnabled: v }))}
           />
 
-          {/* Membership Pricing */}
-          <SectionTitle title="Membership Pricing" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {["bronzeMember", "silverMember", "goldMember", "reseller"].map((field) => (
-              <Input
-                key={field}
-                label={field.replace(/([A-Z])/g, " $1")}
-                name={field}
-                value={formData[field]}
-                onChange={handleChange}
-              />
-            ))}
-          </div>
+        
 
           <button
             type="submit"
