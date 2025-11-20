@@ -9,6 +9,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { loginUser } from "@/lib/authentication";
 import { Mail, Lock } from "lucide-react";
+import { FaGoogle } from "react-icons/fa";
 
 const schema = yup.object().shape({
   email: yup.string().email("Enter a valid email").required("Email required"),
@@ -21,6 +22,9 @@ export default function MainTop({ websiteName }) {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+   const handleGoogleLogin = () => {
+    window.location.href = "/api/auth/google";
+  };
   const {
     register,
     handleSubmit,
@@ -79,10 +83,10 @@ export default function MainTop({ websiteName }) {
           <p className="text-[#4A6CF7] font-semibold text-lg">
             {websiteName}
           </p>
+<h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
+  SMM Panel – Fastest & Cheapest Services Worldwide
+</h1>
 
-          <h1 className="text-3xl md:text-4xl font-bold leading-tight">
-            SMM Panel – Fastest & Cheapest Services Worldwide
-          </h1>
 
           <p className="text-[#4A5568] dark:text-[#A0AEC3] text-lg">
             Over <span className="text-[#4A6CF7] font-semibold">82,045,541+</span> orders processed!
@@ -140,13 +144,16 @@ export default function MainTop({ websiteName }) {
 </div>
 
 
-            {/* CAPTCHA */}
-            <div className="flex justify-center">
-              <ReCAPTCHA
-                ref={recaptchaRef}
-                sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
-              />
-            </div>
+           {/* CAPTCHA (Responsive) */}
+<div className="w-full flex justify-center">
+  <div className="scale-[0.85] sm:scale-100 origin-top">
+    <ReCAPTCHA
+      ref={recaptchaRef}
+      sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
+    />
+  </div>
+</div>
+
 
             {/* Remember + Forgot */}
             <div className="flex justify-between items-center text-sm text-[#4A5568] dark:text-[#A0AEC3]">
@@ -170,7 +177,13 @@ export default function MainTop({ websiteName }) {
             >
               {loading ? "Signing in..." : "Sign in"}
             </button>
-
+  {/* Google Button */}
+        <button
+          onClick={handleGoogleLogin}
+          className="w-full py-3 mt-2 rounded-xl flex items-center justify-center gap-2 bg-[#F5F7FA] dark:bg-[#0F1117] border border-[#4A6CF7]/20 text-[#1A1A1A] dark:text-white font-semibold hover:text-[#4A6CF7] hover:shadow-md transition"
+        >
+          <FaGoogle className="text-[#4A6CF7]" /> Sign in with Google
+        </button>
             {message && (
               <p className="text-center text-[#4A6CF7] text-sm">{message}</p>
             )}

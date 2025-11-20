@@ -119,13 +119,16 @@ export default function LoginForm() {
           )}
         </div>
 
-        {/* CAPTCHA */}
-        <div className="flex justify-center">
-          <ReCAPTCHA
-            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
-            onChange={(value) => setCaptchaValue(value)}
-          />
-        </div>
+       {/* CAPTCHA (Responsive) */}
+<div className="w-full flex justify-center">
+  <div className="origin-top scale-[0.85] sm:scale-100">
+    <ReCAPTCHA
+      sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+      onChange={(value) => setCaptchaValue(value)}
+    />
+  </div>
+</div>
+
 
         {/* Login Button */}
         <button
