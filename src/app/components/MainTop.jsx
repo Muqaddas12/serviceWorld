@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { loginUser } from "@/lib/authentication";
+import { Mail, Lock } from "lucide-react";
 
 const schema = yup.object().shape({
   email: yup.string().email("Enter a valid email").required("Email required"),
@@ -90,48 +91,54 @@ export default function MainTop({ websiteName }) {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 
             {/* Email */}
-            <div>
-              <input
-                type="email"
-                placeholder="Email"
-                {...register("email")}
-                className={`
-                  w-full px-4 py-3 rounded-xl
-                  bg-white dark:bg-[#1A1F2B]
-                  text-[#1A1A1A] dark:text-white
-                  placeholder-[#4A5568] dark:placeholder-[#A0AEC3]
-                  border 
-                  ${errors.email ? "border-red-500" : "border-[#4A6CF7]/30"}
-                  focus:ring-2 focus:ring-[#4A6CF7]
-                  outline-none
-                `}
-              />
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
-              )}
-            </div>
+            <div className="relative">
+  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4A5568] dark:text-[#A0AEC3] w-5 h-5" />
+
+  <input
+    type="email"
+    placeholder="Email"
+    {...register("email")}
+    className={`
+      w-full pl-10 pr-4 py-3 rounded-xl
+      bg-white dark:bg-[#1A1F2B]
+      text-[#1A1A1A] dark:text-white
+      placeholder-[#4A5568] dark:placeholder-[#A0AEC3]
+      border 
+      ${errors.email ? "border-red-500" : "border-[#4A6CF7]/30"}
+      focus:ring-2 focus:ring-[#4A6CF7]
+      outline-none
+    `}
+  />
+  {errors.email && (
+    <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+  )}
+</div>
+
 
             {/* Password */}
-            <div>
-              <input
-                type="password"
-                placeholder="Password"
-                {...register("password")}
-                className={`
-                  w-full px-4 py-3 rounded-xl
-                  bg-white dark:bg-[#1A1F2B]
-                  text-[#1A1A1A] dark:text-white
-                  placeholder-[#4A5568] dark:placeholder-[#A0AEC3]
-                  border 
-                  ${errors.password ? "border-red-500" : "border-[#4A6CF7]/30"}
-                  focus:ring-2 focus:ring-[#4A6CF7]
-                  outline-none
-                `}
-              />
-              {errors.password && (
-                <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
-              )}
-            </div>
+           <div className="relative">
+  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4A5568] dark:text-[#A0AEC3] w-5 h-5" />
+
+  <input
+    type="password"
+    placeholder="Password"
+    {...register("password")}
+    className={`
+      w-full pl-10 pr-4 py-3 rounded-xl
+      bg-white dark:bg-[#1A1F2B]
+      text-[#1A1A1A] dark:text-white
+      placeholder-[#4A5568] dark:placeholder-[#A0AEC3]
+      border 
+      ${errors.password ? "border-red-500" : "border-[#4A6CF7]/30"}
+      focus:ring-2 focus:ring-[#4A6CF7]
+      outline-none
+    `}
+  />
+  {errors.password && (
+    <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+  )}
+</div>
+
 
             {/* CAPTCHA */}
             <div className="flex justify-center">

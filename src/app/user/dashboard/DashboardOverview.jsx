@@ -3,9 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   MdAddShoppingCart,
-  MdAccountBalanceWallet,
-  MdTrendingUp,
-  MdSupportAgent,
+
 } from "react-icons/md";
 import { FaUserCircle, FaTools } from "react-icons/fa";
 import SocialButtons from "./SocialMediaButton";

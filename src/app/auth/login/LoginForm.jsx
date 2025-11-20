@@ -1,4 +1,4 @@
-// Updated LoginForm with full Light/Dark Theme System
+// Updated LoginForm with Icons + Light/Dark Theme System
 "use client";
 
 import { useState } from "react";
@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import ReCAPTCHA from "react-google-recaptcha";
-import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaGoogle, FaEnvelope, FaLock } from "react-icons/fa";
 import { loginUser } from "@/lib/authentication";
 
 const schema = yup.object().shape({
@@ -70,29 +70,43 @@ export default function LoginForm() {
         </h1>
 
         {/* Email Input */}
-        <div>
+        <div className="relative">
+          <FaEnvelope className="absolute left-4 top-3.5 text-[#4A5568] dark:text-[#A0AEC3]" />
+
           <input
             type="email"
             placeholder="Enter your email"
             {...register("email")}
-            className={`w-full px-4 py-3 rounded-xl bg-[#F5F7FA] dark:bg-[#0F1117] border border-[#4A6CF7]/20 text-[#1A1A1A] dark:text-white placeholder-[#4A5568] dark:placeholder-[#A0AEC3] focus:ring-2 focus:ring-[#4A6CF7] focus:outline-none transition ${
+            className={`w-full pl-12 pr-4 py-3 rounded-xl bg-[#F5F7FA] dark:bg-[#0F1117] border border-[#4A6CF7]/20 
+            text-[#1A1A1A] dark:text-white placeholder-[#4A5568] 
+            dark:placeholder-[#A0AEC3] focus:ring-2 focus:ring-[#4A6CF7] 
+            focus:outline-none transition ${
               errors.email ? "border-red-500 focus:ring-red-500" : ""
             }`}
           />
-          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+
+          {errors.email && (
+            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+          )}
         </div>
 
         {/* Password Input */}
         <div className="relative">
+          <FaLock className="absolute left-4 top-3.5 text-[#4A5568] dark:text-[#A0AEC3]" />
+
           <input
             type={showPassword ? "text" : "password"}
             placeholder="Enter your password"
             {...register("password")}
-            className={`w-full px-4 py-3 rounded-xl bg-[#F5F7FA] dark:bg-[#0F1117] border border-[#4A6CF7]/20 text-[#1A1A1A] dark:text-white placeholder-[#4A5568] dark:placeholder-[#A0AEC3] focus:ring-2 focus:ring-[#4A6CF7] focus:outline-none transition ${
+            className={`w-full pl-12 pr-12 py-3 rounded-xl bg-[#F5F7FA] dark:bg-[#0F1117] border border-[#4A6CF7]/20 
+            text-[#1A1A1A] dark:text-white placeholder-[#4A5568] 
+            dark:placeholder-[#A0AEC3] focus:ring-2 focus:ring-[#4A6CF7] 
+            focus:outline-none transition ${
               errors.password ? "border-red-500 focus:ring-red-500" : ""
             }`}
           />
 
+          {/* Show/Hide Password */}
           <span
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-4 top-3.5 text-[#4A5568] dark:text-[#A0AEC3] hover:text-[#4A6CF7] transition cursor-pointer"
@@ -100,12 +114,17 @@ export default function LoginForm() {
             {showPassword ? <FaEyeSlash /> : <FaEye />}
           </span>
 
-          {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
+          {errors.password && (
+            <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+          )}
         </div>
 
         {/* CAPTCHA */}
         <div className="flex justify-center">
-          <ReCAPTCHA sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY} onChange={(value) => setCaptchaValue(value)} />
+          <ReCAPTCHA
+            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+            onChange={(value) => setCaptchaValue(value)}
+          />
         </div>
 
         {/* Login Button */}
@@ -138,7 +157,11 @@ export default function LoginForm() {
 
         {/* Message */}
         {message && (
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-[#4A6CF7] text-sm mt-2">
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center text-[#4A6CF7] text-sm mt-2"
+          >
             {message}
           </motion.p>
         )}

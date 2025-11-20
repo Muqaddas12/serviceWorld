@@ -33,14 +33,14 @@ function checkRateLimit(ip) {
 // =========================
 // USER SIGNUP
 // =========================
-export async function registerUser({ email, username, password, captcha, ip = "127.0.0.1" }) {
+export async function registerUser({ email, username, password,mobile, captcha, ip = "127.0.0.1" }) {
   console.log(email,username,password,captcha,ip)
   try {
     if (checkRateLimit(ip)) {
       return { error: "Too many requests, try again later." };
     }
 
-    if (!email || !username || !password || !captcha) {
+    if (!email || !username || !password || !captcha || !mobile) {
       return { error: "Missing fields or CAPTCHA" };
     }
 
@@ -56,7 +56,7 @@ export async function registerUser({ email, username, password, captcha, ip = "1
     if (existingUser) return { error: "User or email already exists" };
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = { username, email, password: hashedPassword };
+    const user = { username, email,mobile, password: hashedPassword };
     await db.collection("users").insertOne(user);
 
     // Generate JWT
