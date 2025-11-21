@@ -17,7 +17,14 @@ export async function getUserDetails() {
     const cookieStore = await cookies();
     const token = cookieStore.get("token");
 
-    if (!token) return { error: "Not authenticated" };
+    if (!token) {
+      return {
+        success: false,
+        user: null,
+        balance: 0,   // ALWAYS RETURN DEFAULT
+        error: "Not authenticated",
+      };
+    }
 
     const decoded = jwt.verify(token.value, JWT_SECRET);
 
@@ -28,28 +35,41 @@ export async function getUserDetails() {
       .collection("users")
       .findOne({ email: decoded.email }, { projection: { password: 0 } });
 
-    if (!user) return { error: "User not found" };
-   
+    if (!user) {
+      return {
+        success: false,
+        user: null,
+        balance: 0,
+        error: "User not found",
+      };
+    }
+
     return {
-  success:true,
-    avatar:user.avatar,
-    balance:user.balance,
-    email:user.email,
-    username:user.username,
-    frozen:user.frozen,
-}
+      success: true,
+      avatar: user.avatar,
+      balance: user.balance ?? 0,
+      email: user.email,
+      username: user.username,
+      frozen: user.frozen,
+    };
   } catch (err) {
-    return { error: err.message };
+    return {
+      success: false,
+      user: null,
+      balance: 0,
+      error: err.message,
+    };
   }
 }
 
-// ========================= GET USER Balance =========================
 export async function getUserBalance() {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("token");
 
-    if (!token) return { error: "Not authenticated" };
+    if (!token) {
+      return { success:false, balance: 0, error: "Not authenticated" };
+    }
 
     const decoded = jwt.verify(token.value, JWT_SECRET);
 
@@ -60,11 +80,11 @@ export async function getUserBalance() {
       .collection("users")
       .findOne({ email: decoded.email }, { projection: { password: 0 } });
 
-    if (!user) return { error: "User not found" };
-const balance=user?.balance
-    return {  balance};
+    if (!user) return { success:false, balance: 0, error: "User not found" };
+
+    return { success:true, balance: user.balance ?? 0 };
   } catch (err) {
-    return { error: err.message };
+    return { success:false, balance: 0, error: err.message };
   }
 }
 
