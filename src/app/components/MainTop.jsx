@@ -198,16 +198,17 @@ export default function MainTop({ websiteName }) {
         </div>
 
         {/* RIGHT — HERO IMAGE */}
-        <div className="flex justify-center md:justify-end">
-          <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-96 lg:h-96">
-            <Image
-              src="https://storage.perfectcdn.com/81013d/cisiri3e4fe0qu1o.webp"
-              alt="hero"
-              fill
-              className="object-contain"
-            />
-          </div>
-        </div>
+      <div className="flex justify-center md:justify-end">
+  <div className="relative w-72 h-72 sm:w-96 sm:h-96 md:w-[28rem] md:h-[28rem] lg:w-[32rem] lg:h-[32rem]">
+    <Image
+      src="https://storage.perfectcdn.com/81013d/cisiri3e4fe0qu1o.webp"
+      alt="hero"
+      fill
+      className="object-contain"
+    />
+  </div>
+</div>
+
 
       </div>
     </section>
