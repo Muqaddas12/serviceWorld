@@ -19,8 +19,18 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const res = await getWebsiteSettings();
-  const settings = JSON.parse(res.plainsettings);
+ const res = await getWebsiteSettings();
+
+let settings = {};
+try {
+  settings = JSON.parse(res?.plainsettings ?? "{}");
+} catch (err) {
+  console.error("Invalid JSON in plainsettings:", err);
+  settings = {};
+}
+
+console.log(settings);
+
 
   return (
     <html lang="en" className="" suppressHydrationWarning>

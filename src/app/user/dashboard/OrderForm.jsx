@@ -208,69 +208,70 @@ export default function OrderForm({ selectedCategory }) {
         {/* FORM */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* SEARCH */}
-          <div className="relative z-40" ref={searchRef}>
-            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400" />
+          <div className="relative" ref={searchRef}>
+  <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400" />
 
-            <input
-              type="text"
-              placeholder="Search service..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setSearchDropdownOpen(true);
-              }}
-              className="
-                w-full pl-10 pr-3 py-2 rounded-lg
-                bg-gray-100 dark:bg-[#0F1117]
-                border border-gray-300 dark:border-[#2B3143]
-                text-gray-700 dark:text-white
-              "
-            />
+  <input
+    type="text"
+    placeholder="Search service..."
+    value={searchTerm}
+    onChange={(e) => {
+      setSearchTerm(e.target.value);
+      setSearchDropdownOpen(true);
+    }}
+    className="
+      w-full pl-10 pr-3 py-2 rounded-lg
+      bg-gray-100 dark:bg-[#0F1117]
+      border border-gray-300 dark:border-[#2B3143]
+      text-gray-700 dark:text-white
+    "
+  />
 
-            {searchTerm && searchDropdownOpen && (
-              <div
-                className="
-                  absolute left-0 top-full mt-2
-                  w-full max-h-64 overflow-y-auto
-                  bg-gray-50 dark:bg-[#1A1F2B]
-                  border border-gray-300 dark:border-[#2B3143]
-                  rounded-lg shadow-lg
-                  z-50
-                "
-              >
-                {loading ? (
-                  <div className="p-4 text-center">
-                    <FaSpinner className="animate-spin inline-block mr-2" />
-                    Searching...
-                  </div>
-                ) : filteredServices.length > 0 ? (
-                  filteredServices.map((srv) => (
-                    <div
-                      key={srv.service}
-                      onClick={() => {
-                        setSearchTerm(srv.name);
-                        setService(srv.service);
-                        setSelectedService(srv);
-                        setCategory(srv.category);
-                        setSearchDropdownOpen(false);
-                      }}
-                      className="
-                        px-4 py-3 cursor-pointer
-                        hover:bg-gray-200 dark:hover:bg-white/10
-                      "
-                    >
-                      <p className="font-semibold">{srv.name}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {srv.description}
-                      </p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-center p-3 text-gray-500">No results found.</p>
-                )}
-              </div>
-            )}
+  {searchTerm && searchDropdownOpen && (
+    <div
+      className="
+        absolute left-0 top-full mt-2
+        w-full max-h-64 overflow-y-auto
+        bg-gray-50 dark:bg-[#1A1F2B]
+        border border-gray-300 dark:border-[#2B3143]
+        rounded-lg shadow-lg
+        z-[99999]
+      "
+    >
+      {loading ? (
+        <div className="p-4 text-center">
+          <FaSpinner className="animate-spin inline-block mr-2" />
+          Searching...
+        </div>
+      ) : filteredServices.length > 0 ? (
+        filteredServices.map((srv) => (
+          <div
+            key={srv.service}
+            onClick={() => {
+              setSearchTerm(srv.name);
+              setService(srv.service);
+              setSelectedService(srv);
+              setCategory(srv.category);
+              setSearchDropdownOpen(false);
+            }}
+            className="
+              px-4 py-3 cursor-pointer
+              hover:bg-gray-200 dark:hover:bg-white/10
+            "
+          >
+            <p className="font-semibold">{srv.name}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {srv.description}
+            </p>
           </div>
+        ))
+      ) : (
+        <p className="text-center p-3 text-gray-500">No results found.</p>
+      )}
+    </div>
+  )}
+</div>
+
 
           {/* CATEGORY */}
           <div className="relative" ref={categoryRef}>
@@ -316,50 +317,55 @@ export default function OrderForm({ selectedCategory }) {
             )}
           </div>
 
-          {/* SERVICE */}
-          <div className="relative z-40" ref={dropdownRef}>
-            <label className="block mb-1 text-sm font-medium dark:text-gray-300">Service</label>
+       {/* SERVICE */}
+{/* SERVICE */}
+<div className="relative" ref={dropdownRef}>
+  <label className="block mb-1 text-sm font-medium dark:text-gray-300">
+    Service
+  </label>
 
-            <div
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="
-                bg-gray-100 dark:bg-[#0F1117]
-                border border-gray-300 dark:border-[#2B3143]
-                px-3 py-2 rounded-lg cursor-pointer
-              "
-            >
-              {service
-                ? `${selectedService?.service} | ${selectedService?.name} | ₹${selectedService?.rate}`
-                : "Select a service"}
-            </div>
+  <div
+    onClick={() => setDropdownOpen(!dropdownOpen)}
+    className="
+      bg-gray-100 dark:bg-[#0F1117]
+      border border-gray-300 dark:border-[#2B3143]
+      px-3 py-2 rounded-lg cursor-pointer
+    "
+  >
+    {service
+      ? `${selectedService?.service} | ${selectedService?.name} | ₹${selectedService?.rate}`
+      : "Select a service"}
+  </div>
 
-            {dropdownOpen && filteredServices.length > 0 && (
-              <ul
-                className="
-                  absolute left-0 top-full mt-2
-                  w-full max-h-56 overflow-y-auto
-                  bg-gray-50 dark:bg-[#1A1F2B]
-                  border border-gray-300 dark:border-[#2B3143]
-                  rounded-lg shadow-lg
-                  z-50
-                "
-              >
-                {filteredServices.map((srv) => (
-                  <li
-                    key={srv.service}
-                    onClick={() => {
-                      setService(srv.service);
-                      setSelectedService(srv);
-                      setDropdownOpen(false);
-                    }}
-                    className="px-4 py-2 hover:bg-gray-200 dark:hover:bg-white/10 cursor-pointer"
-                  >
-                    {srv.service} — {srv.name} — ₹{srv.rate}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+  {dropdownOpen && filteredServices.length > 0 && (
+    <ul
+      className="
+        absolute left-0 top-full mt-2
+        w-full max-h-56 overflow-y-auto
+        bg-gray-50 dark:bg-[#1A1F2B]
+        border border-gray-300 dark:border-[#2B3143]
+        rounded-lg shadow-lg
+        z-[99999]
+      "
+    >
+      {filteredServices.map((srv) => (
+        <li
+          key={srv.service}
+          onClick={() => {
+            setService(srv.service);
+            setSelectedService(srv);
+            setDropdownOpen(false);
+          }}
+          className="px-4 py-2 hover:bg-gray-200 dark:hover:bg-white/10 cursor-pointer"
+        >
+          {srv.service} — {srv.name} — ₹{srv.rate}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
+
 
           {/* SERVICE INFO */}
           {selectedService && (
