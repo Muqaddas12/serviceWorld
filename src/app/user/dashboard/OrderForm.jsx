@@ -6,8 +6,9 @@ import { FaSearch, FaSpinner } from "react-icons/fa";
 import { MdReceipt, MdAccessTime } from "react-icons/md";
 import { createOrderAction } from "@/lib/userActions";
 import QuickActions from "./QuickActions";
-
+import { useCurrency } from "@/context/CurrencyContext";
 export default function OrderForm({ selectedCategory }) {
+  const {symbol,convert}=useCurrency()
   const [category, setCategory] = useState(selectedCategory || "");
   const [service, setService] = useState("");
   const [link, setLink] = useState("");
@@ -333,7 +334,8 @@ export default function OrderForm({ selectedCategory }) {
     "
   >
     {service
-      ? `${selectedService?.service} | ${selectedService?.name} | ₹${selectedService?.rate}`
+      ? `${selectedService?.service} | ${selectedService?.name} | ${symbol} ${convert(Number(selectedService?.rate || 0)).toFixed(2)}
+`
       : "Select a service"}
   </div>
 
@@ -358,7 +360,9 @@ export default function OrderForm({ selectedCategory }) {
           }}
           className="px-4 py-2 hover:bg-gray-200 dark:hover:bg-white/10 cursor-pointer"
         >
-          {srv.service} — {srv.name} — ₹{srv.rate}
+    {srv.service} — {srv.name} — {symbol}{convert(Number(srv.rate || 0)).toFixed(2)}
+
+
         </li>
       ))}
     </ul>
@@ -381,7 +385,7 @@ export default function OrderForm({ selectedCategory }) {
               </p>
 
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                {selectedService?.description || "No description available."}
+                {selectedService?.desc   || "No description available."}
               </p>
 
               <p className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
