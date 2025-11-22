@@ -1,11 +1,17 @@
+"use client";
+
 import Card from "./Card";
+import { useCurrency } from "@/context/CurrencyContext";
+
 const latestOrders = [
-  { id: "#1324", service: "Instagram Followers", amount: "₹350", status: "Completed" },
-  { id: "#1323", service: "YouTube Views", amount: "₹220", status: "Processing" },
-  { id: "#1322", service: "Twitter Likes", amount: "₹90", status: "Pending" },
+  { id: "#1324", service: "Instagram Followers", amount: 350, status: "Completed" },
+  { id: "#1323", service: "YouTube Views", amount: 220, status: "Processing" },
+  { id: "#1322", service: "Twitter Likes", amount: 90, status: "Pending" },
 ];
 
 export default function LatestOrders() {
+  const { symbol, convert } = useCurrency();
+
   return (
     <>
       {/* ================= LATEST ORDERS ================= */}
@@ -63,11 +69,12 @@ export default function LatestOrders() {
                   {/* Amount */}
                   <td
                     className="
-                    py-2 px-2 sm:py-3 sm:px-4 
-                    font-semibold text-green-600 dark:text-green-400
-                  "
+                      py-2 px-2 sm:py-3 sm:px-4 
+                      font-semibold text-green-600 dark:text-green-400
+                    "
                   >
-                    {order.amount}
+                    {symbol}
+                    {convert(order.amount).toFixed(2)}
                   </td>
 
                   {/* Status Badge */}
