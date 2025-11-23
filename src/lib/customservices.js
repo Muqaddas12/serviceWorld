@@ -186,6 +186,7 @@ export async function UpdateServiceAction(data) {
    ❌ DELETE SERVICE
 -------------------------------------------------------- */
 export async function DeleteServiceAction(serviceId) {
+    console.log(serviceId)
   try {
     const auth = await verifyAdmin();
     if (!auth.valid) return { status: false, message: auth.message };
@@ -194,7 +195,7 @@ export async function DeleteServiceAction(serviceId) {
     const db = client.db(DB_ADMIN);
     const collection = db.collection(COLLECTION);
 
-    const result = await collection.deleteOne({ id: Number(serviceId) });
+    const result = await collection.deleteOne({ id: (serviceId) });
 
     if (result.deletedCount === 0) {
       return { status: false, message: "Service not found" };

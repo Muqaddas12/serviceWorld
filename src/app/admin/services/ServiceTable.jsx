@@ -3,7 +3,7 @@
 import React, { useState,useRef,useEffect } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaTimes } from "react-icons/fa";
-import { UpdateServiceAction } from "@/lib/customservices";
+import { UpdateServiceAction,DeleteServiceAction } from "@/lib/customservices";
 const CATEGORY_OPTIONS = [
   "Instagram Shares",
   "Instagram : Comments [ RANDOM ]",
@@ -52,10 +52,10 @@ const CATEGORY_OPTIONS = [
 export default function ServiceTable({
   title,
   grouped,
-  custom,
+
   setSelectedService,
 
-  onDelete,
+  
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(null);
   const [editData, setEditData] = useState(null);
@@ -91,7 +91,14 @@ alert(res.message)
     const bCustom = grouped[b]?.some((s) => s.customservice);
     return aCustom === bCustom ? 0 : aCustom ? -1 : 1;
   });
-
+const onDelete=async(service)=>{
+const res=await DeleteServiceAction(service.service)
+if(!res.status){
+    alert(res.message)
+    return
+}
+alert(res.message)
+}
   return (
     <>
       {/* ================= TABLE WRAPPER ================= */}

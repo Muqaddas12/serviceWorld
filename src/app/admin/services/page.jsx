@@ -11,7 +11,7 @@ const Allservices=[
   ...services,
  
 ]
-
+console.log(customservices)
   return (
    <>
    <ServicesPage services={Allservices}/>
