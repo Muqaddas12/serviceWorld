@@ -1,8 +1,15 @@
 'use server'
 import { getServices } from "@/lib/services";
 import ServicesPage from "./ServicesPage";
-export default async function Services({services}) {
-const Allservices=await getServices()
+import { GetServicesAction } from "@/lib/customservices";
+export default async function Services() {
+const services=await getServices()
+
+const customservices= await GetServicesAction()
+const Allservices=[
+  ...services,
+  ...customservices,
+]
 
   return (
    <>

@@ -27,32 +27,100 @@ async function verifyAdmin() {
 /* -------------------------------------------------------
    ✅ ADD SERVICE
 -------------------------------------------------------- */
-export async function AddNewServiceAction(data) {
+    export async function AddNewServiceAction(data) {
+    try {
+        // 1) Verify admin
+        const auth = await verifyAdmin();
+        if (!auth.valid) return { status: false, message: auth.message };
+
+        // 2) MongoDB connection
+        const client = await clientPromise;
+        const db = client.db(DB_ADMIN);
+        const collection = db.collection(COLLECTION);
+
+        // 3) Clean + normalize input
+        const serviceId = Number(data.id);
+        const providerId = Number(data.provider);
+        const price = Number(data.price);
+        const min = data.min ? Number(data.min) : null;
+        const max = data.max ? Number(data.max) : null;
+
+        // 4) Validation
+        if (!serviceId || !data.name || !providerId || !price) {
+        return { status: false, message: "Missing required fields" };
+        }
+
+        // 5) Check Duplicate Service ID
+        const exists = await collection.findOne({ id: serviceId });
+        if (exists) {
+        return { status: false, message: "Service ID already exists" };
+        }
+
+        // 6) Insert
+        await collection.insertOne({
+        id: serviceId,
+        name: data.name,
+        description: data.description || "",
+        category: data.category || "",
+        type: data.type || "service",
+        refill: Boolean(data.refill),
+        cancelAllowed: Boolean(data.cancelAllowed),
+        provider: providerId,
+        price,
+        min,
+        max,
+        status: data.status || "enabled",
+        createdAt: new Date(),
+        });
+
+        // 7) Success response
+        return { status: true, message: "Service added successfully" };
+    } catch (error) {
+        console.error("AddNewServiceAction Error:", error);
+        return { status: false, message: "Internal server error" };
+    }
+    }
+
+
+    
+/* -------------------------------------------------------
+   📥 GET ALL SERVICES (PLAIN OBJECTS)
+-------------------------------------------------------- */
+export async function GetServicesAction() {
   try {
     const auth = await verifyAdmin();
-    if (!auth.valid) return { status: false, message: auth.message };
+    if (!auth.valid) return [];
 
     const client = await clientPromise;
     const db = client.db(DB_ADMIN);
     const collection = db.collection(COLLECTION);
 
-    const exists = await collection.findOne({ id: Number(data.id) });
-    if (exists) {
-      return { status: false, message: "Service ID already exists" };
-    }
+    const services = await collection.find({}).sort({ id: 1 }).toArray();
 
-    await collection.insertOne({
-      ...data,
-      id: Number(data.id),
-      createdAt: new Date(),
-    });
-
-    return { status: true, message: "Service added successfully" };
+    // return clean objects (no _id)
+    return services.map((s) => ({
+      service: s.id,
+      name: s.name,
+      type: s.type,
+      refill: s.refill,
+      desc:s.description,
+      cancelAllowed: s.cancelAllowed,
+      provider: s.provider,
+      category:s.category,
+      rate: s.price,
+      min: s.min,
+      max: s.max,
+      status: s.status,
+      createdAt: s.createdAt ? s.createdAt.toString() : null,
+      updatedAt: s.updatedAt ? s.updatedAt.toString() : null,
+      customservice:true,
+    }));
   } catch (error) {
-    console.error("AddNewServiceAction:", error);
-    return { status: false, message: "Internal server error" };
+    console.error("GetServicesAction:", error);
+    return [];
   }
 }
+
 
 /* -------------------------------------------------------
    🔄 UPDATE SERVICE
@@ -113,41 +181,6 @@ export async function DeleteServiceAction(serviceId) {
   } catch (error) {
     console.error("DeleteServiceAction:", error);
     return { status: false, message: "Internal server error" };
-  }
-}
-
-/* -------------------------------------------------------
-   📥 GET ALL SERVICES (PLAIN OBJECTS)
--------------------------------------------------------- */
-export async function GetServicesAction() {
-  try {
-    const auth = await verifyAdmin();
-    if (!auth.valid) return [];
-
-    const client = await clientPromise;
-    const db = client.db(DB_ADMIN);
-    const collection = db.collection(COLLECTION);
-
-    const services = await collection.find({}).sort({ id: 1 }).toArray();
-
-    // return clean objects (no _id)
-    return services.map((s) => ({
-      id: s.id,
-      name: s.name,
-      type: s.type,
-      refill: s.refill,
-      cancelAllowed: s.cancelAllowed,
-      provider: s.provider,
-      price: s.price,
-      min: s.min,
-      max: s.max,
-      status: s.status,
-      createdAt: s.createdAt ? s.createdAt.toString() : null,
-      updatedAt: s.updatedAt ? s.updatedAt.toString() : null,
-    }));
-  } catch (error) {
-    console.error("GetServicesAction:", error);
-    return [];
   }
 }
 
