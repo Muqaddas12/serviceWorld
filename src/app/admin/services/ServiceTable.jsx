@@ -3,6 +3,7 @@
 import React, { useState,useRef,useEffect } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaTimes } from "react-icons/fa";
+import { UpdateServiceAction } from "@/lib/customservices";
 const CATEGORY_OPTIONS = [
   "Instagram Shares",
   "Instagram : Comments [ RANDOM ]",
@@ -53,7 +54,7 @@ export default function ServiceTable({
   grouped,
   custom,
   setSelectedService,
-  onEdit,
+
   onDelete,
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(null);
@@ -72,6 +73,16 @@ useEffect(() => {
   document.addEventListener("mousedown", handleClickOutside);
   return () => document.removeEventListener("mousedown", handleClickOutside);
 }, []);
+const onEdit=async(updated)=>{
+const res=await UpdateServiceAction(updated)
+if(!res.status){
+    alert(res.message)
+    return 
+
+}
+alert(res.message)
+
+}
   /* ----------------------------------------------------
     SORT: Custom services first in each category
   ---------------------------------------------------- */

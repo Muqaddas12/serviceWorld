@@ -126,6 +126,7 @@ export async function GetServicesAction() {
    🔄 UPDATE SERVICE
 -------------------------------------------------------- */
 export async function UpdateServiceAction(data) {
+    console.log(data)
   try {
     const auth = await verifyAdmin();
     if (!auth.valid) return { status: false, message: auth.message };
@@ -134,7 +135,7 @@ export async function UpdateServiceAction(data) {
     const db = client.db(DB_ADMIN);
     const collection = db.collection(COLLECTION);
 
-    const id = Number(data.id);
+    const id = Number(data.service);
 
     const exists = await collection.findOne({ id });
     if (!exists) return { status: false, message: "Service not found" };
