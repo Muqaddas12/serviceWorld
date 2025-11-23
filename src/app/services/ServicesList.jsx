@@ -103,7 +103,7 @@ export default function ServicesList({ services = [] }) {
  
 
       <div className="
-        min-h-screen flex justify-center px-3 md:px-8 py-10
+        min-h-screen flex px-4 py-10
         bg-[#F5F7FA] text-[#1A1A1A]
         dark:bg-[#0F1117] dark:text-white
       ">
@@ -155,7 +155,7 @@ export default function ServicesList({ services = [] }) {
                     </span>
                   </div>
 <div className="overflow-x-auto mt-5">
-  <table className="min-w-full border border-gray-300 dark:border-gray-800 rounded-lg bg-white dark:bg-[#1A1C1F]">
+  <table className="min-w-full border rounded border-gray-300 dark:border-gray-800 rounded-lg bg-white dark:bg-[#1A1C1F]">
     
     <thead className="bg-gray-100 dark:bg-[#2A2C31] text-gray-700 dark:text-gray-300">
       <tr>

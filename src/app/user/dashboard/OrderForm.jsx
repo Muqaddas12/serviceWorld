@@ -1,5 +1,18 @@
 "use client";
-
+import {
+  FaInstagram,
+  FaFacebookF,
+  FaYoutube,
+  FaTwitter,
+  FaSpotify,
+  FaTiktok,
+  FaTelegramPlane,
+  FaLinkedinIn,
+  FaDiscord,
+  FaGlobe,
+  FaStar,
+  FaCircle,
+} from "react-icons/fa";
 import { getServices } from "@/lib/services";
 import { useState, useEffect, useRef } from "react";
 import { FaSearch, FaSpinner } from "react-icons/fa";
@@ -7,6 +20,39 @@ import { MdReceipt, MdAccessTime } from "react-icons/md";
 import { createOrderAction } from "@/lib/userActions";
 import QuickActions from "./QuickActions";
 import { useCurrency } from "@/context/CurrencyContext";
+const icons = [
+  { name: "Instagram", icon: <FaInstagram size={28} /> },
+  { name: "Facebook", icon: <FaFacebookF size={28} /> },
+  { name: "YouTube", icon: <FaYoutube size={28} /> },
+  { name: "Twitter", icon: <FaTwitter size={28} /> },
+  { name: "Spotify", icon: <FaSpotify size={28} /> },
+  { name: "TikTok", icon: <FaTiktok size={28} /> },
+  { name: "Telegram", icon: <FaTelegramPlane size={28} /> },
+  { name: "LinkedIn", icon: <FaLinkedinIn size={28} /> },
+  { name: "Discord", icon: <FaDiscord size={28} /> },
+  { name: "Website", icon: <FaGlobe size={28} /> },
+  { name: "Explore", icon: <FaStar size={28} /> },
+  { name: "Network", icon: <FaCircle size={28} /> },
+];
+const getCategoryIcon = (cat) => {
+  const found = icons.find((i) =>
+    cat.toLowerCase().includes(i.name.toLowerCase())
+  );
+  return found ? found.icon : <FaGlobe size={20} />;
+};
+const getPlatformIcon = (name = "") => {
+  const lower = name.toLowerCase();
+
+  if (lower.includes("instagram")) return <FaInstagram className="text-pink-500 text-lg" />;
+  if (lower.includes("youtube")) return <FaYoutube className="text-red-500 text-lg" />;
+  if (lower.includes("facebook")) return <FaFacebookF className="text-blue-600 text-lg" />;
+  if (lower.includes("tiktok")) return <FaTiktok className="text-white text-lg" />;
+  if (lower.includes("telegram")) return <FaTelegramPlane className="text-sky-400 text-lg" />;
+  if (lower.includes("twitter")) return <FaTwitter className="text-blue-400 text-lg" />;
+
+  return <FaGlobe className="text-gray-500 text-lg" />;
+};
+
 export default function OrderForm({ selectedCategory }) {
   const {symbol,convert}=useCurrency()
   const [category, setCategory] = useState(selectedCategory || "");
@@ -278,16 +324,17 @@ export default function OrderForm({ selectedCategory }) {
           <div className="relative" ref={categoryRef}>
             <label className="block mb-1 text-sm font-medium dark:text-gray-300">Category</label>
 
-            <div
-              onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
-              className="
-           bg-gray-100 dark:bg-[#0F1117]
-                border border-gray-300 dark:border-[#2B3143]
-                px-3 py-2 rounded-lg cursor-pointer
-              "
-            >
-              {category || "Select category"}
-            </div>
+        <div
+  onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+  className="
+    bg-gray-100 dark:bg-[#0F1117]
+    border border-gray-300 dark:border-[#2B3143]
+    px-3 py-2 rounded-lg cursor-pointer flex items-center gap-2
+  "
+>
+  {category ? getCategoryIcon(category) : <FaGlobe size={20} />}
+  <span>{category || "Select category"}</span>
+</div>
 
             {categoryDropdownOpen && (
               <ul
@@ -301,18 +348,19 @@ export default function OrderForm({ selectedCategory }) {
                 "
               >
                 {categories.map((cat) => (
-                  <li
-                    key={cat}
-                    onClick={() => {
-                      setCategory(cat);
-                      setCategoryDropdownOpen(false);
-                      // clear search and selected service to show only category results, or keep searchTerm if you prefer
-                      setSearchTerm("");
-                    }}
-                    className="px-4 py-2 hover:bg-gray-200 dark:hover:bg-white/10 cursor-pointer"
-                  >
-                    {cat}
-                  </li>
+                 <li
+  key={cat}
+  onClick={() => {
+    setCategory(cat);
+    setCategoryDropdownOpen(false);
+    setSearchTerm("");
+  }}
+  className="px-4 py-2 hover:bg-gray-200 dark:hover:bg-white/10 cursor-pointer flex items-center gap-2"
+>
+  {getCategoryIcon(cat)}
+  <span>{cat}</span>
+</li>
+
                 ))}
               </ul>
             )}
@@ -330,13 +378,21 @@ export default function OrderForm({ selectedCategory }) {
     className="
       bg-gray-100 dark:bg-[#0F1117]
       border border-gray-300 dark:border-[#2B3143]
-      px-3 py-2 rounded-lg cursor-pointer
+      px-3 py-2 rounded-lg cursor-pointer flex items-center gap-2
     "
   >
-    {service
-      ? `${selectedService?.service} | ${selectedService?.name} | ${symbol} ${convert(Number(selectedService?.rate || 0)).toFixed(2)}
-`
-      : "Select a service"}
+    {selectedService ? (
+      <>
+        {getPlatformIcon(selectedService.name)}
+        <span>
+          {selectedService.service} | {selectedService.name} |{" "}
+          {symbol}
+          {convert(Number(selectedService?.rate || 0)).toFixed(2)}
+        </span>
+      </>
+    ) : (
+      <span>Select a service</span>
+    )}
   </div>
 
   {dropdownOpen && filteredServices.length > 0 && (
@@ -358,11 +414,17 @@ export default function OrderForm({ selectedCategory }) {
             setSelectedService(srv);
             setDropdownOpen(false);
           }}
-          className="px-4 py-2 hover:bg-gray-200 dark:hover:bg-white/10 cursor-pointer"
+          className="
+            px-4 py-2 hover:bg-gray-200 dark:hover:bg-white/10 
+            cursor-pointer flex items-center gap-2
+          "
         >
-    {srv.service} — {srv.name} — {symbol}{convert(Number(srv.rate || 0)).toFixed(2)}
+          {getPlatformIcon(srv.name)}
 
-
+          <span>
+            {srv.service} — {srv.name} — {symbol}
+            {convert(Number(srv.rate || 0)).toFixed(2)}
+          </span>
         </li>
       ))}
     </ul>
@@ -370,30 +432,33 @@ export default function OrderForm({ selectedCategory }) {
 </div>
 
 
+{/* SERVICE INFO */}
+{selectedService && (
+  <div
+    className="
+      bg-gray-100 dark:bg-[#0F1117]
+      border border-gray-300 dark:border-[#2B3143]
+      p-4 rounded-lg shadow-sm
+    "
+  >
+    <div className="flex items-center gap-3 mb-2">
+      {getPlatformIcon(selectedService.name)}
+      <p className="font-semibold text-gray-800 dark:text-gray-200">
+        {selectedService.service} {selectedService.name}
+      </p>
+    </div>
 
-          {/* SERVICE INFO */}
-          {selectedService && (
-            <div
-              className="
-              bg-gray-100 dark:bg-[#0F1117]
-              border border-gray-300 dark:border-[#2B3143]
-              p-4 rounded-lg shadow-sm
-            "
-            >
-              <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">
-                {selectedService.service} {selectedService.name}
-              </p>
+    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+      {selectedService?.desc || "No description available."}
+    </p>
 
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                {selectedService?.desc   || "No description available."}
-              </p>
+    <p className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+      <MdAccessTime />
+      {selectedService.average_time || "No data available"}
+    </p>
+  </div>
+)}
 
-              <p className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                <MdAccessTime />
-                {selectedService.average_time || "No data available"}
-              </p>
-            </div>
-          )}
 
           {/* LINK */}
           <div>
