@@ -134,18 +134,38 @@ export async function UpdateServiceAction(data) {
     const db = client.db(DB_ADMIN);
     const collection = db.collection(COLLECTION);
 
-    const exists = await collection.findOne({ id: Number(data.id) });
+    const id = Number(data.id);
+
+    const exists = await collection.findOne({ id });
     if (!exists) return { status: false, message: "Service not found" };
 
+    // Convert FormData values → proper types
+    const updatePayload = {
+      name: data.name,
+      description: data.description || "",
+      category: data.category || "",
+      type: data.type || "service",
+
+      // convert yes/no → boolean
+      refill: data.refill === "yes",
+      cancelAllowed: data.cancelallowed === "yes",
+
+      // provider stays unchanged
+      provider: exists.provider,
+
+      // convert numeric fields
+      price: Number(data.price),
+      min: Number(data.min),
+      max: Number(data.max),
+
+      status: data.status || "enabled",
+
+      updatedAt: new Date()
+    };
+
     const result = await collection.updateOne(
-      { id: Number(data.id) },
-      {
-        $set: {
-          ...data,
-          id: Number(data.id),
-          updatedAt: new Date(),
-        },
-      }
+      { id },
+      { $set: updatePayload }
     );
 
     if (result.modifiedCount === 0) {
@@ -153,11 +173,13 @@ export async function UpdateServiceAction(data) {
     }
 
     return { status: true, message: "Service updated successfully" };
+
   } catch (error) {
     console.error("UpdateServiceAction:", error);
     return { status: false, message: "Internal server error" };
   }
 }
+
 
 /* -------------------------------------------------------
    ❌ DELETE SERVICE
