@@ -103,211 +103,155 @@ alert(res.message)
         {/* HEADER */}
         <div
           className={`px-4 py-3 text-lg font-bold border-b
-    ${
-      custom
-        ? // subtle highlight for custom services
-          "bg-gray-200 text-gray-800 dark:bg-[#2A2C31] dark:text-gray-200"
-        : // regular section
-          "bg-gray-100 text-gray-700 dark:bg-[#1E1F23] dark:text-gray-300"
-    }
+   
   `}
         >
           {title}
         </div>
+{/* DESKTOP TABLE */}
+<div className="hidden md:block overflow-x-auto">
+  <table className="min-w-full text-sm">
+    <thead className="border-b bg-gray-100 text-gray-700 border-gray-300 dark:bg-[#1E1F23] dark:text-gray-200 dark:border-gray-700">
+      <tr>
+        <th className="px-4 py-3 text-left">ID</th>
+        <th className="px-4 py-3 text-left">Service</th>
+        <th className="px-4 py-3 text-left">Service Type</th>
+        <th className="px-4 py-3 text-left">Refill</th>
+        <th className="px-4 py-3 text-left">Cancel</th>
+        <th className="px-4 py-3 text-left">Provider</th>
+        <th className="px-4 py-3 text-left">Price</th>
+        <th className="px-4 py-3 text-left">Min</th>
+        <th className="px-4 py-3 text-left">Max</th>
+        <th className="px-4 py-3 text-left">Status</th>
+        <th className="px-4 py-3 text-center">Action</th>
+      </tr>
+    </thead>
 
-        {/* DESKTOP TABLE */}
-        <div className="hidden md:block overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead className="border-b bg-gray-100 text-gray-700 border-gray-300 dark:bg-[#1E1F23] dark:text-gray-200 dark:border-gray-700">
-              <tr>
-                <th className="px-4 py-3 text-left">ID</th>
-                <th className="px-4 py-3 text-left">Service</th>
-                <th className="px-4 py-3">Rate</th>
-                <th className="px-4 py-3">Min</th>
-                <th className="px-4 py-3">Max</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-center">Action</th>
-              </tr>
-            </thead>
+    <tbody>
+      {orderedCategories.length === 0 && (
+        <tr>
+          <td
+            colSpan={11}
+            className="py-6 text-center text-gray-500 dark:text-gray-400"
+          >
+            No services available.
+          </td>
+        </tr>
+      )}
 
-            <tbody>
-              {orderedCategories.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={7}
-                    className="py-6 text-center text-gray-500 dark:text-gray-400"
-                  >
-                    No services available.
+      {orderedCategories.map((category) => (
+        <React.Fragment key={category}>
+          {/* Category Header */}
+          <tr className="bg-gray-200 text-gray-700 dark:bg-[#1E1F23] dark:text-gray-200">
+            <td colSpan={11} className="px-4 py-2 font-bold text-lg">
+              {category}
+            </td>
+          </tr>
+
+          {/** CUSTOM SERVICES FIRST */}
+          {[...grouped[category]]
+            .sort((a, b) => (a.customservice === b.customservice ? 0 : a.customservice ? -1 : 1))
+            .map((srv, idx) => {
+              const rowKey = `${category}-${srv.id ?? idx}-${srv.name}`;
+
+              return (
+                <tr
+                  key={rowKey}
+                  className="border-b hover:bg-gray-100 border-gray-300
+                  text-gray-700 dark:border-gray-700 dark:hover:bg-gray-800 dark:text-gray-200"
+                >
+                  <td className="px-4 py-3">{srv.service}</td>
+
+                  <td className="px-4 py-3 flex items-center gap-2">
+                    {srv.name}
+                    {srv.customservice && (
+                      <span className="px-2 py-1 text-xs rounded bg-purple-200 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
+                        Custom
+                      </span>
+                    )}
                   </td>
-                </tr>
-              )}
 
-              {orderedCategories.map((category) => (
-                <React.Fragment key={category}>
-                  {/* Category Header */}
-                  <tr className="bg-gray-200 text-gray-700 dark:bg-[#1E1F23] dark:text-gray-200">
-                    <td colSpan={7} className="px-4 py-2 font-bold text-lg">
-                      {category}
-                    </td>
-                  </tr>
+                  <td className="px-4 py-3">{srv.type}</td>
+                  <td className="px-4 py-3">{srv.refill ? "Yes" : "No"}</td>
+                  <td className="px-4 py-3">{srv.cancelAllowed ? "Yes" : "No"}</td>
+                  <td className="px-4 py-3">{srv.provider}</td>
+                  <td className="px-4 py-3">₹{srv.rate}</td>
+                  <td className="px-4 py-3">{srv.min}</td>
+                  <td className="px-4 py-3">{srv.max}</td>
 
-                  {grouped[category].map((srv, idx) => {
-                    // Unique key for this row (fix for "all dropdowns open")
-                    const rowKey = `${category}-${srv.id ?? idx}-${srv.name}`;
+                  <td className="px-4 py-3">
+                    <span
+                      className={`px-2 py-1 text-xs rounded-md ${
+                        srv.status === "enabled"
+                          ? "bg-green-200 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                          : "bg-red-200 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                      }`}
+                    >
+                      {srv.status}
+                    </span>
+                  </td>
 
-                    return (
-                      <tr
-                        key={rowKey}
-                        className="border-b hover:bg-gray-100 border-gray-300
-                      text-gray-700 dark:border-gray-700 dark:hover:bg-gray-800 dark:text-gray-200"
-                      >
-                        <td className="px-4 py-3">{srv.id}</td>
-
-                        <td className="px-4 py-3 flex items-center gap-2">
-                          {srv.name}
-                          {srv.customservice && (
-                            <span className="px-2 py-1 text-xs rounded bg-purple-200 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
-                              Custom
-                            </span>
-                          )}
-                        </td>
-
-                        <td className="px-4 py-3">₹{srv.rate}</td>
-                        <td className="px-4 py-3">{srv.min}</td>
-                        <td className="px-4 py-3">{srv.max}</td>
-
-                        <td className="px-4 py-3">
-                          <span
-                            className={`px-2 py-1 text-xs rounded-md ${
-                              srv.status === "enabled"
-                                ? "bg-green-200 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                                : "bg-red-200 text-red-700 dark:bg-red-900/30 dark:text-red-300"
-                            }`}
-                          >
-                            {srv.status}
-                          </span>
-                        </td>
-
-                        <td className="px-4 py-3 text-center">
-                          {/* THREE DOT BUTTON — ONLY CUSTOM SERVICES */}
-                        {srv.customservice ? (
-  <div className="relative inline-block">
-    <button
-      onClick={() =>
-        setDropdownOpen(dropdownOpen === rowKey ? null : rowKey)
-      }
-      className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
-    >
-      <BsThreeDotsVertical size={18} />
-    </button>
-
-    {/* Dropdown */}
-    {dropdownOpen === rowKey && (
-      <div
-        ref={dropdownRef}
-        className="absolute right-0 mt-2 w-32 rounded-lg shadow bg-white 
-        border dark:bg-[#1E1F23] dark:border-gray-700 text-sm text-gray-700 
-        dark:text-gray-200 z-50"
-      >
-        <button
-          onClick={() => {
-            setDropdownOpen(null);
-            setEditData(srv);
-          }}
-          className="block w-full text-left px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700"
-        >
-          Edit
-        </button>
-
-        <button
-          onClick={() => {
-            setDropdownOpen(null);
-            setDeleteData(srv);
-          }}
-          className="block w-full text-left px-4 py-2 hover:bg-red-100 text-red-600 dark:hover:bg-red-900/40"
-        >
-          Delete
-        </button>
-      </div>
-    )}
-  </div>
-) : (
-  <button
-    onClick={() => setSelectedService(srv)}
-    className="px-4 py-1 text-xs border rounded-md border-gray-400 hover:bg-gray-200 dark:border-gray-600 dark:hover:bg-gray-700"
-  >
-    View
-  </button>
-)}
-
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </React.Fragment>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* MOBILE VIEW */}
-        <div className="md:hidden p-3">
-          {orderedCategories.map((category) => (
-            <div key={category}>
-              <h2
-                className="text-lg font-bold py-2 mt-3 
-                bg-gray-200 text-gray-700 px-3
-                dark:bg-[#1E1F23] dark:text-gray-200"
-              >
-                {category}
-              </h2>
-
-              {grouped[category].map((srv, idx) => {
-                const cardKey = `${category}-mobile-${srv.id ?? idx}-${
-                  srv.name
-                }`;
-                return (
-                  <div
-                    key={cardKey}
-                    className="p-4 mt-2 border rounded-lg bg-gray-50 text-gray-700 border-gray-300
-                    dark:bg-[#151618] dark:text-gray-200 dark:border-gray-700"
-                  >
-                    <h3 className="font-semibold">{srv.name}</h3>
-                    <p className="text-sm">ID: {srv.id}</p>
-                    <p className="text-sm">Rate: ₹{srv.rate}</p>
-                    <p className="text-sm">
-                      Min: {srv.min} | Max: {srv.max}
-                    </p>
-
+                  <td className="px-4 py-3 text-center">
+                    {/* Custom services have dropdown */}
                     {srv.customservice ? (
-                      <div className="flex gap-2 mt-2">
+                      <div className="relative inline-block">
                         <button
-                          onClick={() => setEditData(srv)}
-                          className="px-3 py-1 text-xs rounded bg-blue-600 text-white"
+                          onClick={() =>
+                            setDropdownOpen(dropdownOpen === rowKey ? null : rowKey)
+                          }
+                          className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
                         >
-                          Edit
+                          <BsThreeDotsVertical size={18} />
                         </button>
-                        <button
-                          onClick={() => setDeleteData(srv)}
-                          className="px-3 py-1 text-xs rounded bg-red-600 text-white"
-                        >
-                          Delete
-                        </button>
+
+                        {dropdownOpen === rowKey && (
+                          <div
+                            ref={dropdownRef}
+                            className="absolute right-0 mt-2 w-32 rounded-lg shadow bg-white 
+                            border dark:bg-[#1E1F23] dark:border-gray-700 text-sm text-gray-700 
+                            dark:text-gray-200 z-50"
+                          >
+                            <button
+                              onClick={() => {
+                                setDropdownOpen(null);
+                                setEditData(srv);
+                              }}
+                              className="block w-full text-left px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700"
+                            >
+                              Edit
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                setDropdownOpen(null);
+                                setDeleteData(srv);
+                              }}
+                              className="block w-full text-left px-4 py-2 hover:bg-red-100 text-red-600 dark:hover:bg-red-900/40"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <button
                         onClick={() => setSelectedService(srv)}
-                        className="mt-2 px-3 py-1 text-xs border rounded-md border-gray-400 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700"
+                        className="px-4 py-1 text-xs border rounded-md border-gray-400 hover:bg-gray-200 dark:border-gray-600 dark:hover:bg-gray-700"
                       >
-                        View Details
+                        View
                       </button>
                     )}
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-        </div>
+                  </td>
+                </tr>
+              );
+            })}
+        </React.Fragment>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+       
       </div>
 
       {/* ==================== EDIT POPUP ==================== */}

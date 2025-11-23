@@ -155,7 +155,7 @@ export async function UpdateServiceAction(data) {
       provider: exists.provider,
 
       // convert numeric fields
-      price: Number(data.price),
+      price: Number(data.rate),
       min: Number(data.min),
       max: Number(data.max),
 
