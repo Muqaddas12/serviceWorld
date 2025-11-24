@@ -3,14 +3,21 @@
 import { motion } from "framer-motion";
 import { useCurrency } from "@/context/CurrencyContext";
 import Link from "next/link";
-import { getCookie } from "cookies-next";
+import { useEffect, useState } from "react";
 
 export default function APIDocsPage() {
   const { symbol } = useCurrency();
 
-  // 🔥 Auto redirect for Account Link
- 
-  const accountLink =  "/user/settings" 
+  const accountLink = "/user/settings";
+
+  // 🌐 Dynamic API URL from live domain
+  const [apiUrl, setApiUrl] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setApiUrl(`${window.location.origin}/api/v2`);
+    }
+  }, []);
 
   return (
     <div
@@ -22,7 +29,7 @@ export default function APIDocsPage() {
     "
     >
       <div className="max-w-5xl mx-auto flex flex-col gap-10">
-        {/* PAGE TITLE */}
+        
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -35,7 +42,7 @@ export default function APIDocsPage() {
           API Documentation
         </motion.h1>
 
-        {/* ============ MAIN API INFO =============== */}
+        {/* MAIN API INFO */}
         <section
           className="
           bg-white dark:bg-[#1A1F2B]
@@ -49,19 +56,22 @@ export default function APIDocsPage() {
             <p>
               <strong>HTTP Method:</strong> POST
             </p>
+
             <p>
-              <strong>API URL:</strong> https://website.com/api/v2
+              <strong>API URL:</strong> {apiUrl || "Loading..."}
             </p>
+
             <p>
               <strong>API Key:</strong> Get an API key on the{" "}
               <Link
                 href={accountLink}
-                className="underline text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white"
+                className="underline text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
               >
                 Account
               </Link>{" "}
               page
             </p>
+
             <p>
               <strong>Response Format:</strong> JSON
             </p>

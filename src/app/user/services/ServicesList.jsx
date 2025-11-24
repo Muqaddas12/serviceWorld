@@ -13,13 +13,13 @@ import {
 import SearchBar from "./SearchBar";
 import ServiceCard from "./ServiceCard";
 import BuyPopup from "./BuyPopup";
-
+import { useCurrency } from "@/context/CurrencyContext";
 export default function ServicesList({ services = [] }) {
   const [selectedService, setSelectedService] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [loadingSearch, setLoadingSearch] = useState(false);
-
+  const { currency, updateCurrency, symbol, convert } = useCurrency();
   // Group services
   const groupedServices = useMemo(() => {
     const groups = {
@@ -84,6 +84,7 @@ export default function ServicesList({ services = [] }) {
         {/* Page Title */}
         <h1 className="text-3xl md:text-4xl font-bold text-center mb-10 text-gray-800 dark:text-gray-100">
           Available Services
+          
         </h1>
 
         {/* Search */}
@@ -92,7 +93,22 @@ export default function ServicesList({ services = [] }) {
           setSearchTerm={setSearchTerm}
           loadingSearch={loadingSearch}
         />
-
+ {/* Currency Selector */}
+     <div className="flex justify-end">
+       <select
+        value={currency}
+        onChange={(e) => updateCurrency(e.target.value)}
+        className="
+         flex flex-end rounded-lg px-3 py-1 text-sm focus:outline-none cursor-pointer
+          bg-white text-gray-700 border border-gray-300 focus:border-gray-500
+          dark:bg-[#1A1F2B] dark:text-gray-300 dark:border-gray-700 dark:focus:border-gray-500
+        "
+      >
+        <option value="INR">INR ₹</option>
+        <option value="USD">USD $</option>
+        <option value="EUR">EUR €</option>
+      </select>
+     </div>
         {/* No results */}
         {Object.keys(filteredGroupedServices).length === 0 ? (
           <p className="text-center text-gray-500 dark:text-gray-400 mt-6">
