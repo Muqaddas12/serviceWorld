@@ -85,6 +85,7 @@ export default function TicketForm({ setTicketList }) {
               <option value="Order">Order</option>
               <option value="Payment">Payment</option>
               <option value="Complaint & Suggestion">Complaint & Suggestion</option>
+              <option value="Api Discount">Api Discount</option>
               <option value="Others">Others</option>
             </select>
           </div>
