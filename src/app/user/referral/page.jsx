@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   MdLink,
   MdPercent,
@@ -24,15 +24,21 @@ import { useCurrency } from "@/context/CurrencyContext";
 
 export default function Referral() {
   const [copied, setCopied] = useState(false);
-  const [commissionRate, setCommissionRate] = useState(5);
-  const [minimumPayout, setMinimumPayout] = useState(10);
+  const [commissionRate, setCommissionRate] = useState('');
+  const [minimumPayout, setMinimumPayout] = useState('');
   const [loading, setLoading] = useState(true);
   const [userBal, setUserBal] = useState(0);
   const [requests, setRequests] = useState([]); // ✅ withdraw history from DB
 
   const { symbol, convert } = useCurrency();
+const [referralLink, setReferralLink] = useState("");
 
-  const referralLink = "https://website.com/affiliates?ref=2a5afb";
+useEffect(() => {
+  if (typeof window !== "undefined") {
+    setReferralLink(`${window.location.origin}/affiliates?ref=2a5afb`);
+  }
+}, []);
+
 
   const [withdrawAmount, setWithdrawAmount] = useState("");
 
@@ -47,8 +53,8 @@ export default function Referral() {
         const req = await getUserWithdrawRequests();
 
         if (settings) {
-          setCommissionRate(settings.commission_rate || 5);
-          setMinimumPayout(settings.minimum_payout || 50);
+          setCommissionRate(settings.commission_rate );
+          setMinimumPayout(settings.minimum_payout );
         }
 
         if (bal.success) {
