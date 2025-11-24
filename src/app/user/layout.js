@@ -1,4 +1,4 @@
-// app/user/layout.js
+'use server'
 import { getWebsiteSettings } from "@/lib/adminServices";
 import { getUserDetails } from "@/lib/userActions";
 import Page from "./components/layout/page";
