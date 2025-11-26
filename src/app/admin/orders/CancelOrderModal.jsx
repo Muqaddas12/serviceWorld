@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { cancelOrderAction } from "@/lib/adminServices";
+import { cancelOrderAction } from "@/lib/ordersAdmin";
 
 export default function CancelReasonModal({ order, close }) { 
   return (

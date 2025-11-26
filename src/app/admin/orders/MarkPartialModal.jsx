@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { markPartialAction } from "@/lib/adminServices";
+import { markPartialAction } from "@/lib/ordersAdmin";
 
 export default function MarkPartialModal({ order, close }) {
   const [partial, setPartial] = useState("");

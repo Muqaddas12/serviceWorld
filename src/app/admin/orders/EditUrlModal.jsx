@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { updateOrderUrlAction } from "@/lib/adminServices";
+import { resendOrderAfterUrlUpdateAction } from "@/lib/ordersAdmin";
 
 export default function EditUrlModal({ order, close }) {
   const [url, setUrl] = useState(order.link);
@@ -9,7 +9,11 @@ export default function EditUrlModal({ order, close }) {
 
   const submit = async () => {
     setLoading(true);
-    await updateOrderUrlAction(order._id, url);
+    try {
+      await resendOrderAfterUrlUpdateAction(order._id, url);
+    } catch (err) {
+      console.error("Failed to update & resend order:", err);
+    }
     setLoading(false);
     close();
   };
@@ -25,6 +29,7 @@ export default function EditUrlModal({ order, close }) {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           className="w-full px-3 py-2 bg-[#111] border border-yellow-500/20 rounded text-white"
+          placeholder="Enter new URL"
         />
 
         <button
