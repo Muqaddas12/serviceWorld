@@ -5,8 +5,9 @@ import { FaSearch, FaTimes } from "react-icons/fa";
 import AddNewService from "./AddNewService";
 import ServiceTable from "./ServiceTable";
 import ServiceModal from "./ServiceModal";
-
+import { useRouter } from "next/navigation";
 export default function ServicesPage({ services }) {
+  const router=useRouter()
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedService, setSelectedService] = useState(null);
@@ -68,7 +69,7 @@ export default function ServicesPage({ services }) {
           All Services
         </h1>
 
-        <AddNewService />
+   
 
         {/* Search Input */}
         <div className="relative w-full sm:w-1/3">
@@ -94,6 +95,17 @@ export default function ServicesPage({ services }) {
             </option>
           ))}
         </select>
+
+      <div className="flex justify-center flex-col">
+               <AddNewService />
+                 <button
+  onClick={() =>router.push('/admin/ImportServices') }
+  className="width-[90%] py-2 bg-gray-800 text-white text-sm rounded-lg shadow hover:bg-gray-700 inline"
+>
+  Import services
+</button>
+
+      </div>
       </div>
 
       {/* TABLE: API SERVICES */}

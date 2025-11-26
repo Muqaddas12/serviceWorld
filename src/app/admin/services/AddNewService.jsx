@@ -203,11 +203,12 @@ export default function AddNewService() {
 
       {/* Open Popup Button */}
       <button
-        onClick={() => setShowPopup(true)}
-        className="px-4 py-2 bg-gray-800 text-white rounded-lg shadow hover:bg-gray-700"
-      >
-        Add New Service
-      </button>
+  onClick={() => setShowPopup(true)}
+  className="px-2 py-2 bg-gray-800 text-white text-sm rounded-lg shadow hover:bg-gray-700"
+>
+  Add New Service
+</button>
+
 
       {/* Popup Modal */}
       {showPopup && (
