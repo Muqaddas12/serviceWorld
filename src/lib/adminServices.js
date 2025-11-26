@@ -1570,3 +1570,199 @@ export async function updateWithdrawStatus(requestId, newStatus) {
     return { success: false, message: "Something went wrong." };
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function updateSocialMediaLinksAction({ links }) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("admin_token")?.value;
+
+    if (!token) {
+      return { status: false, message: "Invalid token" };
+    }
+
+    const admin = jwt.verify(token, process.env.JWT_SECRET);
+    if (!admin) {
+      return { status: false, message: "Unauthorized admin" };
+    }
+
+    const client = await clientPromise;
+    const collection = client.db("DB_ADMIN").collection("socialmedialinks");
+
+    // ✅ Upsert: insert if not exists, update if exists
+    await collection.updateOne(
+      { adminId: admin.id }, 
+      { $set: links },
+      { upsert: true }
+    );
+
+    return { status: true, message: "Social media links saved!" };
+  } catch (error) {
+    return { status: false, message: "Server error saving links" };
+  }
+}
+
+
+export async function getSocialMediaLinksAction() {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("admin_token")?.value;
+
+    if (!token) {
+      return { status: false, message: "Admin not logged in", links: null };
+    }
+
+    const admin = jwt.verify(token, process.env.JWT_SECRET);
+    if (!admin) {
+      return { status: false, message: "Unauthorized admin", links: null };
+    }
+
+    const client = await clientPromise;
+    const collection = client.db("DB_ADMIN").collection("socialmedialinks");
+
+    const savedLinks = await collection.findOne({ adminId: admin.id });
+
+  // ✅ strip MongoDB fields like _id
+const cleanLinks = savedLinks
+  ? {
+      facebook: savedLinks.facebook || "",
+      instagram: savedLinks.instagram || "",
+      twitter: savedLinks.twitter || "",
+      whatsapp: savedLinks.whatsapp || "",
+      youtube: savedLinks.youtube || "",
+      github: savedLinks.github || "",
+    }
+  : {};
+
+return {
+  status: true,
+  message: "Links fetched",
+  links: cleanLinks, // 👈 now it's a plain object only
+};
+
+  } catch (err) {
+    return { status: false, message: "Server error fetching links", links: null };
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function createBlogAction({ title, content, tags, image }) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("admin_token")?.value;
+
+    if (!token) {
+      return { status: false, message: "Admin not logged in" };
+    }
+
+    const admin = jwt.verify(token, process.env.JWT_SECRET);
+    if (!admin) {
+      return { status: false, message: "Unauthorized admin" };
+    }
+
+    const client = await clientPromise;
+    const collection = client.db("DB_ADMIN").collection("blogs");
+
+    const blogDoc = {
+      adminId: admin.id,
+      title,
+      content,
+      tags,
+      image,
+      createdAt: new Date(), // internal use, not returned to client
+    };
+
+    await collection.insertOne(blogDoc);
+
+    // ✅ return plain object without DB meta
+    return {
+      status: true,
+      message: "Blog published successfully!",
+      blog: {
+        title,
+        content,
+        tags,
+        image,
+        createdAt: blogDoc.createdAt.toString(),
+      },
+    };
+  } catch (err) {
+    return { status: false, message: "Server error saving blog" };
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+export async function getBlogsAction() {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("admin_token")?.value;
+
+    if (!token) {
+      return { status: false, message: "Admin not logged in", blogs: [] };
+    }
+
+    const admin = jwt.verify(token, process.env.JWT_SECRET);
+    if (!admin) {
+      return { status: false, message: "Unauthorized admin", blogs: [] };
+    }
+
+    const client = await clientPromise;
+    const collection = client.db("DB_ADMIN").collection("blogs");
+
+    // ✅ Fetch only this admin blogs and remove DB meta fields
+    const blogs = await collection
+      .find({ adminId: admin.id })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    const cleanBlogs = blogs.map((b) => ({
+      id: b._id.toString(), // you can keep this for key navigation, not DB meta
+      title: b.title,
+      content: b.content,
+      tags: b.tags,
+      image: b.image,
+      createdAt: b.createdAt?.toString() || "",
+    }));
+
+    return {
+      status: true,
+      message: "Blogs fetched successfully",
+      blogs: cleanBlogs, // 👈 now a plain array of objects only
+    };
+  } catch (err) {
+    return { status: false, message: "Server error fetching blogs", blogs: [] };
+  }
+}

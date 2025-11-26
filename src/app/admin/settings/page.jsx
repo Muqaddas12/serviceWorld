@@ -2,7 +2,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, UserCog, Globe, Lock, PlugZap, Wallet } from "lucide-react";
+import {
+  Settings,
+  UserCog,
+  Globe,
+  Lock,
+  PlugZap,
+  Wallet,
+  FileText,
+  Share2,
+} from "lucide-react";
 
 import AddProvider from "./AddProvider";
 
@@ -16,9 +25,33 @@ export default function SettingsPage() {
       icon: <UserCog className="text-gray-700 dark:text-gray-200" size={20} />,
       desc: "Manage your basic admin preferences and profile information.",
       actions: [
-        { name: "Profile Settings", icon: <UserCog size={18} />, link: "/admin/settings/profile" },
-        { name: "Edit Website", icon: <Globe size={18} />, link: "/admin/settings/edit-website" },
-        { name: "Referral", icon: <PlugZap size={18} />, link: "/admin/settings/affiliate" },
+        {
+          name: "Profile Settings",
+          icon: <UserCog size={18} />,
+          link: "/admin/settings/profile",
+        },
+        {
+          name: "Edit Website",
+          icon: <Globe size={18} />,
+          link: "/admin/settings/edit-website",
+        },
+        {
+          name: "Referral",
+          icon: <PlugZap size={18} />,
+          link: "/admin/settings/affiliate",
+        },
+
+        // ✅ New options
+        {
+          name: "Manage Blog",
+          icon: <FileText size={18} />,
+          link: "/admin/settings/blog-write",
+        },
+        {
+          name: "Social Media Links",
+          icon: <Share2 size={18} />,
+          link: "/admin/settings/socialmedia",
+        },
       ],
     },
     {
@@ -26,8 +59,16 @@ export default function SettingsPage() {
       icon: <Globe className="text-gray-700 dark:text-gray-200" size={20} />,
       desc: "Connect payment systems and external APIs.",
       actions: [
-        { name: "Manage Payment Methods", icon: <Wallet size={18} />, link: "/admin/settings/payment-methods" },
-        { name: "Child Panel", icon: <Lock size={18} />, link: "/admin/settings/child-panel-requests" },
+        {
+          name: "Manage Payment Methods",
+          icon: <Wallet size={18} />,
+          link: "/admin/settings/payment-methods",
+        },
+        {
+          name: "Child Panel",
+          icon: <Lock size={18} />,
+          link: "/admin/settings/child-panel-requests",
+        },
       ],
     },
 
@@ -40,14 +81,12 @@ export default function SettingsPage() {
     },
   ];
 
-  const activeData = sections.find((s) => s.title === activeSection);
+  const activeData = sections.find((s) => s.title === activeSection)
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-[#0d0d0d] text-gray-800 dark:text-gray-200 flex flex-col md:flex-row transition-colors">
-
       {/* Sidebar */}
       <div className="md:w-64 w-full md:min-h-screen border-r border-gray-300 dark:border-gray-800 bg-white dark:bg-[#151517] p-6 space-y-6">
-
         {/* Header */}
         <div className="flex items-center gap-2 mb-6">
           <Settings className="text-gray-900 dark:text-gray-200" size={22} />
@@ -121,7 +160,6 @@ export default function SettingsPage() {
                 ))}
               </div>
             )}
-
           </motion.div>
         </AnimatePresence>
       </div>
