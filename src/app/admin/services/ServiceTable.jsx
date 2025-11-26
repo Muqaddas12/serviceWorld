@@ -116,7 +116,7 @@ alert(res.message)
           {title}
         </div>
 {/* DESKTOP TABLE */}
-<div className="hidden md:block overflow-x-auto">
+<div className=" overflow-x-auto">
   <table className="min-w-full text-sm">
     <thead className="border-b bg-gray-100 text-gray-700 border-gray-300 dark:bg-[#1E1F23] dark:text-gray-200 dark:border-gray-700">
       <tr>
