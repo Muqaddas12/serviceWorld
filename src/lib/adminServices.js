@@ -1663,6 +1663,36 @@ return {
 
 
 
+export async function getSocialMediaLinksForUserAction() {
+  try {
+    const client = await clientPromise;
+    const collection = client.db("DB_ADMIN").collection("socialmedialinks");
+
+    // ✅ fetch ALL documents in collection
+    const savedLinks = await collection.find({}).toArray();
+
+    // ✅ convert into plain object array (strip _id, adminId, DB meta)
+    const cleanLinks = savedLinks.map((b) => ({
+      facebook: b.facebook || "",
+      instagram: b.instagram || "",
+      twitter: b.twitter || "",
+      whatsapp: b.whatsapp || "",
+      youtube: b.youtube || "",
+      github: b.github || "",
+    }));
+
+    return {
+      status: true,
+      message: "Links fetched",
+      links: cleanLinks, // 👈 plain clean data only ✅
+    };
+  } catch (err) {
+    console.error("❌ Social links fetch error:", err);
+    return { status: false, message: "Server error fetching links", links: [] };
+  }
+}
+
+
 
 
 
