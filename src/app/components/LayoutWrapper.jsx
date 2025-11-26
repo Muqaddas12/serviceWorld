@@ -5,6 +5,7 @@ import Navbar from "./Header";
 import Footer from "./Footer";
 
 export default function LayoutWrapper({ children, logo, siteName }) {
+
   const pathname = usePathname();
  
 
@@ -14,7 +15,7 @@ export default function LayoutWrapper({ children, logo, siteName }) {
 
   return (
     <>
-      {!hide && <Navbar logo={logo}  />}
+      {!hide && <Navbar logo={logo} siteName={siteName} />}
       {children}
       {!hide && <Footer siteName={siteName} />}
     </>

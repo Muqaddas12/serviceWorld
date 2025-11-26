@@ -24,11 +24,14 @@ export default async function RootLayout({ children }) {
 let settings = {};
 try {
   settings = JSON.parse(res?.plainsettings ?? "{}");
+
 } catch (err) {
   console.error("Invalid JSON in plainsettings:", err);
   settings = {};
 }
+if(settings.maintenanceMode){
 
+}
 
 
 
@@ -36,7 +39,7 @@ try {
     <html lang="en" className="" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
        <CurrencyProvider>
-         <LayoutWrapper logo={settings.siteName} siteName={settings.siteName}>
+         <LayoutWrapper logo={settings.logo} siteName={settings.siteName}>
           {children}
         </LayoutWrapper>
        </CurrencyProvider>

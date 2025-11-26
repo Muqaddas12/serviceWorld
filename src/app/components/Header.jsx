@@ -5,7 +5,8 @@ import { FaCogs, FaCode, FaBlog } from "react-icons/fa";
 import Link from "next/link";
 import ThemeSwitcher from "./ThemeSwitcher";
 
-export default function Navbar({ logo }) {
+export default function Navbar({ logo,siteName }) {
+  
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -18,22 +19,22 @@ export default function Navbar({ logo }) {
     ">
       <div className="flex justify-between items-center pl-2 pr-4 py-3 max-w-7xl mx-auto">
 
-        {/* Logo */}
-        <Link
-  href="/"
-  className="flex items-center space-x-2 select-none"
->
-  <span className="
-    text-3xl sm:text-4xl 
-    font-bold 
-    text-gray-700 dark:text-gray-300 
-    tracking-tight 
-    hover:text-gray-900 dark:hover:text-white 
-    transition-colors duration-300
-  ">
-    {logo}
-  </span>
+      {/* Logo */}
+<Link href="/" className="flex items-center space-x-2 select-none">
+  {siteName ? (
+    <span className="text-3xl sm:text-4xl font-bold text-gray-700 dark:text-gray-300 tracking-tight 
+      hover:text-gray-900 dark:hover:text-white transition-colors duration-300">
+      {siteName}
+    </span>
+  ) : (
+    <img
+      src={logo}
+      alt="no logo"
+      className="w-40 h-8 sm:w-50 sm:h-10 object-contain" // ✅ small logo size
+    />
+  )}
 </Link>
+
 
 
         {/* Desktop Menu */}
