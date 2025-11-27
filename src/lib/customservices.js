@@ -3,7 +3,7 @@
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import clientPromise from "./mongodb";
-
+import { ObjectId } from "mongodb";
 const DB_ADMIN = "smmadmin";
 const COLLECTION = "services";
 
@@ -61,6 +61,7 @@ async function verifyAdmin() {
         id: serviceId,
         name: data.name,
         desc: data.description || "",
+        service:serviceId,
         category: data.category || "",
         type: data.type || "service",
         refill: Boolean(data.refill),
@@ -83,11 +84,43 @@ async function verifyAdmin() {
 
 
 
+
+export async function UpdateServiceStatusAction(data) {
+  try {
+    const auth = await verifyAdmin();
+    if (!auth.valid) return { status: false, message: auth.message };
+
+    if (!data?._id) return { status: false, message: "Missing _id" };
+
+    const id = new ObjectId(data._id);
+
+    const client = await clientPromise;
+    const db = client.db(DB_ADMIN);
+    const collection = db.collection(COLLECTION);
+console.log(id)
+    const result = await collection.updateOne(
+      { _id: id },
+      { $set: { status: data.status, updatedAt: new Date() } }
+    );
+console.log(result)
+    return {
+      status: true,
+      message: result.modifiedCount > 0
+        ? "Status updated successfully"
+        : "Already set, no change made"
+    };
+  } catch (err) {
+    console.error("StatusUpdate Error:", err);
+    return { status: false, message: "Internal server error" };
+  }
+}
+
 /* -------------------------------------------------------
    🔄 UPDATE SERVICE
 -------------------------------------------------------- */
 export async function UpdateServiceAction(data) {
-    console.log(data)
+
+
   try {
     const auth = await verifyAdmin();
     if (!auth.valid) return { status: false, message: auth.message };
@@ -96,37 +129,36 @@ export async function UpdateServiceAction(data) {
     const db = client.db(DB_ADMIN);
     const collection = db.collection(COLLECTION);
 
-    const id = Number(data.service);
+    const mongoId = data?._id;  // ✅ store original mongo ID
 
-    const exists = await collection.findOne({ id });
+   
+    const id = new ObjectId(mongoId);
+
+    // ✅ Now check document exists correctly
+    const exists = await collection.findOne({ _id: id });
     if (!exists) return { status: false, message: "Service not found" };
 
-    // Convert FormData values → proper types
+    // ✅ Now build update payload correctly mapping your DB fields
     const updatePayload = {
-      name: data.name,
-      description: data.description || "",
+      name: data.name || "",
+      desc: data.desc || data.description || "",
       category: data.category || "",
-      type: data.type || "service",
+      type: data.type || "default",
 
-      // convert yes/no → boolean
-      refill: data.refill === "yes",
-      cancelAllowed: data.cancelallowed === "yes",
+      refill: data.refill === true || data.refill === "yes",
+      cancelAllowed: data.cancelAllowed === true || data.cancelAllowed === "yes",
 
-      // provider stays unchanged
-      provider: exists.provider,
+      rate: Number(data.rate ?? data.price ?? 0), // ✅ updates `rate` not `price`
+      min: data.min !== "" ? Number(data.min) : null,
+      max: data.max !== "" ? Number(data.max) : null,
 
-      // convert numeric fields
-      price: Number(data.rate),
-      min: Number(data.min),
-      max: Number(data.max),
-
-      status: data.status || "enabled",
-
+      status: false,
       updatedAt: new Date()
     };
 
+    // ✅ Now update using `_id` instead of `id`
     const result = await collection.updateOne(
-      { id },
+      { _id: id },
       { $set: updatePayload }
     );
 
@@ -138,7 +170,7 @@ export async function UpdateServiceAction(data) {
 
   } catch (error) {
     console.error("UpdateServiceAction:", error);
-    return { status: false, message: "Internal server error" };
+    return { status: false, message: error.message || "Internal server error" };
   }
 }
 
@@ -156,7 +188,7 @@ export async function DeleteServiceAction(serviceId) {
     const db = client.db(DB_ADMIN);
     const collection = db.collection(COLLECTION);
 
-    const result = await collection.deleteOne({ id: (serviceId) });
+    const result = await collection.deleteOne({ service: (serviceId) });
 
     if (result.deletedCount === 0) {
       return { status: false, message: "Service not found" };

@@ -51,6 +51,7 @@ export async function getServices() {
       type: s.type ?? "Default",
       desc: s.desc ?? "",
       storedBy: s.storedBy ?? "",
+      status:s.status?? 'enabled',
       createdAt: s.createdAt ? s.createdAt.toISOString() : null // date → string
     }));
 
@@ -125,6 +126,7 @@ export async function StoreServicesInDB({ services }) {
   provider: s.provider?.trim() || providerInput || "Unknown",
   service: s.service ?? null,
   type: s.type?.trim() || "Default",
+  status:'enabled',
   desc: s.desc?.trim() || "",
   storedBy: admin.id ?? "system",
   createdAt: new Date(),
