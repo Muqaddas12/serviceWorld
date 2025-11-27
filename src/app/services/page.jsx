@@ -1,38 +1,26 @@
-"use client";
+'use server';
 
-import { useEffect, useState } from "react";
 import ServicesList from "./ServicesList";
+import { getServices } from "@/lib/services";
 
-export default function ServicesPage() {
-  const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+export default async function ServicesPage() {
+  let services = [];
 
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const res = await fetch("/api/services/getservices");
-        if (!res.ok) throw new Error("Failed to fetch services");
-        const data = await res.json();
-        setServices(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchServices();
-  }, []);
+  const res = await getServices();
+  if (res.status && Array.isArray(res.plain)) {
+    services = res.plain;
+  }
 
-  if (loading)
-    return <p className="min-h-screen text-center text-gray-500">Loading services...</p>;
-  if (error)
-    return <p className="text-center text-red-500">⚠️ {error}</p>;
-
+  // ✅ No loading/error state — show list directly
   return (
     <>
-  
-      <ServicesList services={services} />
+      <main className="min-h-screen px-4 py-6">
+        {services.length === 0 ? (
+          <p className="text-center text-gray-500">No services available.</p>
+        ) : (
+          <ServicesList services={services} />
+        )}
+      </main>
     </>
   );
 }

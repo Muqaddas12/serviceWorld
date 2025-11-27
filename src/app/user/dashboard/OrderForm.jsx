@@ -83,7 +83,8 @@ export default function OrderForm({ selectedCategory }) {
   useEffect(() => {
     (async () => {
       const data = await getServices();
-      if (data) setServices(data);
+      if (data) setServices(data.plain);
+      
     })();
   }, []);
 
