@@ -1092,7 +1092,8 @@ export async function getChildPanels() {
 }
 export async function setChildPanelSettings(formData) {
   try {
-    const token =await cookies().get("admin_token")?.value;
+    const cookieStore =await cookies()
+    const token=cookieStore.get("admin_token")?.value;
     if (!token) return { error: "Unauthorized" };
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -1101,13 +1102,14 @@ export async function setChildPanelSettings(formData) {
     const domain = formData.get("domain");
     const subdomainprice = formData.get("subdomainprice");
     const owndomainprice = formData.get("owndomainprice");
-
+    const nameserver= formData.get("nameserver")
+    
     const client = await clientPromise;
     const db = client.db("smmpanel");
 
     await db.collection("settings").updateOne(
       { key: "child_panel_settings" },
-      { $set: { domain, subdomainprice,owndomainprice, updatedAt: new Date() } },
+      { $set: { domain, subdomainprice,owndomainprice, nameserver,updatedAt: new Date() } },
       { upsert: true }
     );
 
@@ -1139,6 +1141,7 @@ export async function getChildPanelSettings() {
       domain: settings.domain,
       subdomainprice: settings.subdomainprice,
       owndomainprice: settings.owndomainprice,
+      nameserver:settings?.nameserver,
       updatedAt: settings.updatedAt,
     };
   } catch (err) {
@@ -1638,10 +1641,10 @@ const cleanLinks = savedLinks
   ? {
       facebook: savedLinks.facebook || "",
       instagram: savedLinks.instagram || "",
-      twitter: savedLinks.twitter || "",
+      telegram: savedLinks.telegram || "",
       whatsapp: savedLinks.whatsapp || "",
       youtube: savedLinks.youtube || "",
-      github: savedLinks.github || "",
+     
     }
   : {};
 

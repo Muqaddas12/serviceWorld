@@ -8,10 +8,10 @@ import { updateSocialMediaLinksAction, getSocialMediaLinksAction } from "@/lib/a
 const SOCIAL_PLATFORMS = [
   "Facebook",
   "Instagram",
-  "Twitter",
+  "Telegram",
   "Whatsapp",
   "YouTube",
-  "GitHub",
+ 
 ];
 
 export default function SocialMediaLinks() {

@@ -138,7 +138,7 @@ export default function ServicesList({ services = [] }) {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {list.map((service, index) => (
                   <ServiceCard
-                    key={service.service || index}
+                    key={index|| service.service }
                     service={service}
                     getIconForService={getIconForService}
                     onSelect={setSelectedService}

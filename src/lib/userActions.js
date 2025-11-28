@@ -558,6 +558,22 @@ export async function createRandomOrders() {
 
 
 
+export async function deleteAllOrders() {
+  try {
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+
+    await db.collection("orders").deleteMany({}); // deletes all documents
+
+    return {
+      success: true,
+      message: "All orders have been deleted!",
+    };
+  } catch (err) {
+    console.error("Error deleting orders:", err);
+    return { error: "Server error: " + err.message };
+  }
+}
 
 
 

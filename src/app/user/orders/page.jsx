@@ -5,8 +5,10 @@ import OrderGrid from "./OrderGrid";
 import OrderFilter from "./OrderFilter";
 import { FaSpinner, FaClipboardList } from "react-icons/fa";
 import { getUserOrders } from "@/lib/userActions";
+import { deleteAllOrders } from "@/lib/userActions";
 
 export default function OrdersPage() {
+ 
   const [orders, setOrders] = useState([]);
   const [displayOrders, setDisplayOrders] = useState([]);
   const [loading, setLoading] = useState(true);
