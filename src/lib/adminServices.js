@@ -1678,10 +1678,10 @@ export async function getSocialMediaLinksForUserAction() {
     const cleanLinks = savedLinks.map((b) => ({
       facebook: b.facebook || "",
       instagram: b.instagram || "",
-      twitter: b.twitter || "",
+      telegram: b.telegram || "",
       whatsapp: b.whatsapp || "",
       youtube: b.youtube || "",
-      github: b.github || "",
+     
     }));
 
     return {
