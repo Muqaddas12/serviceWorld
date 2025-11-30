@@ -6,7 +6,6 @@ export default async function Services() {
 const services=await getServices()
 const category=await getCategories()
 
-
   return (
    <>
    <ServicesPage services={services.plain} category={category?.data}/>

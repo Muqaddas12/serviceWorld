@@ -118,10 +118,73 @@ console.log(result)
 /* -------------------------------------------------------
    🔄 UPDATE SERVICE
 -------------------------------------------------------- */
-export async function UpdateServiceAction(data) {
-
-
+export async function UpdateAllCategoryServiceAction(data, category) {
+  console.log('this is the data',data)
+  console.log('this is the category',category)
   try {
+    // ✅ Verify admin
+    const auth = await verifyAdmin();
+    if (!auth.valid) return { status: false, message: auth.message };
+
+    if (!category) {
+      return { status: false, message: "Category is required" };
+    }
+
+    // ✅ Connect DB
+    const client = await clientPromise;
+    const db = client.db(DB_ADMIN);
+    const collection = db.collection("services");
+
+    // ✅ Build update payload from form data
+    const updatePayload = {
+      name: data.name || "",
+      desc: data.desc || data.description || "",
+      category: data.category || category, // keep updated category or fallback to selected
+      type: data.type ?? "Default",
+
+      refill: data.refill === true || data.refill === "yes",
+      cancelAllowed: data.cancelAllowed === true || data.cancelAllowed === "yes",
+
+      rate: Number(data.rate ?? data.price ?? 0),
+      min: data.min !== "" ? Number(data.min) : null,
+      max: data.max !== "" ? Number(data.max) : null,
+
+      status: data.status ?? "enabled",
+      updatedAt: new Date(),
+    };
+
+    // ✅ Bulk update only docs where category matches
+    const result = await collection.updateMany(
+      { category },          // ✅ FIXED FILTER
+      { $set: updatePayload }
+    );
+
+    if (result.matchedCount === 0) {
+      return { status: false, message: `No services found in category "${category}"` };
+    }
+
+    return {
+      status: true,
+      matchedCount: result.matchedCount,
+      modifiedCount: result.modifiedCount,
+      message: `Updated ${result.modifiedCount}/${result.matchedCount} services in category "${category}" ✅`,
+    };
+  } catch (error) {
+    console.error("UpdateAllCategoryServiceAction:", error);
+    return { status: false, message: error.message || "Internal server error" };
+  }
+}
+
+
+
+
+
+export async function UpdateMultipleServicesAction(data, services){
+console.log('this is the data',data,'this is the services',services)
+ const isEmpty = Object.keys(services).length === 0
+  if(isEmpty){
+
+     try {
     const auth = await verifyAdmin();
     if (!auth.valid) return { status: false, message: auth.message };
 
@@ -152,7 +215,7 @@ export async function UpdateServiceAction(data) {
       min: data.min !== "" ? Number(data.min) : null,
       max: data.max !== "" ? Number(data.max) : null,
 
-      status: false,
+      status: data?.status,
       updatedAt: new Date()
     };
 
@@ -172,15 +235,8 @@ export async function UpdateServiceAction(data) {
     console.error("UpdateServiceAction:", error);
     return { status: false, message: error.message || "Internal server error" };
   }
-}
-
-
-
-
-
-
-export async function UpdateMultipleServicesAction(data, services) {
-  try {
+  }else{
+    try {
     const auth = await verifyAdmin();
     if (!auth.valid) return { status: false, message: auth.message };
 
@@ -189,12 +245,14 @@ export async function UpdateMultipleServicesAction(data, services) {
     const collection = db.collection("services");
 
     const serviceIds = Object.keys(services)
-      .map(key => key.match(/Views-(\d+)$/i)?.[1])
-      .filter(Boolean)
-      .map(Number);
+  .map(key => key.match(/-(\d+)$/)?.[1]) // capture last number before end
+  .filter(Boolean)
+  .map(Number);
+
+
 
     console.log("Service IDs extracted:", serviceIds);
-
+console.log(services)
     if (serviceIds.length === 0) {
       return { status: false, message: "No valid services selected" };
     }
@@ -228,6 +286,7 @@ export async function UpdateMultipleServicesAction(data, services) {
   } catch (error) {
     console.error("Bulk Update Error:", error.message);
     return { status: false, message: "Server error", error: error.message };
+  }
   }
 }
 

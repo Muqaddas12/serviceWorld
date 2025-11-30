@@ -236,10 +236,47 @@ export async function createOrder(data) {
 
 
 
+export async function deleteCategoryAllServices({ category }) {
+  try {
+    if (!category) {
+      return { status: false, message: "Category is required" };
+    }
 
+    const cookieStore = await cookies();
+    const token = cookieStore.get("admin_token")?.value;
 
+    if (!token) {
+      return { status: false, message: "Unauthorized user" };
+    }
 
+    let admin;
+    try {
+      admin = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      return { status: false, message: "Invalid or expired token" };
+    }
 
+    if (!admin) {
+      return { status: false, message: "Admin Not Logged In" };
+    }
+
+    // ✅ Connect DB
+    const client = await clientPromise;
+    const collection = client.db(DB_ADMIN).collection("services");
+
+    // ✅ Delete only services with this category
+    const result = await collection.deleteMany({ category });
+
+    return {
+      status: true,
+      deletedCount: result.deletedCount,
+      message: `Deleted ${result.deletedCount} services in category "${category}" successfully ✅`,
+    };
+  } catch (error) {
+    console.error("DELETE ALL ERROR:", error.message);
+    return { status: false, message: "Server error", error: error.message };
+  }
+}
 
 
 

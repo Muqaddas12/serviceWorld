@@ -3,10 +3,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaTimes } from "react-icons/fa";
-import { UpdateServiceAction, DeleteServiceAction, UpdateServiceStatusAction } from "@/lib/customservices";
+import {  DeleteServiceAction, UpdateServiceStatusAction } from "@/lib/customservices";
 import { UpdateMultipleServicesAction } from "@/lib/customservices";
 import EditServiceModal from "./EditModal";
-
+import CategoryOption from "./CategoryOption";
 export default function ServiceTable({ title, grouped,category }) {
   const disabledStatus = "disabled";
   const [dropdownOpen, setDropdownOpen] = useState(null);
@@ -127,8 +127,9 @@ export default function ServiceTable({ title, grouped,category }) {
     <React.Fragment key={catGroup}>
 
       {/* ✅ Category Group Heading Row (ONLY TR + TD, no span, no extra node) */}
-      <tr className="bg-gray-200 text-gray-700 dark:bg-[#1E1F23] dark:text-gray-200">
-        <td colSpan={11} className="px-4 py-2 font-bold text-sm">{catGroup}</td>
+      <tr className=" bg-gray-200 text-gray-700 dark:bg-[#1E1F23] dark:text-gray-200">
+        <td colSpan={11} className="px-4 py-2 font-bold text-sm"><span className="flex ">{catGroup}
+          <CategoryOption category={catGroup} services={grouped[catGroup]} onClose={() => setEditData(null)} OnSave={onEdit} ModalCategory={category}/></span></td>
       </tr>
 
       {/* ✅ Service Rows */}
@@ -164,7 +165,14 @@ export default function ServiceTable({ title, grouped,category }) {
             <td className="px-2">{srv.cancelAllowed ? "Yes" : "No"}</td>
 
             {/* ✅ Provider */}
-            <td className="px-2 truncate max-w-[240px] text-xs">{srv.provider}</td>
+            <td className="px-2 truncate max-w-[240px] text-xs">
+              <span className="font-bold block">
+                {srv.provider}
+              </span>
+              <span className="font-xs text-center block font-bold">
+                {srv.service}
+              </span>
+            </td>
 
             {/* ✅ Price + Profit (unchanged logic ✅) */}
             <td className="px-2">
