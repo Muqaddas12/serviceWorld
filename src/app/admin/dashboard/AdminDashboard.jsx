@@ -4,18 +4,13 @@ import Link from "next/link";
 export default function AdminDashboard({ Tickets, totalUsers, UT, totalServices, totalorders ,recentOrders=[] }) {
   const stats = [
     { title: "Total Users", value: `${totalUsers}`, icon: "👥", href: "/admin/users" },
-    { title: "Total Orders", value: `${totalorders}`, icon: "🧾", href: "/admin/orders" },
+    { title: "Total Orders", value: `${totalorders || 0}`
+, icon: "🧾", href: "/admin/orders" },
     { title: "Active Services", value: `${totalServices}`, icon: "⚙️", href: "/admin/services" },
     { title: "Pending Tickets", value: `${UT?.count || 0}`, icon: "💬", href: "/admin/tickets" },
   ];
 
-  // const recentOrders = [
-  //   { id: "ORD-1023", user: "john_doe", service: "Instagram Followers", amount: "₹250", status: "Completed" },
-  //   { id: "ORD-1022", user: "alex99", service: "YouTube Views", amount: "₹500", status: "Pending" },
-  //   { id: "ORD-1021", user: "techguru", service: "Telegram Members", amount: "₹750", status: "Completed" },
-  //   { id: "ORD-1020", user: "rahul123", service: "Facebook Likes", amount: "₹350", status: "Failed" },
-  // ];
-
+ 
   const recentTickets = Tickets?.tickets?.slice(0, 5) || [];
 
   return (

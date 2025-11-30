@@ -177,10 +177,15 @@ return (
                 <p className="font-semibold text-gray-700 dark:text-gray-300 text-sm">
                   Use this DNS in your Name Server:
                 </p>
-                <ul className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                  <li>• ns1.{adminDomain}</li>
-                  <li>• ns2.{adminDomain}</li>
-                </ul>
+               <ul className="mt-1 w-[50%] text-sm text-gray-600 dark:text-gray-400    whitespace-normal">
+  {settings?.nameserver
+    ?.split(/[\s,]+/)  // handles spaces & commas
+  // split into array
+    .map((ns, i) => (
+      <li key={i}>• {ns}</li>
+    ))}
+</ul>
+
               </div>
             </div>
           )}

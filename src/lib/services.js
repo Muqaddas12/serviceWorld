@@ -7,25 +7,6 @@ import clientPromise from "./mongodb";
 const API_URL = process.env.BASE_URL
 const API_KEY = process.env.KEY
 const DB_ADMIN = "smmadmin";
-const postAction = async (action, data = {}) => {
-  try {
-    const params = new URLSearchParams();
-    params.append("key", API_KEY);
-    params.append("action", action);
-
-    for (const [key, value] of Object.entries(data)) {
-      params.append(key, value);
-    }
-
-    const res = await axios.post(API_URL, params, {
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    });
-    return res.data;
-  } catch (error) {
-    console.error("SMM API Error:", error.response?.data || error.message);
-    return { error: error.response?.data || error.message };
-  }
-};
 
 //
 // 🔹 API Actions
@@ -52,6 +33,7 @@ export async function getServices() {
       desc: s.desc ?? "",
       storedBy: s.storedBy ?? "",
       status:s.status?? 'enabled',
+      profitPercentage:s?.profitPercentage,
       createdAt: s.createdAt ? s.createdAt.toISOString() : null // date → string
     }));
 
@@ -69,6 +51,46 @@ export async function getServices() {
       services: [],
       message: error.message
     };
+  }
+}
+
+
+
+export async function deleteAllServices() {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("admin_token")?.value;
+
+    if (!token) {
+      return { status: false, message: "Unauthorized user" };
+    }
+
+    let admin;
+    try {
+      admin = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      return { status: false, message: "Invalid or expired token" };
+    }
+
+    if (!admin) {
+      return { status: false, message: "Admin Not Logged In" };
+    }
+
+    // ✅ Connect DB
+    const client = await clientPromise;
+    const collection = client.db(DB_ADMIN).collection("services");
+
+    // ✅ Delete all
+    const result = await collection.deleteMany({});
+
+    return {
+      status: true,
+      deletedCount: result.deletedCount, // number of deleted docs
+      message: `Deleted ${result.deletedCount} services successfully ✅`,
+    };
+  } catch (error) {
+    console.error("DELETE ALL ERROR:", error.message);
+    return { status: false, message: "Server error", error: error.message };
   }
 }
 
@@ -129,6 +151,7 @@ export async function StoreServicesInDB({ services ,profitPercentage}) {
   type: s.type?.trim() || "Default",
   status:'enabled',
   desc: s.desc?.trim() || "",
+  profitPercentage:profitPercentage||1,
   storedBy: admin.id ?? "system",
   createdAt: new Date(),
 }));
@@ -221,3 +244,129 @@ export async function createOrder(data) {
 
 
 
+
+
+
+
+
+
+
+
+
+export async function AddCategory({ category }) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("admin_token")?.value;
+
+    if (!token) {
+      return {
+        status: false,
+        message: "Unauthorized user",
+      };
+    }
+
+    let admin;
+    try {
+      admin = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      return {
+        status: false,
+        message: "Invalid or expired token",
+      };
+    }
+
+    if (!admin) {
+      return {
+        status: false,
+        message: "Admin Not Logged In",
+      };
+    }
+
+    const client = await clientPromise;
+    const db = client.db(DB_ADMIN);
+    const collection = db.collection("categories"); // ✅ specify collection
+
+    // Ensure input is array for insertMany
+    const categoryArray = Array.isArray(category)
+      ? category
+      : [category];
+
+    if (categoryArray.length > 1) {
+      await collection.insertMany(categoryArray.map(cat => ({ category: cat })));
+    } else {
+      await collection.insertOne({ category: categoryArray[0] });
+    }
+
+    return {
+      status: true,
+      message: "Category added successfully",
+    };
+
+  } catch (error) {
+    return {
+      status: false,
+      message: "Server error",
+      error: error.message,
+    };
+  }
+}
+
+
+
+
+
+
+
+
+export async function getCategories() {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("admin_token")?.value;
+
+    if (!token) {
+      return {
+        status: false,
+        message: "Unauthorized user",
+      };
+    }
+
+    let admin;
+    try {
+      admin = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      return {
+        status: false,
+        message: "Invalid or expired token",
+      };
+    }
+
+    if (!admin) {
+      return {
+        status: false,
+        message: "Admin Not Logged In",
+      };
+    }
+
+    // ✅ Connect to DB
+    const client = await clientPromise;
+    const db = client.db(DB_ADMIN);
+    const collection = db.collection("categories");
+
+    // ✅ Fetch from MongoDB
+    const categories = await collection.find({}).toArray();
+
+    // ✅ Return only the category field as plain array
+    return {
+      status: true,
+      message: "Fetched successfully",
+      data: categories.map(cat => cat.category.trim()),
+    };
+
+  } catch (error) {
+    return {
+      status: false,
+      message: "Server error",
+      error: error.message,
+    };
+  }
+}

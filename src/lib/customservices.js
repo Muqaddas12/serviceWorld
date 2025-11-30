@@ -175,6 +175,65 @@ export async function UpdateServiceAction(data) {
 }
 
 
+
+
+
+
+export async function UpdateMultipleServicesAction(data, services) {
+  try {
+    const auth = await verifyAdmin();
+    if (!auth.valid) return { status: false, message: auth.message };
+
+    const client = await clientPromise;
+    const db = client.db(DB_ADMIN);
+    const collection = db.collection("services");
+
+    const serviceIds = Object.keys(services)
+      .map(key => key.match(/Views-(\d+)$/i)?.[1])
+      .filter(Boolean)
+      .map(Number);
+
+    console.log("Service IDs extracted:", serviceIds);
+
+    if (serviceIds.length === 0) {
+      return { status: false, message: "No valid services selected" };
+    }
+
+    const updatePayload = {
+      category: data.category ?? "",
+      min: data.min !== "" ? Number(data.min) : null,
+      max: data.max !== "" ? Number(data.max) : null,
+      rate: Number(data.rate ?? 0),
+      type: data.type ?? "Default",
+      desc: data.desc ?? "",
+      status: data.status ?? "enabled",
+      updatedAt: new Date()
+    };
+
+    const result = await collection.updateMany(
+      { id: { $in: serviceIds } }, // ✅ FIXED MATCH
+      { $set: updatePayload }
+    );
+
+    console.log("Bulk update result:", result);
+
+    return {
+      status: true,
+      matchedCount: result.matchedCount,
+      modifiedCount: result.modifiedCount,
+      message: `Updated ${result.modifiedCount}/${serviceIds.length} services successfully ✅`,
+      updatedServices: serviceIds.join(" ")
+    };
+
+  } catch (error) {
+    console.error("Bulk Update Error:", error.message);
+    return { status: false, message: "Server error", error: error.message };
+  }
+}
+
+
+
+
 /* -------------------------------------------------------
    ❌ DELETE SERVICE
 -------------------------------------------------------- */

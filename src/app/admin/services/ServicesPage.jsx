@@ -7,7 +7,7 @@ import ServiceTable from "./ServiceTable";
 import ServiceModal from "./ServiceModal";
 import { useRouter } from "next/navigation";
 
-export default function ServicesPage({ services = [] }) {
+export default function ServicesPage({ services = [] ,category=[] }) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -96,7 +96,8 @@ export default function ServicesPage({ services = [] }) {
       <ServiceTable
         title="Services"
         grouped={grouped}
-        setSelectedService={setSelectedService}
+       
+        category={category}
       />
 
       {/* MODAL */}
