@@ -56,7 +56,7 @@ const getPlatformIcon = (name = "") => {
 export default function OrderForm({ selectedCategory='' }) {
   const {symbol,convert}=useCurrency()
   const [category, setCategory] = useState(selectedCategory || "");
-  const [service, setService] = useState("");
+  const [service, setService] = useState('');
   const [link, setLink] = useState("");
   const [quantity, setQuantity] = useState("");
   const [charge, setCharge] = useState("");
@@ -78,117 +78,144 @@ export default function OrderForm({ selectedCategory='' }) {
   const dropdownRef = useRef(null);
   const categoryRef = useRef(null);
   const searchRef = useRef(null);
+// Load all services
+useEffect(() => {
+  (async () => {
+    const data = await getServices();
+    if (data) setServices(data.plain);
+  })();
+}, []);
 
-  // Load all services
-  useEffect(() => {
-    (async () => {
-      const data = await getServices();
-      if (data) setServices(data.plain);
-      
-    })();
-  }, []);
+// Extract categories after services load
+useEffect(() => {
+  if (services.length > 0) {
+    const cats = [...new Set(services.map((s) => s.category).filter(Boolean))];
 
-  // Extract categories after services load
-  useEffect(() => {
-    if (services.length > 0) {
-      const cats = [...new Set(services.map((s) => s.category).filter(Boolean))];
-      setCategories(cats);
-      setOnlySelectedCategories(cats)
-      // if no category selected, set first
-      if (!category) {
-        setCategory(cats[0] || "");
-         const firstSelected = services.find(s => s.category === cats[0]);
-  console.log(firstSelected,'hello')
-  setSelectedService(firstSelected||firstSelected[0])
-    
-      }
-    } else {
-      setCategories([]);
-      setCategory("");
+    setCategories(cats);
+    setOnlySelectedCategories(cats);
+
+    // Auto-select default category + service
+    if (!category) {
+      const firstCategory = cats[0];
+      setCategory(firstCategory);
+
+      const firstSrv = services.find((s) => s.category === firstCategory);
+      setSelectedService(firstSrv || null);
+      setService(firstSrv?.service || "");
     }
-  }, [services]);
+  } else {
+    setCategories([]);
+    setCategory("");
+  }
+}, [services]);
 
+// Apply filters (category + search) with debounce
+useEffect(() => {
+  setLoading(true);
 
-  
+  const delay = setTimeout(() => {
+    const term = searchTerm.trim().toLowerCase();
 
+    const result = services.filter((s) => {
+      const matchesCategory = category ? s.category === category : true;
+      const matchesTerm =
+        !term ||
+        s.name.toLowerCase().includes(term) ||
+        (s.description || "").toLowerCase().includes(term) ||
+        (s.service || "").toLowerCase().includes(term);
+      return matchesCategory && matchesTerm;
+    });
 
-  // Apply filters (category + search) with debounce
-  useEffect(() => {
-    setLoading(true);
-    const delay = setTimeout(() => {
-      const term = searchTerm.trim().toLowerCase();
-      const result = services.filter((s) => {
-        const matchesCategory = category ? s.category === category : true;
-        const matchesTerm =
-          !term ||
-          s.name.toLowerCase().includes(term) ||
-          (s.description || "").toLowerCase().includes(term) ||
-          (s.service || "").toLowerCase().includes(term);
-        return matchesCategory && matchesTerm;
-      });
-      setFilteredServices(result);
-      setLoading(false);
-    }, 300);
+    setFilteredServices(result);
+    setLoading(false);
+  }, 300);
 
-    return () => clearTimeout(delay);
-  }, [searchTerm, services, category]);
+  return () => clearTimeout(delay);
+}, [searchTerm, services, category]);
 
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (!categoryRef.current?.contains(e.target)) setCategoryDropdownOpen(false);
-      if (!dropdownRef.current?.contains(e.target)) setDropdownOpen(false);
-      if (!searchRef.current?.contains(e.target)) setSearchDropdownOpen(false);
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+// Close dropdown when clicking outside
+useEffect(() => {
+  const handleClickOutside = (e) => {
+    if (!categoryRef.current?.contains(e.target)) setCategoryDropdownOpen(false);
+    if (!dropdownRef.current?.contains(e.target)) setDropdownOpen(false);
+    if (!searchRef.current?.contains(e.target)) setSearchDropdownOpen(false);
+  };
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => document.removeEventListener("mousedown", handleClickOutside);
+}, []);
 
-  // Calculate charge
-  useEffect(() => {
-    if (service && quantity) {
-      const srv = services.find((s) => s.service === service);
-      if (srv) {
-        const rate = parseFloat(String(srv.rate).replace(/,/g, "")) || 0;
-        const total = (rate / 1000) * Number(quantity || 0);
-        setCharge(total.toFixed(2));
-      } else {
-        setCharge("");
-      }
-    } else {
-      setCharge("");
+// Quantity validation
+useEffect(() => {
+  const srv = services.find((s) => s.service === service);
+  if (!srv) return setQuantityError("");
+
+  const qty = Number(quantity);
+
+  if (!quantity) return setQuantityError("");
+  if (qty < srv.min) return setQuantityError(`Minimum allowed quantity is ${srv.min}`);
+  if (qty > srv.max) return setQuantityError(`Maximum allowed quantity is ${srv.max}`);
+
+  setQuantityError("");
+}, [quantity, service, services]);
+
+// Clear service when category changes and selected service does not belong to it
+useEffect(() => {
+  if (selectedService && category && selectedService.category !== category) {
+    setService("");
+    setSelectedService(null);
+  }
+}, [category, selectedService]);
+
+// Auto-select category (coming from props - selectedCategory)
+useEffect(() => {
+  if (selectedCategory && onlySelectedCategories.length > 0) {
+    const lower = selectedCategory.toLowerCase();
+    const words = lower.split(/[^a-z0-9]+/);
+
+    const matched = onlySelectedCategories.find((cat) =>
+      words.some((w) => cat.toLowerCase().includes(w))
+    );
+
+    if (matched) {
+      const related = onlySelectedCategories.filter((cat) =>
+        words.some((w) => cat.toLowerCase().includes(w))
+      );
+
+      setCategories(related);
+      setCategory(related[0]);
     }
-  }, [service, quantity, services]);
+  }
+}, [selectedCategory, onlySelectedCategories]);
 
-  // Quantity validation (uses selected service limits)
-  useEffect(() => {
+// Auto select first service when filter changes
+useEffect(() => {
+  if (filteredServices.length > 0) {
+    const first = filteredServices[0];
+    setSelectedService(first);
+    setService(first?.service || "");
+  }
+
+  if (!selectedCategory) {
+    setCategories(onlySelectedCategories);
+  }
+}, [filteredServices]);
+
+// Calculate charge
+useEffect(() => {
+  if (service && quantity) {
     const srv = services.find((s) => s.service === service);
-    if (!srv) {
-      setQuantityError("");
-      return;
-    }
 
-    const qty = Number(quantity);
-    if (!quantity) {
-      setQuantityError("");
-      return;
+    if (srv) {
+      const rate = parseFloat(String(srv.rate).replace(/,/g, "")) || 0;
+      const total = (rate / 1000) * Number(quantity || 0);
+      return setCharge(total.toFixed(2));
     }
-    if (qty < srv.min) setQuantityError(`Minimum allowed quantity is ${srv.min}`);
-    else if (qty > srv.max) setQuantityError(`Maximum allowed quantity is ${srv.max}`);
-    else setQuantityError("");
-  }, [quantity, service, services]);
+  }
 
-  // When category changes (user selected), clear service selection if it doesn't belong to new category
-  useEffect(() => {
-    if (selectedService && category && selectedService.category !== category) {
-      
-      setService("");
-      setSelectedService(null);
-    }
-  }, [category, selectedService]);
+  setCharge("");
+}, [service, quantity, services]);
 
-  // Submit order
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!service || !link || !quantity || !charge) {
@@ -227,40 +254,6 @@ export default function OrderForm({ selectedCategory='' }) {
 
     setSubmitting(false);
   };
-  //show selected category by defaulut
-  useEffect(() => {
-  if (selectedCategory && onlySelectedCategories?.length > 0) {
-    const lowerInput = selectedCategory.toLowerCase();
-
-    // smart split match so emojis/spaces don't break it
-    const words = lowerInput.split(/[^a-z0-9]+/);
-
-    // 1️⃣ Find best matched main category
-    const matched = onlySelectedCategories.find(cat =>
-      words.some(word => cat.toLowerCase().includes(word))
-    );
-    if (matched) {
-       // 2️⃣ Get ALL related categories from category list (only logging them)
-      const related = onlySelectedCategories.filter(cat =>
-        words.some(word => cat.toLowerCase().includes(word))
-      );
-     setCategories(related)
-     setCategory(related[0])
-  
-    
-    }
-  }
-}, [selectedCategory, onlySelectedCategories]);
-useEffect(()=>{
-  
-        const newservice=filteredServices[0]
- setSelectedService(newservice)
-  if(!selectedCategory){
-    setCategories(onlySelectedCategories)
-  }
-},[categories,selectedCategory,filteredServices])
-
-
   return (
     <div className="w-full flex-1 flex justify-start bg-gray-100 text-gray-700 dark:bg-[#0F1117] dark:text-white">
       <div
@@ -337,6 +330,7 @@ useEffect(()=>{
               setCategory(srv.category);
               setSearchDropdownOpen(false);
             }}
+
             className="
               px-4 py-3 cursor-pointer
               hover:bg-gray-200 dark:hover:bg-white/10
@@ -477,12 +471,7 @@ useEffect(()=>{
       p-4 rounded-lg shadow-sm
     "
   >
-    <div className="flex items-center gap-3 mb-2">
-      {getPlatformIcon(selectedService.name)}
-      <p className="font-semibold text-gray-800 dark:text-gray-200">
-        {selectedService.service} {selectedService.name}
-      </p>
-    </div>
+  
 
     <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
       {selectedService?.desc || "No description available."}
