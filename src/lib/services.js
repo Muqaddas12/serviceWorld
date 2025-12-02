@@ -407,3 +407,79 @@ export async function getCategories() {
     };
   }
 }
+export async function upadateCategories({ allcategories }) {
+  try {
+    // -----------------------------
+    // 1. CHECK ADMIN TOKEN
+    // -----------------------------
+    const cookieStore = await cookies();
+    const token = cookieStore.get("admin_token")?.value;
+
+    if (!token) {
+      return { status: false, message: "Unauthorized user" };
+    }
+
+    let admin;
+    try {
+      admin = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return { status: false, message: "Invalid or expired token" };
+    }
+
+    if (!admin) {
+      return { status: false, message: "Admin not logged in" };
+    }
+
+    // -----------------------------
+    // 2. VALIDATE INPUT
+    // -----------------------------
+    if (!Array.isArray(allcategories)) {
+      return { status: false, message: "Invalid data format" };
+    }
+
+    // -----------------------------
+    // 3. CONNECT TO DATABASE
+    // -----------------------------
+    const client = await clientPromise;
+    const db = client.db( DB_ADMIN);
+    const collection = db.collection("categories");
+
+    // -----------------------------
+    // 4. DELETE ALL OLD CATEGORIES
+    // -----------------------------
+    await collection.deleteMany({});
+
+    // -----------------------------
+    // 5. INSERT NEW CATEGORIES IN ORDER
+    // -----------------------------
+    const docs = allcategories.map((cat) => ({
+      category: cat.trim(),
+    }));
+
+    await collection.insertMany(docs);
+
+    return {
+      status: true,
+      message: "Categories updated successfully",
+    };
+
+  } catch (error) {
+    console.error("Update categories error:", error);
+    return {
+      status: false,
+      message: "Server error",
+      error: error.message,
+    };
+  }
+}
+
+
+
+
+
+
+
+
+
+
+

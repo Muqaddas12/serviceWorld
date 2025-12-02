@@ -90,6 +90,14 @@ export default function ServicesPage({ services = [] ,category=[] }) {
           >
             Import Services
           </button>
+
+
+           <button
+            onClick={() => router.push("/admin/services/editcategory")}
+            className="w-[90%] mt-3 py-2 bg-gray-800 text-white text-sm rounded-lg shadow hover:bg-gray-700 inline"
+          >
+           EditCategory
+          </button>
         </div>
       </div>
 
