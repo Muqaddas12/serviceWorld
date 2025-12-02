@@ -3,15 +3,22 @@
 import Card from "./Card";
 import { useCurrency } from "@/context/CurrencyContext";
 
-const latestOrders = [
-  { id: "#1324", service: "Instagram Followers", amount: 350, status: "Completed" },
-  { id: "#1323", service: "YouTube Views", amount: 220, status: "Processing" },
-  { id: "#1322", service: "Twitter Likes", amount: 90, status: "Pending" },
-];
 
+import { getUserOrders } from "@/lib/userActions";
+import { useEffect, useState } from "react";
 export default function LatestOrders() {
+  const [latestOrders,setLatestOrders]=useState([])
   const { symbol, convert } = useCurrency();
+useEffect(()=>{
+  const loadorder=async ()=>{
+    const res=await getUserOrders()
+    if(res.success){
+      setLatestOrders(res?.orders)
 
+    }
+  }
+  loadorder()
+},[])
   return (
     <>
       {/* ================= LATEST ORDERS ================= */}
@@ -49,56 +56,61 @@ export default function LatestOrders() {
             </thead>
 
             <tbody>
-              {latestOrders.map((order, idx) => (
-                <tr
-                  key={idx}
-                  className="
-                    border-b border-gray-200 dark:border-[#2B3143]
-                    hover:bg-gray-200 dark:hover:bg-white/10
-                    transition-all duration-200
-                  "
-                >
-                  <td className="py-2 px-2 sm:py-3 sm:px-4">
-                    {order.id}
-                  </td>
+   
+  {latestOrders.length === 0 ? (
+    <tr>
+      <td
+        colSpan="4"
+        className="py-6 text-center text-gray-500 dark:text-gray-400 text-sm"
+      >
+        No orders yet
+      </td>
+    </tr>
+  ) : (
+    latestOrders.map((order, idx) => (
+      <tr
+        key={idx}
+        className="
+          border-b border-gray-200 dark:border-[#2B3143]
+          hover:bg-gray-200 dark:hover:bg-white/10
+          transition-all duration-200
+        "
+      >
+        <td className="py-2 px-2 sm:py-3 sm:px-4">
+          {order.id}
+        </td>
 
-                  <td className="py-2 px-2 sm:py-3 sm:px-4 truncate">
-                    {order.service}
-                  </td>
+        <td className="py-2 px-2 sm:py-3 sm:px-4 truncate">
+          {order.service}
+        </td>
 
-                  {/* Amount */}
-                  <td
-                    className="
-                      py-2 px-2 sm:py-3 sm:px-4 
-                      font-semibold text-green-600 dark:text-green-400
-                    "
-                  >
-                    {symbol}
-                    {convert(order.amount).toFixed(2)}
-                  </td>
+        <td className="py-2 px-2 sm:py-3 sm:px-4 font-semibold text-green-600 dark:text-green-400">
+          {symbol}
+          {convert(order.amount).toFixed(2)}
+        </td>
 
-                  {/* Status Badge */}
-                  <td className="py-2 px-2 sm:py-3 sm:px-4">
-                    <span
-                      className={`
-                        px-2 py-[2px] sm:py-1 rounded-lg text-[10px] sm:text-xs 
-                        shadow-sm font-medium
-                        ${
-                          order.status === "Completed"
-                            ? "bg-green-500/20 text-green-600 dark:text-green-400"
-                            : order.status === "Processing"
-                            ? "bg-gray-400/20 text-gray-700 dark:text-gray-300"
-                            : "bg-orange-500/20 text-orange-500 dark:text-orange-400"
-                        }
-                      `}
-                    >
-                      {order.status}
-                    </span>
-                  </td>
+        <td className="py-2 px-2 sm:py-3 sm:px-4">
+          <span
+            className={`
+              px-2 py-[2px] sm:py-1 rounded-lg text-[10px] sm:text-xs shadow-sm font-medium
+              ${
+                order.status === "Completed"
+                  ? "bg-green-500/20 text-green-600 dark:text-green-400"
+                  : order.status === "Processing"
+                  ? "bg-gray-400/20 text-gray-700 dark:text-gray-300"
+                  : "bg-orange-500/20 text-orange-500 dark:text-orange-400"
+              }
+            `}
+          >
+            {order.status}
+          </span>
+        </td>
+      </tr>
+    ))
+  )}
+</tbody>
 
-                </tr>
-              ))}
-            </tbody>
+          
           </table>
         </Card>
       </section>
