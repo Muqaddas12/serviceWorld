@@ -13,8 +13,13 @@ import {
   Shield,
   Calendar,
   ImageOff,
+  Copy,
 } from "lucide-react";
-import { updateUserDetails, FreezeUser, deleteUserById } from "@/lib/adminServices";
+import {
+  updateUserDetails,
+  FreezeUser,
+  deleteUserById,
+} from "@/lib/adminServices";
 
 export default function EditUserPage({ user }) {
   const router = useRouter();
@@ -122,7 +127,9 @@ export default function EditUserPage({ user }) {
       if (!res.success) throw new Error();
 
       setForm((p) => ({ ...p, frozen: freezing }));
-      setSuccess(freezing ? "User account frozen." : "User account reactivated.");
+      setSuccess(
+        freezing ? "User account frozen." : "User account reactivated."
+      );
     } catch {
       setError("Failed to update status.");
     } finally {
@@ -141,7 +148,6 @@ export default function EditUserPage({ user }) {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-[#0f0f11] text-gray-900 dark:text-gray-200 p-6 sm:p-10">
-      
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold flex items-center gap-2">
@@ -157,7 +163,6 @@ export default function EditUserPage({ user }) {
 
       {/* Profile Summary */}
       <div className="flex flex-col sm:flex-row items-center gap-6 mb-10 bg-white dark:bg-[#151517] border border-gray-300 dark:border-gray-700 rounded-2xl p-6 shadow-sm">
-        
         <div className="w-32 h-32 rounded-full overflow-hidden border border-gray-300 dark:border-gray-700">
           {profilePic ? (
             <img src={profilePic} className="object-cover w-full h-full" />
@@ -169,14 +174,17 @@ export default function EditUserPage({ user }) {
         </div>
 
         <div className="flex-1 text-center sm:text-left">
-          <h2 className="text-2xl font-semibold">{form.username || "Unnamed User"}</h2>
+          <h2 className="text-2xl font-semibold">
+            {form.username || "Unnamed User"}
+          </h2>
 
           <p className="text-gray-500 dark:text-gray-400 flex gap-2 items-center mt-2">
             <Mail size={16} /> {form.email || "No Email"}
           </p>
 
           <p className="text-gray-500 dark:text-gray-400 flex gap-2 items-center mt-1">
-            <Shield size={16} /> Role: <span className="capitalize">{form.role || "user"}</span>
+            <Shield size={16} /> Role:{" "}
+            <span className="capitalize">{form.role || "user"}</span>
           </p>
 
           <p className="text-gray-500 dark:text-gray-400 flex gap-2 items-center mt-1">
@@ -188,7 +196,6 @@ export default function EditUserPage({ user }) {
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3 mb-8">
-        
         {/* Freeze / Unfreeze */}
         <button
           onClick={toggleFreeze}
@@ -199,15 +206,15 @@ export default function EditUserPage({ user }) {
             ? "Updating..."
             : form.frozen
             ? (
-              <>
-                <Unlock size={16} /> Unfreeze
-              </>
-            )
+                <>
+                  <Unlock size={16} /> Unfreeze
+                </>
+              )
             : (
-              <>
-                <Lock size={16} /> Freeze
-              </>
-            )}
+                <>
+                  <Lock size={16} /> Freeze
+                </>
+              )}
         </button>
 
         {/* Delete */}
@@ -216,7 +223,7 @@ export default function EditUserPage({ user }) {
           disabled={actionLoading === "delete"}
           className="flex items-center gap-2 bg-red-200 dark:bg-red-900/30 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-2 rounded-lg hover:bg-red-300 dark:hover:bg-red-800 transition"
         >
-          {actionLoading === "delete" ? "Deleting..." : (<><Trash2 size={16} /> Delete</>)}
+          {actionLoading === "delete" ? "Deleting..." : <><Trash2 size={16} /> Delete</>}
         </button>
       </div>
 
@@ -225,33 +232,60 @@ export default function EditUserPage({ user }) {
         onSubmit={handleSubmit}
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-white dark:bg-[#151517] border border-gray-300 dark:border-gray-700 p-6 rounded-2xl shadow-sm"
       >
+
+        {/* Copy All Fields */}
+        <div className="col-span-full flex justify-end">
+          <button
+            type="button"
+            onClick={() =>
+              navigator.clipboard.writeText(JSON.stringify(form, null, 2))
+            }
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition flex items-center gap-2"
+          >
+            <Copy size={16} />
+            Copy All Fields
+          </button>
+        </div>
+
         {Object.entries(form).map(([key, value]) => (
           <div key={key}>
             <label className="text-sm text-gray-500 dark:text-gray-400 mb-1 block capitalize">
               {key.replace(/_/g, " ")}
             </label>
 
-            {/* Password Special Handling */}
-            {key === "password" ? (
-              <input
-                type="text"
-                name={key}
-                value={value === false ? "false" : value || ""}
-                onFocus={() => setForm((p) => ({ ...p, password: "" }))}
-                onChange={handleChange}
-                placeholder="Enter new password"
-                className="bg-gray-100 dark:bg-[#1a1a1c] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm w-full"
-              />
-            ) : (
-              <input
-                type="text"
-                name={key}
-                readOnly={!["username", "email", "balance"].includes(key)}
-                value={typeof value === "boolean" ? value.toString() : value || ""}
-                onChange={handleChange}
-                className="bg-gray-100 dark:bg-[#1a1a1c] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm w-full"
-              />
-            )}
+            <div className="relative flex items-center">
+              {key === "password" ? (
+                <input
+                  type="text"
+                  name={key}
+                  value={value === false ? "false" : value || ""}
+                  onFocus={() => setForm((p) => ({ ...p, password: "" }))}
+                  onChange={handleChange}
+                  placeholder="Enter new password"
+                  className="w-full bg-gray-100 dark:bg-[#1a1a1c] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm"
+                />
+              ) : (
+                <input
+                  type="text"
+                  name={key}
+                  readOnly={!["username", "email", "balance"].includes(key)}
+                  value={
+                    typeof value === "boolean" ? value.toString() : value || ""
+                  }
+                  onChange={handleChange}
+                  className="w-full bg-gray-100 dark:bg-[#1a1a1c] border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-sm"
+                />
+              )}
+
+              {/* Copy Icon inside input */}
+              <button
+                type="button"
+                onClick={() => navigator.clipboard.writeText(String(value))}
+                className="absolute right-2 text-gray-500 hover:text-gray-900 dark:hover:text-white"
+              >
+                <Copy size={16} />
+              </button>
+            </div>
 
             {fieldError[key] && (
               <p className="text-xs text-red-500 mt-1">{fieldError[key]}</p>

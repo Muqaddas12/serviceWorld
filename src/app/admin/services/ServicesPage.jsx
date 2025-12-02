@@ -39,13 +39,9 @@ export default function ServicesPage({ services = [] ,category=[] }) {
       if (!groups[cat]) groups[cat] = [];
       groups[cat].push(srv);
     });
+
     return groups;
   }, [filtered]);
-
-  const allCategories = [
-    "All",
-    ...new Set(services.map((s) => s.category).filter(Boolean)),
-  ];
 
   return (
     <div className="min-h-screen py-8 bg-gray-100 text-gray-800 dark:bg-[#0F1117] dark:text-gray-200 transition-all">
