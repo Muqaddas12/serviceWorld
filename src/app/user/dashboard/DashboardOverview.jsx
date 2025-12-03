@@ -24,7 +24,7 @@ export default function DashboardLayout({ user, serviceEnabled }) {
 useEffect(() => {
   const loadOrders = async () => {
     const res = await getUserOrders();
-    console.log(res);
+
 
     if (!res.success) {
       return;
@@ -33,7 +33,7 @@ useEffect(() => {
     // ✅ Correct way to SUM total spent
     const totalSpent = res.orders.reduce((acc, o) => acc + Number(o.charge || 0), 0);
 
-    console.log("Total spent:", totalSpent);
+   
 
     // ✅ Set values in state
     setSpent(totalSpent);

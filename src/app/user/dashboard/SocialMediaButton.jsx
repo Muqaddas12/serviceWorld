@@ -14,8 +14,8 @@ export default function SocialButtons({ close }) {
   useEffect(() => {
     const loadLinks = async () => {
       const res = await getSocialMediaLinksForUserAction();
-      console.log("Fetched links:", res);
-console.log(res)
+
+
       if (res.status && res.links) {
     
         setLinks({

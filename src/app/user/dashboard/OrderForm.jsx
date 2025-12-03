@@ -20,6 +20,7 @@ import { MdReceipt, MdAccessTime } from "react-icons/md";
 import { createOrderAction } from "@/lib/userActions";
 import QuickActions from "./QuickActions";
 import { useCurrency } from "@/context/CurrencyContext";
+import { getCategories } from "@/lib/services";
 const icons = [
   { name: "Instagram", icon: <FaInstagram size={28} /> },
   { name: "Facebook", icon: <FaFacebookF size={28} /> },
@@ -88,9 +89,12 @@ useEffect(() => {
 
 // Extract categories after services load
 useEffect(() => {
-  if (services.length > 0) {
-    const cats = [...new Set(services.map((s) => s.category).filter(Boolean))];
-
+  const loadcategory=async()=>{
+    const res=await getCategories()
+    console.log(res)
+    if (services.length > 0) {
+    
+   const cats=res?.data
     setCategories(cats);
     setOnlySelectedCategories(cats);
 
@@ -107,6 +111,9 @@ useEffect(() => {
     setCategories([]);
     setCategory("");
   }
+  }
+  loadcategory()
+  
 }, [services]);
 
 // Apply filters (category + search) with debounce
@@ -320,9 +327,9 @@ useEffect(() => {
           Searching...
         </div>
       ) : filteredServices.length > 0 ? (
-        filteredServices.map((srv) => (
+        filteredServices.map((srv,index) => (
           <div
-            key={srv.service}
+            key={index}
             onClick={() => {
               setSearchTerm(srv.name);
               setService(srv.service);
@@ -377,9 +384,9 @@ useEffect(() => {
                   z-50
                 "
               >
-                {categories.map((cat) => (
+                {categories.map((cat,index) => (
                  <li
-  key={cat}
+  key={index}
   onClick={() => {
     setCategory(cat);
     setCategoryDropdownOpen(false);
@@ -436,9 +443,9 @@ useEffect(() => {
         z-[99999]
       "
     >
-      {filteredServices.map((srv) => (
+      {filteredServices.map((srv , index) => (
         <li
-          key={srv.service}
+          key={index}
           onClick={() => {
             setService(srv.service);
             setSelectedService(srv);
@@ -465,23 +472,23 @@ useEffect(() => {
 {/* SERVICE INFO */}
 {selectedService && (
   <div
-    className="
-      bg-gray-100 dark:bg-[#0F1117]
-      border border-gray-300 dark:border-[#2B3143]
-      p-4 rounded-lg shadow-sm
-    "
-  >
-  
+  className="
+    bg-gray-100 dark:bg-[#0F1117]
+    border border-gray-300 dark:border-[#2B3143]
+    p-4 rounded-lg shadow-sm
+    overflow-hidden break-words
+  "
+>
+  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 whitespace-pre-wrap break-words">
+    {selectedService?.desc || "No description available."}
+  </p>
 
-    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-      {selectedService?.desc || "No description available."}
-    </p>
+  <p className="flex items-center gap-2 text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
+    <MdAccessTime />
+    {selectedService.average_time || "No data available"}
+  </p>
+</div>
 
-    <p className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-      <MdAccessTime />
-      {selectedService.average_time || "No data available"}
-    </p>
-  </div>
 )}
 
 

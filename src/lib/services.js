@@ -387,33 +387,6 @@ export async function AddCategory({ category }) {
 
 export async function getCategories() {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("admin_token")?.value;
-
-    if (!token) {
-      return {
-        status: false,
-        message: "Unauthorized user",
-      };
-    }
-
-    let admin;
-    try {
-      admin = jwt.verify(token, process.env.JWT_SECRET);
-    } catch {
-      return {
-        status: false,
-        message: "Invalid or expired token",
-      };
-    }
-
-    if (!admin) {
-      return {
-        status: false,
-        message: "Admin Not Logged In",
-      };
-    }
-
     // ✅ Connect to DB
     const client = await clientPromise;
     const db = client.db(DB_ADMIN);
