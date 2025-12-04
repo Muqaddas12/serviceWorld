@@ -528,8 +528,16 @@ export async function putPaymentMethodDetails(
 /* -------------------------------------------------------------------------- */
 export async function ValidateTransactionBharatPe(internalUtr, amount) {
   try {
-    const merchantId = process.env.MARCHANT_ID;
-    const token = process.env.BHARATPE_TOKEN || "06bc2221af4f426dab9a40a38bff5ac5";
+    const payment_methods=await getAllPaymentMethods()
+   const methods=payment_methods?.methods
+   const bharatPe = methods
+  .filter(m => m.type === "BharatPe")
+  .map(m => ({ merchantId: m.merchantId, token: m.token }));
+
+
+    const merchantId =bharatPe?.merchantId
+
+    const token = bharatPe?.token
 
     const toDate = new Date();
     const fromDate = new Date();
@@ -554,7 +562,7 @@ export async function ValidateTransactionBharatPe(internalUtr, amount) {
     const data = await res.json();
     
     const transactions = data?.data?.transactions || [];
-console.log(transactions)
+
     const matched = transactions.find(
       (t) => t.bankReferenceNo === internalUtr && Number(t.amount) === Number(amount)
     );
