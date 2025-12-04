@@ -12,7 +12,7 @@ import { createOrder } from "./services";
 export async function resendOrderAfterUrlUpdateAction(orderId, newUrl) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const token = cookieStore.get("admin_token")?.value;
     if (!token) {
       return { success: false, message: "Unauthorized — login first." };
     }

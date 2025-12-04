@@ -3,7 +3,7 @@ import clientPromise from "@/lib/mongodb";
 
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
-
+import axios from "axios";
 import { revalidatePath } from "next/cache";
 import { createOrder } from "./services";
 import crypto from "crypto";
@@ -12,6 +12,7 @@ import { ValidateTransactionBharatPe } from "./adminServices";
 const dbName = "smmpanel";
 const addFundsCollection = "add_funds";
 const JWT_SECRET = process.env.JWT_SECRET;
+const DB_ADMIN = "smmadmin";
 // ========================= GET USER DETAILS =========================
 export async function getUserDetails() {
   try {
@@ -166,7 +167,7 @@ export async function generateApiKey() {
     const decoded = jwt.verify(token.value, JWT_SECRET);
 
     // Generate a secure API key
-    const apiKey = "sk-" + crypto.randomBytes(24).toString("hex");
+    const apiKey = "sk-" + crypto.randomBytes(12).toString("hex");
 
     // Update user record using email
     const result = await users.updateOne(
@@ -216,7 +217,10 @@ const user = await usersCollection.findOne({ _id: new ObjectId(userData.id) });
     if (!user) {
       return { success: false, message: "User not found." };
     }
-
+const selectedProvider = await client
+  .db(DB_ADMIN)
+  .collection("Providers")
+  .findOne({ selected: true });
     // 📦 5️⃣ Extract and validate input
    
     const quantity = Number(qua);
@@ -266,7 +270,11 @@ const user = await usersCollection.findOne({ _id: new ObjectId(userData.id) });
     // 💾 🔟 Save order in DB
     const ordersCollection = db.collection("orders");
     const newOrder = {
-      userId: user.id,
+      userId: user._id.toString(),
+      username:user.username,
+      userEmail:user.email,
+ProviderUrl:selectedProvider.providerUrl,
+providerApiKey:selectedProvider.apiKey,
       service,
       link,
       quantity,
@@ -277,7 +285,20 @@ const user = await usersCollection.findOne({ _id: new ObjectId(userData.id) });
       providerOrderId: response.order,
       createdAt: new Date(),
     };
-
+const safeOrder = {
+  userId: newOrder.userId,
+  username: newOrder.username,
+  userEmail: newOrder.userEmail,
+  service: newOrder.service,
+  link: newOrder.link,
+  quantity: newOrder.quantity,
+  charge: newOrder.charge,
+  status: newOrder.status,
+  providerOrderId: newOrder.providerOrderId,
+  startCount: 0,
+  remains: 0,
+  createdAt: newOrder.createdAt.toISOString()
+};
     await ordersCollection.insertOne(newOrder);
 
     // 🔁 11️⃣ Revalidate order page
@@ -289,7 +310,7 @@ const user = await usersCollection.findOne({ _id: new ObjectId(userData.id) });
       message: "Order created successfully!",
       orderId: response.order,
       balanceAfter: updatedBalance,
-      details: newOrder,
+      details: safeOrder,
     };
   } catch (err) {
     console.error("❌ Error creating order:", err);
@@ -308,15 +329,12 @@ const user = await usersCollection.findOne({ _id: new ObjectId(userData.id) });
 
 export async function getUserOrders() {
   try {
-    // 🍪 1. Get user token
+    // 1. token
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
+    if (!token) return { error: "Unauthorized. Please login." };
 
-    if (!token) {
-      return { error: "Unauthorized. Please login." };
-    }
-
-    // 🔐 2. Verify JWT
+    // 2. verify
     let decoded;
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -324,38 +342,96 @@ export async function getUserOrders() {
       return { error: "Invalid or expired token." };
     }
 
-    const userId = new ObjectId(decoded.id);
+    const userIdString = decoded.id;
+    const email = decoded.email;
+    const username = decoded.username;
 
-    // 🗃 3. Connect to database
+    // 3. db
     const client = await clientPromise;
     const db = client.db("smmpanel");
 
-    // 📦 4. Fetch user orders sorted newest→oldest
-    const orders = await db
-      .collection("orders")
-      .find({ userId })
+    // 4. Fetch all orders of user
+    const orders = await db.collection("orders")
+      .find({
+        $or: [
+          { userId: userIdString },
+          { userEmail: email },
+          { username: username }
+        ]
+      })
       .sort({ createdAt: -1 })
       .toArray();
-// Convert _id + make whole document JSON-safe
-const formattedOrders = orders.map(order =>
-  JSON.parse(
-    JSON.stringify({
-      ...order,
-      _id: order._id.toString(),
-    })
-  )
-);
 
-return {
-  success: true,
-  orders: formattedOrders,
-};
+    // 5. For each order → fetch provider API → update DB → format JSON safe
+    const finalOrders = await Promise.all(
+      orders.map(async (order) => {
+
+        let providerStatus = null;
+
+        // 🔥 If providerOrderId exists, make API request
+        if (order.providerOrderId) {
+          try {
+            const params = new URLSearchParams();
+            params.append("key", order.providerApiKey);
+            params.append("action", "status");
+            params.append("order", order.providerOrderId);
+console.log(order.providerOrderId)
+            const res = await axios.post(order.ProviderUrl, params, {
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            });
+
+            providerStatus = res.data;
+console.log(providerStatus)
+            // 🔥 Update DB with provider values
+            await db.collection("orders").updateOne(
+              { _id: order._id },
+              {
+                $set: {
+                  status: providerStatus.status ?? order.status,
+                  startCount: Number(providerStatus.start_count ?? order.startCount),
+                  remains: Number(providerStatus.remains ?? order.remains),
+                  charge: Number(providerStatus.charge ?? order.charge),
+                  updatedAt: new Date(),
+                },
+              }
+            );
+          } catch (err) {
+            providerStatus = { error: `Provider API failed${err}` };
+          }
+        }
+
+        // 🔥 Return JSON-safe object to client
+        return {
+          ...order,
+          _id: order._id.toString(),
+          userId: order.userId?.toString?.() ?? String(order.userId ?? ""),
+          createdAt:
+            order.createdAt instanceof Date
+              ? order.createdAt.toISOString()
+              : String(order.createdAt ?? ""),
+          updatedAt:
+            order.updatedAt instanceof Date
+              ? order.updatedAt.toISOString()
+              : String(order.updatedAt ?? ""),
+          providerStatus,
+        };
+      })
+    );
+
+    // 6. return updated orders
+    return {
+      success: true,
+      count: finalOrders.length,
+      orders: finalOrders,
+    };
 
   } catch (err) {
     console.error("❌ Error fetching user orders:", err);
     return { error: "Server error: " + err.message };
   }
 }
+
+
 
 
 
@@ -896,3 +972,65 @@ console.log('kys baat hai',validationResult)
     };
   }
 }
+
+
+
+
+
+export async function updateProviderForOrders() {
+  const client = await clientPromise;
+  const db = client.db("smmpanel");
+
+  const ids = [
+    new ObjectId("693124a239a796851aa71e1f"),
+    new ObjectId("693122c739a796851aa71e1e"),
+  ];
+
+  await db.collection("orders").updateMany(
+    { _id: { $in: ids } },
+    {
+      $set: {
+        ProviderUrl: "https://instantsmmboost.com/api/v2",
+        providerApiKey: "b422a5c5a0cd42998e268515eca0d34a",
+        updatedAt: new Date(),
+      },
+    }
+  );
+
+  return {
+    success: true,
+    message: "Updated ProviderUrl & providerApiKey for both orders.",
+  };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function getOrderStatus() {
+  const params = new URLSearchParams();
+  params.append("key", "b422a5c5a0cd42998e268515eca0d34a");
+  params.append("action", "status");
+  params.append("order", "6937");
+
+  const res = await axios.post("https://instantsmmboost.com/api/v2", params, {
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  });
+
+  console.log(res.data,'from server');
+}
+
+

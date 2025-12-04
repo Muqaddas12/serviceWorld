@@ -8,7 +8,16 @@ export default function ResendOrderModal({ order, close }) {
 
   const submit = async () => {
     setLoading(true);
-    await resendOrderAction(order._id);
+   const res= await resendOrderAction(order._id);
+  
+   if(res.success){
+    alert(res.message)
+    setLoading(false)
+    close()
+    return
+    
+   }
+   alert(res.message)
     setLoading(false);
     close();
   };

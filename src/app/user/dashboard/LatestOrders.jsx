@@ -12,6 +12,7 @@ export default function LatestOrders() {
 useEffect(()=>{
   const loadorder=async ()=>{
     const res=await getUserOrders()
+    console.log(res)
     if(res.success){
       setLatestOrders(res?.orders)
 
@@ -77,7 +78,7 @@ useEffect(()=>{
         "
       >
         <td className="py-2 px-2 sm:py-3 sm:px-4">
-          {order.id}
+          {order.providerOrderId}
         </td>
 
         <td className="py-2 px-2 sm:py-3 sm:px-4 truncate">

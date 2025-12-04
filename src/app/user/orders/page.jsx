@@ -26,7 +26,7 @@ export default function OrdersPage() {
   useEffect(() => {
     async function loadOrders() {
       const res = await getUserOrders();
-
+console.log(res)
       if (res?.success) {
         setOrders(res.orders);
         setDisplayOrders(res.orders);

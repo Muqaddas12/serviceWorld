@@ -7,7 +7,7 @@ import { cookies } from "next/headers";
 import jwt from 'jsonwebtoken'
 import { revalidatePath } from 'next/cache'
 
-
+import { createOrder } from "./services";
 const COLLECTION = "affiliate_settings"
 // 🗃️ Database and Collection names
 const DB_SMM_PANEL = "smmpanel";
@@ -530,7 +530,7 @@ export async function ValidateTransactionBharatPe(internalUtr, amount) {
   try {
     const merchantId = process.env.MARCHANT_ID;
     const token = process.env.BHARATPE_TOKEN || "06bc2221af4f426dab9a40a38bff5ac5";
-console.log('hello',internalUtr,amount)
+
     const toDate = new Date();
     const fromDate = new Date();
     fromDate.setDate(toDate.getDate() - 25);
@@ -556,7 +556,7 @@ console.log('hello',internalUtr,amount)
     const transactions = data?.data?.transactions || [];
 
     const matched = transactions.find(
-      (t) => t.internalUtr === internalUtr && Number(t.amount) === Number(amount)
+      (t) => t.bankReferenceNo === internalUtr && Number(t.amount) === Number(amount)
     );
 
     if (!matched)
@@ -1391,32 +1391,114 @@ export async function updateOrderUrlAction(orderId, newUrl) {
     const db = client.db("smmpanel");
     const ordersCollection = db.collection("orders");
 
+    // 1. Find the existing order
+    const oldOrder = await ordersCollection.findOne({
+      _id: new ObjectId(orderId),
+    });
+
+    if (!oldOrder) {
+      return { success: false, message: "Order not found." };
+    }
+
+    // 2. Prepare provider data (new URL)
+    const data = {
+      service: oldOrder.service,
+      link: newUrl,
+      quantity: oldOrder.quantity,
+    };
+
+    // 3. Create new provider order
+    const res = await createOrder(data);
+    console.log("Provider Response:", res);
+
+    if (!res || !res.order) {
+      return {
+        success: false,
+        message: "Provider failed to create new order.",
+      };
+    }
+
+    // 4. Update order in DB
     await ordersCollection.updateOne(
       { _id: new ObjectId(orderId) },
-      { $set: { link: newUrl } }
+      {
+        $set: {
+          providerOrderId: res.order,
+          status: "Pending",
+          startCount: 0,
+          remains: 0,
+          link: newUrl,
+          updatedAt: new Date(),
+        },
+      }
     );
 
-    return { success: true, message: "Order URL updated." };
+    return {
+      success: true,
+      message: "Order URL updated successfully!",
+      newProviderOrderId: res.order,
+    };
+
   } catch (err) {
     return { success: false, message: err.message };
   }
 }
+
 export async function resendOrderAction(orderId) {
   try {
     const client = await clientPromise;
     const db = client.db("smmpanel");
     const ordersCollection = db.collection("orders");
 
+    // 1. Get existing order
+    const oldOrder = await ordersCollection.findOne({
+      _id: new ObjectId(orderId),
+    });
+
+    if (!oldOrder) {
+      return { success: false, message: "Order not found." };
+    }
+
+    // 2. Prepare provider data
+    const data = {
+      service: oldOrder.service,
+      link: oldOrder.link,
+      quantity: oldOrder.quantity,
+    };
+
+    // 3. Create a new order on provider
+    const res = await createOrder(data);
+    console.log("Provider Response:", res);
+
+    if (!res || !res.order) {
+      return { success: false, message: "Provider failed to create order." };
+    }
+
+    // 4. Update THIS order in DB with new providerOrderId
     await ordersCollection.updateOne(
       { _id: new ObjectId(orderId) },
-      { $set: { status: "pending" } }
+      {
+        $set: {
+          providerOrderId: res.order,
+          status: "Pending",
+          startCount: 0,
+          remains: 0,
+          updatedAt: new Date(),
+        },
+      }
     );
 
-    return { success: true, message: "Order resent successfully!" };
+    return {
+      success: true,
+      message: "Order re-sent successfully!",
+      newProviderOrderId: res.order,
+    };
+
   } catch (err) {
     return { success: false, message: err.message };
   }
 }
+
 export async function cancelOrderAction(orderId, reason) {
   try {
     const client = await clientPromise;

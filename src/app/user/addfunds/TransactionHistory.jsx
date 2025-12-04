@@ -3,6 +3,7 @@
 import { useCurrency } from "@/context/CurrencyContext";
 
 export default function TransactionHistory({ transactions }) {
+  console.log(transactions)
   const { symbol, convert } = useCurrency();
 
   return (
@@ -71,7 +72,7 @@ export default function TransactionHistory({ transactions }) {
 
                   {/* Payment Method */}
                   <td className="py-2 px-3 capitalize text-gray-700 dark:text-gray-300">
-                    {tx.payment_type || tx.method || "N/A"}
+                    {tx.payment_type || tx.gateway || "N/A"}
                   </td>
 
                   {/* Amount (with currency conversion + symbol) */}

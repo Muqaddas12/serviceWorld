@@ -241,7 +241,7 @@ useEffect(() => {
 
     try {
       const res = await createOrderAction(service, link, quantity, charge);
-
+console.log(res)
       if (!res.success) {
         setResponseMessage("❌ Failed to create order");
         setResponseType("error");

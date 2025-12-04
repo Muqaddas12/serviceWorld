@@ -53,7 +53,7 @@ export default function OrderCard({ order }) {
       {/* Header */}
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-base font-semibold flex items-center gap-2 truncate text-gray-800 dark:text-gray-200">
-          <FaClipboardList /> Order #{order._id}
+          <FaClipboardList /> Order #{order.providerOrderId}
         </h3>
 
         <span
@@ -84,7 +84,7 @@ export default function OrderCard({ order }) {
           <FaLayerGroup className="text-gray-500 dark:text-gray-400" />
           <span>
             <span className="font-medium text-gray-900 dark:text-gray-100">Service:</span>{" "}
-            {order.serviceName}
+            {order.service}
           </span>
         </div>
 
@@ -124,10 +124,11 @@ export default function OrderCard({ order }) {
           <FaBolt className="text-gray-500 dark:text-gray-400" />
           <span>
             <span className="font-medium text-gray-900 dark:text-gray-100">Start:</span>{" "}
-            {order.startCount || "-"}{" "}
+          {order.startCount ?? 0}{" "}
+
             <span className="mx-1">|</span>
             <span className="font-medium text-gray-900 dark:text-gray-100">Remains:</span>{" "}
-            {order.remains || "-"}
+           {order.remains ?? 0}
           </span>
         </div>
 

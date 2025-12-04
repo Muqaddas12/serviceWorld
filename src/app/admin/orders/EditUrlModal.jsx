@@ -10,7 +10,14 @@ export default function EditUrlModal({ order, close }) {
   const submit = async () => {
     setLoading(true);
     try {
-      await resendOrderAfterUrlUpdateAction(order._id, url);
+    const res=  await resendOrderAfterUrlUpdateAction(order._id, url);
+    if(res.success){
+      alert(res.message)
+      setLoading(false);
+    close();
+    return
+    }
+    alert(res.message)
     } catch (err) {
       console.error("Failed to update & resend order:", err);
     }

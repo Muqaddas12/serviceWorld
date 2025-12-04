@@ -20,7 +20,7 @@ export default function Header({
   currency = "INR",
   websitename = "MyWebsite",
 }) {
-  console.log(user)
+ 
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
 

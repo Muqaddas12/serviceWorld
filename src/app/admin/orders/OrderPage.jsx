@@ -11,6 +11,7 @@ import ResendOrderModal from "./ResendOrderModal";
 import CancelReasonModal from "./CancelOrderModal";
 
 export default function OrdersPage({ sorders = [] }) {
+
   const [popup, setPopup] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orders, setOrders] = useState([]);
@@ -98,7 +99,7 @@ export default function OrdersPage({ sorders = [] }) {
           <thead className="bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-100">
             <tr>
               {[
-                "#", "User ID", "Service", "Link", "Qty", "Charge",
+                "#", "Username",'email', "Service", "Link", "Qty", "Charge",
                 "Start Count", "Remains", "Status", "Provider ID", "Actions"
               ].map((h) => (
                 <th key={h} className="p-3 text-left whitespace-nowrap">{h}</th>
@@ -121,12 +122,20 @@ export default function OrdersPage({ sorders = [] }) {
                   <td className="p-3">{i + 1}</td>
 
                   <td className="p-3">
-                    <Link
-                      href={`/users/view/${order.userId}`}
-                      className="text-blue-600 dark:text-blue-400 underline"
+                    <span
+                     
+                      className="text-gray-700 dark:text-gray-700 "
                     >
-                      {order.userId}
-                    </Link>
+                      {order.username||'no username'}
+                    </span>
+                  </td>
+                  <td className="p-3">
+                    <span
+                     
+                      className="text-gray-700 dark:text-gray-700 "
+                    >
+                      {order.userEmail||'no email'}
+                    </span>
                   </td>
 
                   <td className="p-3 font-medium">{order.service}</td>
