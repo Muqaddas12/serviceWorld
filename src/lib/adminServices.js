@@ -534,10 +534,9 @@ export async function ValidateTransactionBharatPe(internalUtr, amount) {
   .filter(m => m.type === "BharatPe")
   .map(m => ({ merchantId: m.merchantId, token: m.token }));
 
-
-    const merchantId =bharatPe?.merchantId
-
-    const token = bharatPe?.token
+// Since bharatPe is an array, pick the first one
+const merchantId = bharatPe[0]?.merchantId;
+const token = bharatPe[0]?.token;
 
     const toDate = new Date();
     const fromDate = new Date();
