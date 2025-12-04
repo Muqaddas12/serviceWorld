@@ -329,12 +329,12 @@ const safeOrder = {
 
 export async function getUserOrders() {
   try {
-    // 1. token
+    // 1. Token
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
     if (!token) return { error: "Unauthorized. Please login." };
 
-    // 2. verify
+    // 2. Verify JWT
     let decoded;
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -346,79 +346,105 @@ export async function getUserOrders() {
     const email = decoded.email;
     const username = decoded.username;
 
-    // 3. db
+    // 3. DB
     const client = await clientPromise;
     const db = client.db("smmpanel");
 
-    // 4. Fetch all orders of user
+    // 4. Fetch user's orders
     const orders = await db.collection("orders")
       .find({
         $or: [
           { userId: userIdString },
           { userEmail: email },
-          { username: username }
+          { username: username },
         ]
       })
       .sort({ createdAt: -1 })
       .toArray();
 
-    // 5. For each order → fetch provider API → update DB → format JSON safe
+    // 5. Iterate each order and update provider data (if needed)
     const finalOrders = await Promise.all(
       orders.map(async (order) => {
-
         let providerStatus = null;
 
-        // 🔥 If providerOrderId exists, make API request
-        if (order.providerOrderId) {
+        // ⏳ cooldown logic (1 hour = 3600000 ms)
+        const oneHour = 60 * 60 * 1000;
+        const now = Date.now();
+        const lastFetched = order.fetchedAt
+          ? new Date(order.fetchedAt).getTime()
+          : 0;
+
+        const shouldFetch = now - lastFetched > oneHour;
+
+        if (
+          shouldFetch &&
+          order.providerOrderId &&
+          order.providerApiKey &&
+          order.ProviderUrl
+        ) {
+          // 🔥 Fetch fresh provider status
           try {
             const params = new URLSearchParams();
             params.append("key", order.providerApiKey);
             params.append("action", "status");
             params.append("order", order.providerOrderId);
-console.log(order.providerOrderId)
+
             const res = await axios.post(order.ProviderUrl, params, {
               headers: { "Content-Type": "application/x-www-form-urlencoded" },
             });
 
             providerStatus = res.data;
-console.log(providerStatus)
-            // 🔥 Update DB with provider values
+
+            // 🔥 Update DB with new provider data + timestamp
             await db.collection("orders").updateOne(
               { _id: order._id },
               {
                 $set: {
                   status: providerStatus.status ?? order.status,
-                  startCount: Number(providerStatus.start_count ?? order.startCount),
-                  remains: Number(providerStatus.remains ?? order.remains),
-                  charge: Number(providerStatus.charge ?? order.charge),
+                  startCount: Number(providerStatus.start_count ?? order.startCount ?? 0),
+                  remains: Number(providerStatus.remains ?? order.remains ?? 0),
+                  charge: Number(providerStatus.charge ?? order.charge ?? 0),
+                  fetchedAt: new Date(),   // ⭐ added
                   updatedAt: new Date(),
                 },
               }
             );
           } catch (err) {
-            providerStatus = { error: `Provider API failed${err}` };
+            providerStatus = { error: "Provider API failed", details: err.message };
           }
+        } else {
+          // ❌ No provider fetch this time (cooldown)
+          providerStatus = {
+            note: "Skipped fetch — last fetched < 1 hour ago",
+          };
         }
 
-        // 🔥 Return JSON-safe object to client
+        // Get latest version from DB
+        const fresh = await db.collection("orders").findOne({ _id: order._id });
+
+        // Return JSON-safe object
         return {
-          ...order,
-          _id: order._id.toString(),
-          userId: order.userId?.toString?.() ?? String(order.userId ?? ""),
+          ...fresh,
+          _id: fresh._id.toString(),
+          userId: fresh.userId?.toString?.() ?? String(fresh.userId ?? ""),
           createdAt:
-            order.createdAt instanceof Date
-              ? order.createdAt.toISOString()
-              : String(order.createdAt ?? ""),
+            fresh.createdAt instanceof Date
+              ? fresh.createdAt.toISOString()
+              : String(fresh.createdAt ?? ""),
           updatedAt:
-            order.updatedAt instanceof Date
-              ? order.updatedAt.toISOString()
-              : String(order.updatedAt ?? ""),
+            fresh.updatedAt instanceof Date
+              ? fresh.updatedAt.toISOString()
+              : String(fresh.updatedAt ?? ""),
+          fetchedAt:
+            fresh.fetchedAt instanceof Date
+              ? fresh.fetchedAt.toISOString()
+              : "",
           providerStatus,
         };
       })
     );
 
-    // 6. return updated orders
+    // 6. Return updated orders
     return {
       success: true,
       count: finalOrders.length,

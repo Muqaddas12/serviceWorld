@@ -1332,57 +1332,105 @@ export async function updateAffiliateSettings({ commission_rate, minimum_payout 
 
 
 
+
+
 export async function getAllOrdersAction() {
   try {
-    // 🗄️ Connect DB
     const client = await clientPromise;
     const db = client.db("smmpanel");
-
-    // ✔ Ensure collection exists first
-    const collections = await db.listCollections().toArray();
-    const collectionExists = collections.some(col => col.name === "orders");
-
-    if (!collectionExists) {
-      return {
-        success: false,
-        message: "No orders found (collection does not exist).",
-        orders: []
-      };
-    }
-
     const ordersCollection = db.collection("orders");
 
-    // 📦 Fetch all orders (sorted latest first)
+    // Fetch Pending + Partial orders
     const orders = await ordersCollection
-      .find({})
+      .find({
+        $or: [{ status: "Pending" }, { status: "Partial" }],
+      })
       .sort({ createdAt: -1 })
       .toArray();
 
-    // ✔ No orders inside collection
     if (!orders || orders.length === 0) {
-      return {
-        success: false,
-        message: "No orders found.",
-        orders: []
-      };
+      return { success: true, count: 0, orders: [] };
     }
+
+    const updatedOrders = await Promise.all(
+      orders.map(async (order) => {
+        let providerResult = null;
+
+        // ⏳ 1. Skip if fetched within last 1 hour
+        const oneHour = 60 * 60 * 1000;
+        const now = Date.now();
+        const lastFetched = order.fetchedAt ? new Date(order.fetchedAt).getTime() : 0;
+
+        const shouldFetch = now - lastFetched > oneHour;
+
+        if (
+          shouldFetch &&
+          order.ProviderUrl &&
+          order.providerApiKey &&
+          order.providerOrderId
+        ) {
+          // ⭐ Fetch from provider API only if older than 1 hour
+          try {
+            const params = new URLSearchParams();
+            params.append("key", order.providerApiKey);
+            params.append("action", "status");
+            params.append("order", String(order.providerOrderId));
+
+            const res = await axios.post(order.ProviderUrl, params, {
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              timeout: 10000,
+            });
+
+            providerResult = res.data;
+
+            // ⭐ Update DB with new provider data + fetchedAt timestamp
+            await ordersCollection.updateOne(
+              { _id: order._id },
+              {
+                $set: {
+                  status: providerResult.status ?? order.status,
+                  startCount: Number(providerResult.start_count ?? order.startCount ?? 0),
+                  remains: Number(providerResult.remains ?? order.remains ?? 0),
+                  charge: Number(providerResult.charge ?? order.charge ?? 0),
+                  fetchedAt: new Date(),
+                  updatedAt: new Date(),
+                },
+              }
+            );
+          } catch (err) {
+            providerResult = { error: "Provider request failed", details: err.message };
+          }
+        } else {
+          // ⭐ Did not fetch from API (cooldown active)
+          providerResult = { note: "Skipped — fetched recently (<1 hour)" };
+        }
+
+        // Always return latest version from DB
+        const fresh = await ordersCollection.findOne({ _id: order._id });
+
+        return {
+          ...fresh,
+          _id: fresh._id.toString(),
+          userId: fresh.userId?.toString?.() ?? String(fresh.userId ?? ""),
+          createdAt: fresh.createdAt?.toISOString?.() ?? "",
+          updatedAt: fresh.updatedAt?.toISOString?.() ?? "",
+          fetchedAt: fresh.fetchedAt?.toISOString?.() ?? "",
+          providerResult,
+        };
+      })
+    );
 
     return {
       success: true,
-      count: orders.length,
-      orders,
+      count: updatedOrders.length,
+      orders: updatedOrders,
     };
-
   } catch (err) {
-    console.error("❌ Error fetching orders:", err);
-
-    return {
-      success: false,
-      message: "Internal server error.",
-      details: err.message,
-    };
+    console.error("❌ Error in getAllOrdersAction:", err);
+    return { success: false, message: "Server error", details: err.message };
   }
 }
+
 
 
 export async function updateOrderUrlAction(orderId, newUrl) {
