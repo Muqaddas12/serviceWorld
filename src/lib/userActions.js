@@ -1060,3 +1060,59 @@ export async function getOrderStatus() {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function getUserChildPanels() {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+
+    if (!token) return { error: "Unauthorized. Please log in first." };
+
+    // VERIFY TOKEN
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      return { error: "Invalid or expired token." };
+    }
+
+    // Extract user info from JWT
+    const userId = decoded.id;     // or decoded.userId — depends on your JWT payload
+    const email = decoded.email;   // if you want email instead of id
+
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+
+    // 🔥 FILTER: fetch requests only for that user
+    const filter = { userId }; // (or { email } if you store email in DB)
+
+    const requests = await db
+      .collection("child_panel_requests")
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    // Convert Mongo objects → plain objects safe for Next.js
+    const plain = requests.map((p) => ({
+      ...p,
+      _id: p._id.toString(),
+      createdAt: p.createdAt?.toISOString(),
+    }));
+
+    return { success: true, requests: plain };
+  } catch (err) {
+    return { error: "Server error: " + err.message };
+  }
+}

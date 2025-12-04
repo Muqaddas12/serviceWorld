@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useCurrency } from "@/context/CurrencyContext";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-export default function ChildPanelPageClient({ settings, balance }) {
+export default function ChildPanelPageClient({ settings, balance , panels=[] }) {
   const { currency, symbol, convert } = useCurrency();
 
   const [message, setMessage] = useState("");
@@ -58,6 +58,9 @@ export default function ChildPanelPageClient({ settings, balance }) {
     }
 
     formData.set("domaintype", domainType);
+for (let [key, value] of formData.entries()) {
+  console.log(key, value);
+}
 
     startTransition(async () => {
       const res = await createChildPanel({ formData });
@@ -267,6 +270,7 @@ return (
               value={`${symbol}${convertedPrice}`}
               className="w-full bg-gray-100 dark:bg-[#0F1117] border border-gray-300 dark:border-[#2B3143] rounded-lg px-3 py-2"
             />
+            <input type="hidden" name="price" value={convertedPrice} />
           </div>
 
           {/* SUBMIT */}
@@ -300,6 +304,66 @@ return (
         </form>
       </div>
     </div>
+
+
+
+    <div className="mt-8 bg-white dark:bg-[#1A1F2B] p-6 rounded-xl shadow">
+  <h2 className="text-xl font-bold mb-4">Your Child Panels</h2>
+
+  <div className="overflow-x-auto">
+    <table className="w-full border-collapse">
+      <thead className="bg-gray-200 dark:bg-[#2B3143] text-gray-700 dark:text-gray-300">
+        <tr>
+          <th className="p-3 border">Domain</th>
+          <th className="p-3 border">Username</th>
+          <th className="p-3 border">Price</th>
+          <th className="p-3 border">Status</th>
+          <th className="p-3 border">Created At</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {panels?.length === 0 && (
+          <tr>
+            <td colSpan="5" className="text-center p-4 text-gray-500">
+              No panels created yet.
+            </td>
+          </tr>
+        )}
+
+        {panels?.map((p) => (
+          <tr
+            key={p._id}
+            className="text-gray-700 dark:text-gray-300 border-b dark:border-gray-600"
+          >
+            <td className="p-3 border">{p.domain}</td>
+            <td className="p-3 border">{p.panel_username}</td>
+            <td className="p-3 border">₹{p.price}</td>
+
+            <td className="p-3 border">
+              <span
+                className={`px-3 py-1 rounded-lg text-sm ${
+                  p.status === "confirmed"
+                    ? "bg-green-600 text-white"
+                    : p.status === "pending"
+                    ? "bg-yellow-500 text-white"
+                    : "bg-red-600 text-white"
+                }`}
+              >
+                {p.status}
+              </span>
+            </td>
+
+            <td className="p-3 border">
+              {new Date(p.createdAt).toLocaleString()}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+
   </div>
 );
 
