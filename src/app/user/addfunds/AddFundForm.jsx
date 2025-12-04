@@ -27,7 +27,7 @@ export default function AddFundForm({
 
   try {
     const res = await addFundAction({ utr, amount });
-    console.log("UTR:", utr, "Amount:", amount);
+
 
     if (res.status) {
       // ✔ success response

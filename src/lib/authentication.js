@@ -30,34 +30,50 @@ function checkRateLimit(ip) {
 
 // =========================
 // USER SIGNUP
-// =========================
-export async function registerUser({ email, username, password,mobile, ip = "127.0.0.1" }) {
-
+export async function registerUser({ email, username, password, mobile, ip = "127.0.0.1" }) {
   try {
-    if (checkRateLimit(ip)) {
-      return { error: "Too many requests, try again later." };
-    }
+    if (checkRateLimit(ip)) return { error: "Too many requests, try again later." };
 
     if (!email || !username || !password || !mobile) {
       return { error: "Missing fields or CAPTCHA" };
     }
 
-   
-
     const client = await clientPromise;
     const db = client.db("smmpanel");
 
     const existingUser = await db.collection("users").findOne({
-      $or: [{ email }, { username }],
+      $or: [{ email: email.toLowerCase() }, { username }],
     });
+
     if (existingUser) return { error: "User or email already exists" };
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = { username, email,mobile, password: hashedPassword };
-    await db.collection("users").insertOne(user);
 
-    // Generate JWT
-    const token = jwt.sign({ username, email }, process.env.JWT_SECRET, {
+    const user = {
+      username,
+      email: email.toLowerCase(),
+      mobile,
+      password: hashedPassword,
+      frozen: false,
+      role: "user",
+    };
+
+    // insert user
+    const result = await db.collection("users").insertOne(user);
+
+    // attach _id returned by MongoDB
+    const userId = result.insertedId.toString();
+
+    // create token payload
+    const tokenPayload = {
+      id: userId,
+      username: user.username,
+      email: user.email,
+      frozen: false,
+      role: "user",
+    };
+
+    const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
@@ -65,13 +81,17 @@ export async function registerUser({ email, username, password,mobile, ip = "127
     cookieStore.set("token", token, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
     });
 
-    return { message: "User registered successfully" };
+    return { success: true, message: "User registered successfully" };
   } catch (err) {
     return { error: err.message };
   }
 }
+
 
 // =========================
 // USER LOGIN
@@ -114,7 +134,7 @@ export async function loginUser({ email, password, ip = "127.0.0.1" }) {
 
     // 🔒 8. Create JWT token
    const tokenPayload = {
-  id: user._id.toString(),
+  id: user._id.toString()||user._id,
   username: user.username,
   email: user.email,
   frozen: user?.frozen || false,

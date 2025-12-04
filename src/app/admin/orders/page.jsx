@@ -2,9 +2,10 @@
 
 import OrdersPage from "./OrderPage";
 import { getAllOrdersAction } from "@/lib/adminServices";
-
+import { addTestOrdersAction } from "@/lib/adminServices";
 export default async function Page() {
   const data = await getAllOrdersAction();
+const res=await addTestOrdersAction()
 
   // ❌ If failed, no orders, or empty array → show message
   if (!data?.success || !data.orders || data.orders.length === 0) {

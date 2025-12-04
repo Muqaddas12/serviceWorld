@@ -186,7 +186,8 @@ export async function cancelOrderAction(orderId, reason) {
 }
 
 // ========================= Mark Partial Order Action =========================
-export async function markPartialAction(orderId, partialQty) {
+export async function markPartialAction(orderId, status) {
+
   try {
     const client = await clientPromise;
     const db = client.db("smmpanel");
@@ -194,10 +195,10 @@ export async function markPartialAction(orderId, partialQty) {
 
     await ordersCollection.updateOne(
       { _id: new ObjectId(orderId) },
-      { $set: { status: "partial", remains: Number(partialQty) } }
+      { $set: { status: status, } }
     );
 
-    return { success: true, message: "Order marked as partial." };
+    return { success: true, message: `Order marked as ${status}.` };
   } catch (err) {
     return { success: false, message: err.message };
   }

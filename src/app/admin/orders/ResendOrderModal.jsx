@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { resendOrderAction } from "@/lib/adminServices";
+import { resendOrderAction } from "@/lib/ordersAdmin";
 
 export default function ResendOrderModal({ order, close }) {
   const [loading, setLoading] = useState(false);

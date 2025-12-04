@@ -904,7 +904,7 @@ export async function addFundAction({ utr, amount }) {
         message: "Invalid token",
       };
     }
-
+console.log(decoded)
     if (!decoded?.id) {
       return {
         status: false,

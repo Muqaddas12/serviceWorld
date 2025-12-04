@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { resendOrderAfterUrlUpdateAction } from "@/lib/ordersAdmin";
+import { resendOrderAction } from "@/lib/ordersAdmin";
 
 export default function EditUrlModal({ order, close }) {
   const [url, setUrl] = useState(order.link);
@@ -10,7 +10,7 @@ export default function EditUrlModal({ order, close }) {
   const submit = async () => {
     setLoading(true);
     try {
-    const res=  await resendOrderAfterUrlUpdateAction(order._id, url);
+    const res=  await resendOrderAction(order._id, url);
     if(res.success){
       alert(res.message)
       setLoading(false);

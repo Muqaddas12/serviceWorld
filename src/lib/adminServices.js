@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import { cookies } from "next/headers";
 import jwt from 'jsonwebtoken'
 import { revalidatePath } from 'next/cache'
-
+import axios from "axios";
 import { createOrder } from "./services";
 const COLLECTION = "affiliate_settings"
 // 🗃️ Database and Collection names
@@ -1343,7 +1343,7 @@ export async function getAllOrdersAction() {
     // Fetch Pending + Partial orders
     const orders = await ordersCollection
       .find({
-        $or: [{ status: "Pending" }, { status: "Partial" }],
+        $or: [{ status: "pending" }, { status: "partial" }],
       })
       .sort({ createdAt: -1 })
       .toArray();
@@ -1433,178 +1433,10 @@ export async function getAllOrdersAction() {
 
 
 
-export async function updateOrderUrlAction(orderId, newUrl) {
-  try {
-    const client = await clientPromise;
-    const db = client.db("smmpanel");
-    const ordersCollection = db.collection("orders");
 
-    // 1. Find the existing order
-    const oldOrder = await ordersCollection.findOne({
-      _id: new ObjectId(orderId),
-    });
 
-    if (!oldOrder) {
-      return { success: false, message: "Order not found." };
-    }
 
-    // 2. Prepare provider data (new URL)
-    const data = {
-      service: oldOrder.service,
-      link: newUrl,
-      quantity: oldOrder.quantity,
-    };
 
-    // 3. Create new provider order
-    const res = await createOrder(data);
-    console.log("Provider Response:", res);
-
-    if (!res || !res.order) {
-      return {
-        success: false,
-        message: "Provider failed to create new order.",
-      };
-    }
-
-    // 4. Update order in DB
-    await ordersCollection.updateOne(
-      { _id: new ObjectId(orderId) },
-      {
-        $set: {
-          providerOrderId: res.order,
-          status: "Pending",
-          startCount: 0,
-          remains: 0,
-          link: newUrl,
-          updatedAt: new Date(),
-        },
-      }
-    );
-
-    return {
-      success: true,
-      message: "Order URL updated successfully!",
-      newProviderOrderId: res.order,
-    };
-
-  } catch (err) {
-    return { success: false, message: err.message };
-  }
-}
-
-export async function resendOrderAction(orderId) {
-  try {
-    const client = await clientPromise;
-    const db = client.db("smmpanel");
-    const ordersCollection = db.collection("orders");
-
-    // 1. Get existing order
-    const oldOrder = await ordersCollection.findOne({
-      _id: new ObjectId(orderId),
-    });
-
-    if (!oldOrder) {
-      return { success: false, message: "Order not found." };
-    }
-
-    // 2. Prepare provider data
-    const data = {
-      service: oldOrder.service,
-      link: oldOrder.link,
-      quantity: oldOrder.quantity,
-    };
-
-    // 3. Create a new order on provider
-    const res = await createOrder(data);
-    console.log("Provider Response:", res);
-
-    if (!res || !res.order) {
-      return { success: false, message: "Provider failed to create order." };
-    }
-
-    // 4. Update THIS order in DB with new providerOrderId
-    await ordersCollection.updateOne(
-      { _id: new ObjectId(orderId) },
-      {
-        $set: {
-          providerOrderId: res.order,
-          status: "Pending",
-          startCount: 0,
-          remains: 0,
-          updatedAt: new Date(),
-        },
-      }
-    );
-
-    return {
-      success: true,
-      message: "Order re-sent successfully!",
-      newProviderOrderId: res.order,
-    };
-
-  } catch (err) {
-    return { success: false, message: err.message };
-  }
-}
-
-export async function cancelOrderAction(orderId, reason) {
-  try {
-    const client = await clientPromise;
-    const db = client.db("smmpanel");
-    const ordersCollection = db.collection("orders");
-
-    await ordersCollection.updateOne(
-      { _id: new ObjectId(orderId) },
-      {
-        $set: {
-          status: "cancelled",
-          cancelReason: reason,
-        },
-      }
-    );
-
-    return { success: true, message: "Order cancelled successfully." };
-  } catch (err) {
-    return { success: false, message: err.message };
-  }
-}
-export async function markPartialAction(orderId, partialQty) {
-  try {
-    const client = await clientPromise;
-    const db = client.db("smmpanel");
-    const ordersCollection = db.collection("orders");
-
-    await ordersCollection.updateOne(
-      { _id: new ObjectId(orderId) },
-      {
-        $set: {
-          status: "partial",
-          remains: Number(partialQty),
-        },
-      }
-    );
-
-    return { success: true, message: "Order marked as partial." };
-  } catch (err) {
-    return { success: false, message: err.message };
-  }
-}
-export async function updateStartCountAction(orderId, startCount) {
-  try {
-    const client = await clientPromise;
-    const db = client.db("smmpanel");
-    const ordersCollection = db.collection("orders");
-
-    await ordersCollection.updateOne(
-      { _id: new ObjectId(orderId) },
-      { $set: { startCount: Number(startCount) } }
-    );
-
-    return { success: true, message: "Start count updated." };
-  } catch (err) {
-    return { success: false, message: err.message };
-  }
-}
 export async function addTestOrdersAction() {
   try {
     const client = await clientPromise;
