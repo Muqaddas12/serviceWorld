@@ -15,6 +15,7 @@ import {
 
 import AddProvider from "./AddProvider";
 import SmtpConfigPage from "./Smtp";
+import GoogleConfigPage from "./GoogleConfigPage";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -86,6 +87,12 @@ export default function SettingsPage() {
       desc: " Add or manage your email service configuration.",
       actions: [], // No cards needed (we show AddProvider instead)
     },
+    {
+      title: "Google Auth",
+      icon: <PlugZap className="text-gray-700 dark:text-gray-200" size={20} />,
+      desc: " Add or manage your Google Auth  configuration.",
+      actions: [], // No cards needed (we show AddProvider instead)
+    },
   ];
 
   const activeData = sections.find((s) => s.title === activeSection)
@@ -148,6 +155,8 @@ export default function SettingsPage() {
               <AddProvider />
             ): activeSection === "Smtp Config" ? (
               <SmtpConfigPage/>
+            ) : activeSection === "Google Auth" ? (
+          <GoogleConfigPage/>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
                 {activeData.actions.map((action, idx) => (

@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { saveSmtpConfigAction } from "@/lib/smtp";
+import { useState, useEffect } from "react";
+import { saveSmtpConfigAction, getSmtpConfigAction } from "@/lib/smtp";
 
 export default function SmtpConfigPage() {
   const [form, setForm] = useState({
@@ -11,6 +11,24 @@ export default function SmtpConfigPage() {
     fromName: "",
     fromEmail: "",
   });
+
+  // Load saved values
+  useEffect(() => {
+    async function loadConfig() {
+      const saved = await getSmtpConfigAction();
+
+      setForm({
+        host: saved.host || "",
+        port: saved.port || "",
+        user: saved.user || "",
+        pass: saved.pass || "",
+        fromName: saved.fromName || "",
+        fromEmail: saved.fromEmail || "",
+      });
+    }
+
+    loadConfig();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -56,7 +74,7 @@ export default function SmtpConfigPage() {
 
           <input
             name="pass"
-            type="password"
+            type="text"
             placeholder="SMTP Password"
             className="w-full p-2 border rounded-lg bg-gray-50 dark:bg-[#111]"
             value={form.pass}

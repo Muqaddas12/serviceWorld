@@ -90,7 +90,6 @@ export async function loginUser({ email, password, ip = "127.0.0.1" }) {
       return { error: "Missing fields or CAPTCHA." };
     }
 
-  console.log(email,password)
 
     // ⚙️ 4. Connect to database
     const client = await clientPromise;
@@ -101,7 +100,7 @@ export async function loginUser({ email, password, ip = "127.0.0.1" }) {
   email: { $regex: new RegExp(`^${email}$`, "i") }
 });
 
-    console.log(user,'hello')
+
     if (!user) return { error: "Invalid credentials." };
 
     // 🧊 6. Check if frozen
@@ -121,7 +120,7 @@ export async function loginUser({ email, password, ip = "127.0.0.1" }) {
   frozen: user?.frozen || false,
   role: user?.role || "user",
 };
-console.log(tokenPayload)
+
 
     const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {
       expiresIn: "7d",
