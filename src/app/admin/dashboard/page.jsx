@@ -22,7 +22,7 @@ const newOrders = orders?.orders.map((order) =>
     })
   )
 );
-console.log(newOrders);
+
     return (
       <AdminDashboard
         totalUsers={users.count || 0}
