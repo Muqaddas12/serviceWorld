@@ -1347,13 +1347,13 @@ export async function getAllOrdersAction() {
     const db = client.db("smmpanel");
     const ordersCollection = db.collection("orders");
 
-    // Fetch Pending + Partial orders
-    const orders = await ordersCollection
-      .find({
-        $or: [{ status: "pending" }, { status: "partial" }],
-      })
-      .sort({ createdAt: -1 })
-      .toArray();
+    // ⭐ Fetch ALL orders (pending + partial + completed)
+const orders = await ordersCollection
+  .find({
+    status: { $regex: /^(pending|partial|completed)$/i },
+  })
+  .sort({ createdAt: -1 })
+  .toArray();
 
     if (!orders || orders.length === 0) {
       return { success: true, count: 0, orders: [] };
@@ -1363,56 +1363,78 @@ export async function getAllOrdersAction() {
       orders.map(async (order) => {
         let providerResult = null;
 
-        // ⏳ 1. Skip if fetched within last 1 hour
-        const oneHour = 60 * 60 * 1000;
-        const now = Date.now();
-        const lastFetched = order.fetchedAt ? new Date(order.fetchedAt).getTime() : 0;
+        // ⭐ Only fetch from provider API when status is pending or partial
+        const canFetch =
+          order.status === "pending" || order.status === "partial";
 
-        const shouldFetch = now - lastFetched > oneHour;
+        if (canFetch) {
+          // ⏳ Skip if fetched within last 1 hour
+          const oneHour = 60 * 60 * 1000;
+          const now = Date.now();
+          const lastFetched = order.fetchedAt
+            ? new Date(order.fetchedAt).getTime()
+            : 0;
 
-        if (
-          shouldFetch &&
-          order.ProviderUrl &&
-          order.providerApiKey &&
-          order.providerOrderId
-        ) {
-          // ⭐ Fetch from provider API only if older than 1 hour
-          try {
-            const params = new URLSearchParams();
-            params.append("key", order.providerApiKey);
-            params.append("action", "status");
-            params.append("order", String(order.providerOrderId));
+          const shouldFetch = now - lastFetched > oneHour;
 
-            const res = await axios.post(order.ProviderUrl, params, {
-              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              timeout: 10000,
-            });
+          if (
+            shouldFetch &&
+            order.ProviderUrl &&
+            order.providerApiKey &&
+            order.providerOrderId
+          ) {
+            try {
+              const params = new URLSearchParams();
+              params.append("key", order.providerApiKey);
+              params.append("action", "status");
+              params.append("order", String(order.providerOrderId));
 
-            providerResult = res.data;
+              const res = await axios.post(order.ProviderUrl, params, {
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                timeout: 10000,
+              });
 
-            // ⭐ Update DB with new provider data + fetchedAt timestamp
-            await ordersCollection.updateOne(
-              { _id: order._id },
-              {
-                $set: {
-                  status: providerResult.status ?? order.status,
-                  startCount: Number(providerResult.start_count ?? order.startCount ?? 0),
-                  remains: Number(providerResult.remains ?? order.remains ?? 0),
-                  charge: Number(providerResult.charge ?? order.charge ?? 0),
-                  fetchedAt: new Date(),
-                  updatedAt: new Date(),
-                },
-              }
-            );
-          } catch (err) {
-            providerResult = { error: "Provider request failed", details: err.message };
+              providerResult = res.data;
+
+              // ⭐ Update DB
+              await ordersCollection.updateOne(
+                { _id: order._id },
+                {
+                  $set: {
+                    status: providerResult.status ?? order.status,
+                    startCount: Number(
+                      providerResult.start_count ?? order.startCount ?? 0
+                    ),
+                    remains: Number(
+                      providerResult.remains ?? order.remains ?? 0
+                    ),
+                    charge: Number(
+                      providerResult.charge ?? order.charge ?? 0
+                    ),
+                    fetchedAt: new Date(),
+                    updatedAt: new Date(),
+                  },
+                }
+              );
+            } catch (err) {
+              providerResult = {
+                error: "Provider request failed",
+                details: err.message,
+              };
+            }
+          } else {
+            providerResult = {
+              note: "Skipped — fetched recently (<1 hour)",
+            };
           }
         } else {
-          // ⭐ Did not fetch from API (cooldown active)
-          providerResult = { note: "Skipped — fetched recently (<1 hour)" };
+          // ⭐ Completed orders → no API calls
+          providerResult = {
+            note: "Completed — no API request needed",
+          };
         }
 
-        // Always return latest version from DB
+        // Always return latest version
         const fresh = await ordersCollection.findOne({ _id: order._id });
 
         return {
@@ -1437,7 +1459,6 @@ export async function getAllOrdersAction() {
     return { success: false, message: "Server error", details: err.message };
   }
 }
-
 
 
 

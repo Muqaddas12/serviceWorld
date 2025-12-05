@@ -26,15 +26,7 @@ export default function GoogleConfigPage() {
     <div className="p-6 max-w-lg mx-auto border rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Google OAuth Settings</h2>
 
-      {/* Notes Section */}
-      <div className="mb-4 p-3 bg-gray-100 rounded text-sm">
-        <p className="font-semibold mb-1">Required Redirect URLs:</p>
-        <p className="text-gray-700">1️⃣ https://www.viralboost.com/api/auth/google/callback</p>
-        <p className="text-gray-700">2️⃣ http://localhost:3000/api/auth/google/callback</p>
-        <p className="text-xs text-gray-500 mt-2">
-          Add both URLs in Google Cloud Console → OAuth → Authorized Redirect URIs.
-        </p>
-      </div>
+   
 
       <form action={handleSubmit} className="space-y-4">
 
