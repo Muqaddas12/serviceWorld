@@ -114,6 +114,7 @@ export async function importServicesAction({url,api}) {
 
 
 export async function StoreServicesInDB({ services, profitPercentage }) {
+  console.log(services)
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("admin_token")?.value;
@@ -133,22 +134,32 @@ export async function StoreServicesInDB({ services, profitPercentage }) {
     const categoriesCollection = client.db(DB_ADMIN).collection("categories");
 
     // ---------- PREPARE SERVICES PAYLOAD ----------
-    const payload = services.map((s) => ({
-      id: s.id ?? Date.now(),
-      name: s.name?.trim() || "Unnamed Service",
-      category: s.category?.trim() || "Uncategorized",
-      min: Number(s.min) || 0,
-      max: s.max?.toString() || "0",
-      rate: Number(s.rate) || 0,
-      provider: s.provider?.trim() || "Unknown",
-      service: s.service ?? null,
-      type: s.type?.trim() || "Default",
-      status: "enabled",
-      desc: s.desc?.trim() || "",
-      profitPercentage: profitPercentage || 1,
-      storedBy: admin.id ?? "system",
-      createdAt: new Date(),
-    }));
+   const payload = services.map((s) => {
+  const rate = Number(s.rate) || 0;
+  const pr = Number(profitPercentage || 1); // already provided
+
+  // ✔ Final price including profit
+  const finalRate = rate * (1 + pr / 100);
+
+  return {
+    id: s.id ?? Date.now(),
+    name: s.name?.trim() || "Unnamed Service",
+    category: s.category?.trim() || "Uncategorized",
+    min: Number(s.min) || 0,
+    max: s.max?.toString() || "0",
+    rate, // original rate
+    finalRate: Number(finalRate.toFixed(4)),   // NEW FIELD (saved clean)
+    provider: s.provider?.trim() || "Unknown",
+    service: s.service ?? null,
+    type: s.type?.trim() || "Default",
+    status: "enabled",
+    desc: s.desc?.trim() || "",
+    profitPercentage:pr,  // keep original
+    storedBy: admin.id ?? "system",
+    createdAt: new Date(),
+  };
+});
+
 
     // ---------- INSERT SERVICES ----------
     await servicesCollection.insertMany(payload);

@@ -186,23 +186,118 @@ export async function cancelOrderAction(orderId, reason) {
 }
 
 // ========================= Mark Partial Order Action =========================
-export async function markPartialAction(orderId, status) {
 
+export async function markPartialAction(orderId, status) {
   try {
+    if (!orderId) {
+      return { success: false, message: "Missing orderId." };
+    }
+
     const client = await clientPromise;
     const db = client.db("smmpanel");
     const ordersCollection = db.collection("orders");
+    const usersCollection = db.collection("users");
 
-    await ordersCollection.updateOne(
+    // fetch order once
+    const order = await ordersCollection.findOne({ _id: new ObjectId(orderId) });
+    if (!order) {
+      return { success: false, message: "Order not found." };
+    }
+
+    // === Refund flow ===
+    if (String(status).toLowerCase() === "refund" || String(status).toLowerCase() === "refunded") {
+      // prevent duplicate refunds
+      const currentStatus = String(order.status || "").toLowerCase();
+      if (currentStatus === "refund" || currentStatus === "refunded" || currentStatus === "cancelled") {
+        return { success: false, message: `Order already has status "${order.status}". Refund denied.` };
+      }
+
+      // fetch user
+      if (!order.userId) {
+        return { success: false, message: "Order has no associated userId." };
+      }
+
+      const user = await usersCollection.findOne({ _id: new ObjectId(order.userId) });
+      if (!user) {
+        return { success: false, message: "User not found for this order." };
+      }
+
+      // compute refund amount (safe numeric conversion)
+      const refundAmount = Number(order.charge) || 0;
+      if (refundAmount <= 0) {
+        // still update status but mention zero refund
+        await ordersCollection.updateOne(
+          { _id: order._id },
+          { $set: { status: 'cancelled', updatedAt: new Date() } }
+        );
+
+        return {
+          success: true,
+          message: "Order status updated, but refund amount was zero.",
+          refunded: 0,
+        };
+      }
+
+      // increment user balance (atomic)
+      const updateUser = await usersCollection.updateOne(
+        { _id: user._id },
+        { $inc: { balance: refundAmount } }
+      );
+
+      // mark order as refunded (and store refund metadata)
+      const updateOrder = await ordersCollection.updateOne(
+        { _id: order._id },
+        {
+          $set: {
+            status: 'cancelled',
+            refundedAt: new Date(),
+            refundedAmount: refundAmount,
+            updatedAt: new Date(),
+          },
+        }
+      );
+
+      console.log("Refund processed:", {
+        orderId: String(order._id),
+        userId: String(user._id),
+        refundAmount,
+        updateUserMatched: updateUser.matchedCount,
+        updateUserModified: updateUser.modifiedCount,
+        updateOrderMatched: updateOrder.matchedCount,
+        updateOrderModified: updateOrder.modifiedCount,
+      });
+
+      return {
+        success: true,
+        message: "Order refunded and user balance updated.",
+        refunded: refundAmount,
+        orderId: String(order._id),
+        userId: String(user._id),
+      };
+    }
+
+    // === Generic status update ===
+    const allowedStatus = String(status || "").trim();
+    if (!allowedStatus) {
+      return { success: false, message: "Invalid status." };
+    }
+
+    const result = await ordersCollection.updateOne(
       { _id: new ObjectId(orderId) },
-      { $set: { status: status, } }
+      { $set: { status: allowedStatus, updatedAt: new Date() } }
     );
 
-    return { success: true, message: `Order marked as ${status}.` };
+    if (result.matchedCount === 0) {
+      return { success: false, message: "Order not found or could not be updated." };
+    }
+
+    return { success: true, message: `Order marked as ${allowedStatus}.` };
   } catch (err) {
-    return { success: false, message: err.message };
+    console.error("markPartialAction error:", err);
+    return { success: false, message: err.message || "Internal server error." };
   }
 }
+
 
 // ========================= Update Start Count Action =========================
 export async function updateStartCountAction(orderId, startCount) {

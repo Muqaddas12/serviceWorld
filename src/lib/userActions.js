@@ -188,140 +188,180 @@ export async function generateApiKey() {
 
 
 // ========================= Create Order Action =========================
-export async function createOrderAction(service, link, qua, paying ) {
+export async function createOrderAction(service, link, qua, paying) {
   try {
-    // 🧩 1️⃣ Get user token from cookies
+    console.log("🔵 Starting Create Order Action...");
+
+    // 1️⃣ Get user token
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
+    console.log("🔐 Token from cookies:", token);
 
     if (!token) {
+      console.log("❌ No token found.");
       return { success: false, message: "Unauthorized — please log in first." };
     }
 
-    // 🧠 2️⃣ Verify JWT token
+    // 2️⃣ Verify token
     let userData;
     try {
       userData = jwt.verify(token, JWT_SECRET);
+      console.log("🟢 Decoded Token:", userData);
     } catch (err) {
+      console.log("❌ Token verification failed:", err.message);
       return { success: false, message: "Invalid or expired token." };
     }
 
-    // 🧱 3️⃣ Connect to DB
+    // 3️⃣ DB
     const client = await clientPromise;
+    console.log("🗄 Connected to DB.");
     const db = client.db("smmpanel");
     const usersCollection = db.collection("users");
 
-// 👤 4️⃣ Validate user existence
-const user = await usersCollection.findOne({ _id: new ObjectId(userData.id) });
-    console.log(user)
+    // 4️⃣ User
+    const user = await usersCollection.findOne({ _id: new ObjectId(userData.id) });
+    console.log("👤 User found:", user);
+
     if (!user) {
+      console.log("❌ User not found.");
       return { success: false, message: "User not found." };
     }
-const selectedProvider = await client
-  .db(DB_ADMIN)
-  .collection("Providers")
-  .findOne({ selected: true });
-    // 📦 5️⃣ Extract and validate input
-   
+
+    // Provider
+    const selectedProvider = await client
+      .db(DB_ADMIN)
+      .collection("Providers")
+      .findOne({ selected: true });
+
+    console.log("🌐 Selected Provider:", selectedProvider);
+
+    // 5️⃣ Inputs
+    console.log("📥 Input service:", service);
+    console.log("📥 Input link:", link);
+    console.log("📥 Input quantity:", qua);
+    console.log("📥 Input charge:", paying);
+
     const quantity = Number(qua);
     const charge = Number(paying);
 
     if (!service || !link || !quantity || quantity <= 0) {
-      return {
-        success: false,
-        message: "Invalid input. Ensure service, link, and quantity are provided.",
-      };
+      console.log("❌ Invalid inputs (missing or wrong format)");
+      return { success: false, message: "Invalid input." };
     }
 
     if (isNaN(charge) || charge <= 0) {
+      console.log("❌ Invalid charge:", charge);
       return { success: false, message: "Invalid charge amount." };
     }
 
-    // 💰 6️⃣ Check balance
+    // 6️⃣ Check balance
+    console.log("💰 User balance:", user.balance);
+    console.log("💸 Charge required:", charge);
+
     if (user.balance < charge) {
-      return {
-        success: false,
-        message: "Insufficient balance. Please add funds to your account.",
-      };
+      console.log("❌ Insufficient balance.");
+      return { success: false, message: "Insufficient balance." };
     }
 
-    // 🧾 7️⃣ Prepare data for SMM API
+    // 7️⃣ Prepare provider API body
     const orderData = { service, link, quantity };
+    console.log("📦 Provider API Request Body:", orderData);
 
-    // 🌐 8️⃣ Call external API
+    // 8️⃣ Provider API call
     const response = await createOrder(orderData);
-    console.log("📦 SMM API Response:", response);
+    console.log("📦 Provider API Response:", response);
 
     if (!response || response.error) {
+      console.log("❌ Provider API Error:", response?.error);
       return {
         success: false,
         message: "Failed to create order on provider side.",
-        providerError: response?.error || "No response from API.",
+        providerError: response?.error || "Network error.",
       };
     }
 
-    // 🧮 9️⃣ Deduct balance securely
+    // 9️⃣ Deduct balance
+    console.log("💸 Deducting balance...");
+    console.log("Old Balance:", user.balance);
+
     const updatedBalance = user.balance - charge;
+
+    console.log("New Balance:", updatedBalance);
+
     await usersCollection.updateOne(
       { _id: user._id },
       { $set: { balance: updatedBalance } }
     );
 
-    // 💾 🔟 Save order in DB
-    const ordersCollection = db.collection("orders");
+    // 🔟 Fetch service detail
+    const admindb=await client.db(DB_ADMIN)
+    const servicesCollection = admindb.collection("services");
+    const serviceData = await servicesCollection.findOne({ service: service });
+
+    console.log("📚 Service Data from DB:", serviceData);
+
+    if (!serviceData) {
+      console.log("❌ Service not found.");
+      return { success: false, message: "Service not found in database." };
+    }
+
+    // ✔ Profit calculation
+    const profitPercentage = Number(serviceData.profitPercentage) || 0;
+    console.log("📊 Profit Percentage:", profitPercentage);
+
+    const profit = (charge * profitPercentage) / 100;
+    console.log("💰 Calculated Profit:", profit);
+
+    // 💾 Order object
     const newOrder = {
       userId: user._id.toString(),
-      username:user.username,
-      userEmail:user.email,
-ProviderUrl:selectedProvider.providerUrl,
-providerApiKey:selectedProvider.apiKey,
+      username: user.username,
+      userEmail: user.email,
+
+      ProviderUrl: selectedProvider.providerUrl,
+      providerApiKey: selectedProvider.apiKey,
+
       service,
       link,
       quantity,
       charge,
+      profit,
+
       status: "Pending",
       startCount: 0,
       remains: 0,
       providerOrderId: response.order,
       createdAt: new Date(),
     };
-const safeOrder = {
-  userId: newOrder.userId,
-  username: newOrder.username,
-  userEmail: newOrder.userEmail,
-  service: newOrder.service,
-  link: newOrder.link,
-  quantity: newOrder.quantity,
-  charge: newOrder.charge,
-  status: newOrder.status,
-  providerOrderId: newOrder.providerOrderId,
-  startCount: 0,
-  remains: 0,
-  createdAt: newOrder.createdAt.toISOString()
-};
-    await ordersCollection.insertOne(newOrder);
 
-    // 🔁 11️⃣ Revalidate order page
- revalidatePath("/user/dashboard");
+    console.log("📝 Final Order Object:", newOrder);
 
-    // ✅ 12️⃣ Return success
+    // Insert order
+    await db.collection("orders").insertOne(newOrder);
+    console.log("🟢 Order inserted successfully!");
+
+    // Revalidate dashboard
+    console.log("🔄 Revalidating dashboard...");
+    revalidatePath("/user/dashboard");
+
     return {
       success: true,
       message: "Order created successfully!",
       orderId: response.order,
       balanceAfter: updatedBalance,
-      details: safeOrder,
+      profit,
     };
-  } catch (err) {
-    console.error("❌ Error creating order:", err);
 
+  } catch (err) {
+    console.error("❌ ERROR in createOrderAction:", err);
     return {
       success: false,
-      message: "Internal server error. Please try again later.",
+      message: "Internal server error.",
       details: err.message,
     };
   }
 }
+
 
 
 
@@ -954,7 +994,7 @@ console.log(decoded)
 
     // 5) Validate with BharatPe (or whichever)
     const validationResult = await ValidateTransactionBharatPe(utr, numericAmount);
-console.log('kys baat hai',validationResult)
+
     if (!validationResult?.success) {
       return {
         status: false,

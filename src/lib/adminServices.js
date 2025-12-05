@@ -1350,7 +1350,7 @@ export async function getAllOrdersAction() {
     // ⭐ Fetch ALL orders (pending + partial + completed)
 const orders = await ordersCollection
   .find({
-    status: { $regex: /^(pending|partial|completed)$/i },
+    status: { $regex: /^(pending|partial|completed|cancelled|refund)$/i },
   })
   .sort({ createdAt: -1 })
   .toArray();

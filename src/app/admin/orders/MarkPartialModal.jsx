@@ -39,6 +39,8 @@ alert(res.message)
           <option value="pending">Pending</option>
           <option value="partial">Partial</option>
           <option value="completed">Completed</option>
+          <option value="cancelled">Cancel</option>
+          <option value="refund">Cancel With Refund</option>
         </select>
 
         <button
