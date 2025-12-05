@@ -29,6 +29,7 @@ export async function getServices() {
       rate: Number(s.rate) || 0,
       provider: s.provider ?? "",
       service: s.service ?? null,
+      average_time:s?.average_time,
       type: s.type ?? "Default",
       desc: s.desc ?? "",
       storedBy: s.storedBy ?? "",

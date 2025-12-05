@@ -67,6 +67,7 @@ async function verifyAdmin() {
         refill: Boolean(data.refill),
         cancelAllowed: Boolean(data.cancelAllowed),
         provider: data.provider,
+        average_time:data?.average_time,
         rate,
         min,
         max,
@@ -190,7 +191,7 @@ export async function UpdateAllCategoryServiceAction(newCategory, oldCategory) {
 
 
 export async function UpdateMultipleServicesAction(data, services){
-console.log('this is the data',data,'this is the services',services)
+
  const isEmpty = Object.keys(services).length === 0
   if(isEmpty){
 
@@ -217,7 +218,7 @@ console.log('this is the data',data,'this is the services',services)
       desc: data.desc || data.description || "",
       category: data.category || "",
       type: data.type || "default",
-
+average_time:data?.average_time,
       refill: data.refill === true || data.refill === "yes",
       cancelAllowed: data.cancelAllowed === true || data.cancelAllowed === "yes",
 
@@ -271,6 +272,7 @@ profitPercentage:data?.profitPercentage,
       min: data.min !== "" ? Number(data.min) : null,
       max: data.max !== "" ? Number(data.max) : null,
       rate: Number(data.rate ?? 0),
+      average_time:data?.average_time,
       type: data.type ?? "Default",
       desc: data.desc ?? "",
       status: data.status ?? "enabled",

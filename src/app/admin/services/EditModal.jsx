@@ -45,90 +45,130 @@ export default function EditServiceModal({ editData, onSave, onClose, category }
   };
 
   return (
-    <Modal onClose={onClose} title="Edit Service">
-      <form className="h-[60vh] overflow-y-auto pr-2 space-y-3">
+<Modal onClose={onClose} title="Edit Service">
 
-        {Object.entries(localData)
-          .filter(([key]) =>
-            !["createdAt", "updatedAt", "customservice", "_id", "storedBy", "id", "provider", "service", "name",'profitPercentage'].includes(key)
-          )
-          .map(([key, value]) => (
-            <div key={key} className="flex flex-col gap-1">
+  {/* Ensure average_time exists */}
+  {(() => {
+    if (!("average_time" in localData)) {
+      localData.average_time = "";
+    }
+    return null;
+  })()}
 
-              <label className="text-sm font-semibold capitalize">
-                {key.replace(/_/g, " ")}
-              </label>
+  <form className="h-[60vh] overflow-y-auto pr-2 space-y-3">
 
-              {key.toLowerCase() === "category" ? (
-                <select
-                  value={value}
-                  onChange={(e) => handleChange(key, e.target.value)}
-                  className="w-full px-3 py-2 rounded border bg-white dark:bg-[#1E1F23]"
-                >
-                  {category.map((cat, i) => (
-                    <option key={i} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              ) : key.toLowerCase() === "status" ? (
-                <select
-                  value={value}
-                  onChange={(e) => handleChange(key, e.target.value)}
-                  className="w-full px-3 py-2 rounded border bg-white dark:bg-[#1E1F23]"
-                >
-                  <option value="enabled">Enabled</option>
-                  <option value="disabled">Disabled</option>
-                </select>
-              ) : key.toLowerCase() === "rate" ? (
-                
-                // ⭐ ONLY ONE INPUT BOX — SHOWS FINAL PRICE
-                <input
-                  type="number"
-                  value={finalPriceInput}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setFinalPriceInput(val);
+    {Object.entries(localData)
+      .filter(([key]) =>
+        ![
+          "createdAt",
+          "updatedAt",
+          "customservice",
+          "_id",
+          "storedBy",
+          "id",
+          "service",
+          "profitPercentage",
+        ].includes(key)
+      )
+      .map(([key, value]) => (
+        <div key={key} className="flex flex-col gap-1">
 
-                    const finalPrice = Number(val);
-                    const rate = Number(localData.rate || 0);
+          <label className="text-sm font-semibold capitalize">
+            {key.replace(/_/g, " ")}
+          </label>
 
-                    if (!isNaN(finalPrice) && rate > 0) {
-                      const newProfit = ((finalPrice - rate) / rate) * 100;
-                      handleChange("profitPercentage", Number(newProfit.toFixed(2)));
-                    }
-                  }}
-                  onBlur={() => {
-                    const recalc = (
-                      Number(localData.rate || 0) *
-                      (1 + (Number(localData.profitPercentage || 0) / 100))
-                    ).toFixed(2);
+          {/* CATEGORY */}
+          {key === "category" ? (
+            <select
+              value={value}
+              onChange={(e) => handleChange(key, e.target.value)}
+              className="w-full px-3 py-2 rounded border bg-white dark:bg-[#1E1F23]"
+            >
+              {category.map((cat, i) => (
+                <option key={i} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
 
-                    setFinalPriceInput(recalc);
-                  }}
-                  className="w-full px-3 py-2 rounded border bg-white dark:bg-[#1E1F23]"
-                  placeholder="Final Price"
-                />
+          ) : key === "status" ? (
+            /* STATUS */
+            <select
+              value={value}
+              onChange={(e) => handleChange(key, e.target.value)}
+              className="w-full px-3 py-2 rounded border bg-white dark:bg-[#1E1F23]"
+            >
+              <option value="enabled">Enabled</option>
+              <option value="disabled">Disabled</option>
+            </select>
 
-              ) : (
-                <input
-                  value={value}
-                  onChange={(e) => handleChange(key, e.target.value)}
-                  className="w-full px-3 py-2 rounded border bg-white dark:bg-[#1E1F23]"
-                />
-              )}
+          ) : key === "average_time" ? (
+            /* ⭐ ALWAYS SHOW average_time */
+            <input
+              type="text"
+              value={value}
+              onChange={(e) => handleChange(key, e.target.value)}
+              className="w-full px-3 py-2 rounded border bg-white dark:bg-[#1E1F23]"
+              placeholder="e.g. Instant, 30 minutes, 1–2 hours"
+            />
 
-            </div>
-          ))}
+          ) : key === "rate" ? (
+            /* FINAL PRICE FIELD */
+            <input
+              type="number"
+              value={finalPriceInput}
+              onChange={(e) => {
+                const val = e.target.value;
+                setFinalPriceInput(val);
 
-      </form>
+                const finalPrice = Number(val);
+                const rate = Number(localData.rate || 0);
 
-      <div className="pt-3 border-t mt-3">
-        <button
-          onClick={handleSave}
-          className="px-4 py-2 bg-gray-800 text-white rounded-lg w-full"
-        >
-          Save Changes
-        </button>
-      </div>
-    </Modal>
+                if (!isNaN(finalPrice) && rate > 0) {
+                  const newProfit =
+                    ((finalPrice - rate) / rate) * 100;
+
+                  handleChange(
+                    "profitPercentage",
+                    Number(newProfit.toFixed(2))
+                  );
+                }
+              }}
+              onBlur={() => {
+                const recalc = (
+                  Number(localData.rate || 0) *
+                  (1 + Number(localData.profitPercentage || 0) / 100)
+                ).toFixed(2);
+
+                setFinalPriceInput(recalc);
+              }}
+              className="w-full px-3 py-2 rounded border bg-white dark:bg-[#1E1F23]"
+              placeholder="Final Price"
+            />
+
+          ) : (
+            /* DEFAULT INPUT */
+            <input
+              value={value}
+              onChange={(e) => handleChange(key, e.target.value)}
+              className="w-full px-3 py-2 rounded border bg-white dark:bg-[#1E1F23]"
+            />
+          )}
+        </div>
+      ))}
+
+  </form>
+
+  <div className="pt-3 border-t mt-3">
+    <button
+      onClick={handleSave}
+      className="px-4 py-2 bg-gray-800 text-white rounded-lg w-full"
+    >
+      Save Changes
+    </button>
+  </div>
+
+</Modal>
+
   );
 }
