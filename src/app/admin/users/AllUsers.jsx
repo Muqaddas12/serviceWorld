@@ -6,7 +6,7 @@ import SearchBar from "./SearchBar";
 import ActiveUsersList from "./ActiveUsersList";
 import DeletedUsersList from "./DeletedUsersList";
 import ExportPopup from "./ExportPopup";
-
+import SendMessageModal from "./SendMessageModal";
 export default function AllUsers({ users = [], dusers = [] }) {
   const [filteredUsers, setFilteredUsers] = useState(users);
   const [filteredDeleted, setFilteredDeleted] = useState(dusers);
@@ -14,6 +14,8 @@ export default function AllUsers({ users = [], dusers = [] }) {
   const [showExportPopup, setShowExportPopup] = useState(false);
   const debounceRef = useRef(null);
 
+const [lastSentResult, setLastSentResult] = useState(null);
+const [sendMessage,setSendMessage]=useState(false)
   /* 🔍 Debounced search */
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -68,6 +70,33 @@ export default function AllUsers({ users = [], dusers = [] }) {
           </div>
         </div>
 
+        <button
+          onClick={() => setSendMessage(true)}
+
+          className="
+            flex items-center gap-2 px-4 py-2 
+            bg-gray-800 dark:bg-gray-700 
+            text-white 
+            rounded-lg font-semibold
+            hover:bg-gray-700 dark:hover:bg-gray-600 
+            transition
+          "
+        >
+          <Download size={16} />
+          Send Message
+        </button>
+        {/* show modal */}
+{sendMessage && (
+  <SendMessageModal
+    users={filteredUsers} // pass currently filtered users (active)
+    onClose={() => setSendMessage(false)}
+    onSent={(data) => {
+      setLastSentResult(data);
+      // optionally close modal:
+      // setSendMessage(false);
+    }}
+  />
+)}
         <button
           onClick={() => setShowExportPopup(true)}
           className="
