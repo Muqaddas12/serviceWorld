@@ -15,7 +15,7 @@ export default function ServiceTable({ title, grouped = {}, category = [] }) {
   const [deleteData, setDeleteData] = useState(null);
   const [statusData, setStatusData] = useState(null);
   const dropdownRef = useRef(null);
-
+const [deleting,setDeleting]=useState(false)
   const [selectedRows, setSelectedRows] = useState({});
 
   // -------------------- VISIBLE CATEGORIES (skip empty) --------------------
@@ -63,23 +63,55 @@ export default function ServiceTable({ title, grouped = {}, category = [] }) {
     setSelectedRows(allSelected);
   };
 
-  // -------------------- BULK DELETE --------------------
-  const bulkDelete = async () => {
-    const selectedKeys = Object.entries(selectedRows)
-      .filter(([_, v]) => v)
-      .map(([k]) => k);
+const bulkDelete = async () => {
+  if (deleting) return; // prevent double clicks
+  setDeleting(true);
 
-    if (selectedKeys.length === 0) return alert("No rows selected!");
+  const selectedKeys = Object.entries(selectedRows)
+    .filter(([_, v]) => v)
+    .map(([k]) => k);
 
+    console.log(selectedKeys)
+  if (selectedKeys.length === 0) {
+    setDeleting(false);
+    return alert("No rows selected!");
+  }
+
+  try {
+    // sequential delete (keeps order and easier error handling)
     for (const key of selectedKeys) {
-      const [catName, idx] = key.split("-");
+      const lastDash = key.lastIndexOf("-");
+const catName = key.substring(0, lastDash);
+const idxStr = key.substring(lastDash + 1);
+const idx = Number(idxStr);
+
+
+      // guard: existence checks
+      if (!grouped?.[catName] || Number.isNaN(idx) || !grouped[catName][idx]) {
+        console.warn("Skipping invalid selection key:", key,idx,catName,);
+        continue;
+      }
+
       const srv = grouped[catName][idx];
-      await DeleteServiceAction(srv.service);
+
+      try {
+        const res = await DeleteServiceAction(srv.service);
+        // optionally check res.success or res.message
+      } catch (err) {
+        console.error("Failed to delete", srv, err);
+        // continue with other deletes instead of aborting everything
+      }
     }
 
     alert("Bulk delete completed");
     setSelectedRows({});
-  };
+  } catch (err) {
+    console.error("Bulk delete: unexpected error", err);
+    alert("Something went wrong while deleting. Check console for details.");
+  } finally {
+    setDeleting(false);
+  }
+};
 
   // -------------------- BULK EDIT --------------------
   const bulkEdit = () => {
@@ -98,8 +130,12 @@ export default function ServiceTable({ title, grouped = {}, category = [] }) {
 
   // -------------------- DELETE ACTION --------------------
   const onDelete = async (srv) => {
+    setDeleting(true)
     const res = await DeleteServiceAction(srv.service);
+
     alert(res.message);
+    setDeleting(false)
+
   };
 
   // -------------------- STATUS CHANGE --------------------
@@ -114,6 +150,16 @@ export default function ServiceTable({ title, grouped = {}, category = [] }) {
 
   return (
     <>
+ {deleting && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+    <div className="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center gap-3">
+      <div className="h-8 w-8 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+      <h1 className="text-lg font-semibold">Deleting...</h1>
+    </div>
+  </div>
+)}
+
+
       <div className="mt-8 rounded-2xl shadow-lg overflow-hidden border bg-gray-50 border-gray-300 dark:bg-[#1A1C1F] dark:border-gray-700">
         {/* TOP BAR */}
         <div className="flex justify-between items-center px-4 py-3 border-b bg-gray-100 dark:bg-[#1E1F23]">
