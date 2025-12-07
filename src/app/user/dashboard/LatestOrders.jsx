@@ -87,7 +87,7 @@ useEffect(()=>{
 
         <td className="py-2 px-2 sm:py-3 sm:px-4 font-semibold text-green-600 dark:text-green-400">
           {symbol}
-          {convert(order.amount).toFixed(2)}
+          {convert(order.charge).toFixed(2)}
         </td>
 
         <td className="py-2 px-2 sm:py-3 sm:px-4">
