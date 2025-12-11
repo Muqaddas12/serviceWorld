@@ -116,8 +116,9 @@ export async function getProvidersAction() {
 
           balance = res.data?.balance ?? null;
           currency = res.data?.currency ?? null;
-        } catch (err) {
-          console.error("Balance fetch error:", err.response?.data || err.message);
+        } 
+        catch (err) {
+          console.log("Balance fetch error:", err.message);
         }
     
 

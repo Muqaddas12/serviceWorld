@@ -139,7 +139,7 @@ export async function deleteCat(categories) {
         key => categories[key] === true
       );
     
-console.log(namesToDelete)
+
     if (namesToDelete.length === 0) {
       return { status: false, message: "no categories to delete." };
     }

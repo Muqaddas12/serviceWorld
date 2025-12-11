@@ -77,7 +77,16 @@ export default function ClientPage({ provider = [] }) {
   };
 
   // CHECK / UNCHECK logic
-  const handleRowCheck = (categoryName, checked) => {
+  const handleRowCheck = (categoryName, checked,ids = []) => {
+     // SELECT ALL
+  if (categoryName === "selectAllFinal") {
+    if (checked) {
+      setSelectedServices(ids);   // all service IDs
+    } else {
+      setSelectedServices([]);    // unselect all
+    }
+    return;
+  }
     setSelectedServices((prev) =>
       checked ? [...prev, categoryName] : prev.filter((x) => x !== categoryName)
     );
