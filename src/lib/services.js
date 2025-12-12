@@ -206,7 +206,7 @@ const selectedProvider = await client
   .db(DB_ADMIN)
   .collection("Providers")
   .find({}).toArray();
-  console.log(selectedProvider)
+
   const serviceData = await client
   .db(DB_ADMIN)
   .collection("services")

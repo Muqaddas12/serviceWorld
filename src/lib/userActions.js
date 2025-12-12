@@ -219,11 +219,21 @@ export async function createOrderAction(service, link, qua, paying) {
     const user = await usersCollection.findOne({ _id: new ObjectId(userData.id) });
     if (!user) return { success: false, message: "User not found." };
 
-    // Provider
-    const selectedProvider = await client
+    // -------------------- Providers & Service --------------------
+    const providers = await client
       .db(DB_ADMIN)
       .collection("Providers")
-      .findOne({ selected: true });
+      .find({})
+      .toArray();
+
+    // fetch service once and reuse
+    const dbservice = await client
+      .db(DB_ADMIN)
+      .collection("services")
+      .findOne({ service: Number(service) });
+
+    // find provider matching the service provider URL
+    const result = providers.find((p) => p.providerUrl === dbservice?.provider);
 
     // 5️⃣ Inputs
     const quantity = Number(qua);
@@ -265,12 +275,15 @@ export async function createOrderAction(service, link, qua, paying) {
         { $set: { balance: updatedBalance } }
       );
 
-      // Get service data for profit
-      const admindb = client.db(DB_ADMIN);
-      const serviceData = await admindb.collection("services").findOne({ service });
+      // Use previously fetched dbservice for profit calculation
+      const serviceData = dbservice;
 
       const profitPercentage = Number(serviceData?.profitPercentage) || 0;
       const profit = (charge * profitPercentage) / 100;
+
+      // If provider result is undefined, guard accessing its fields
+      const providerUrlForInsert = result?.providerUrl || null;
+      const providerApiKeyForInsert = result?.apiKey || null;
 
       // Insert order with fallback ID
       await db.collection("orders").insertOne({
@@ -278,8 +291,8 @@ export async function createOrderAction(service, link, qua, paying) {
         username: user.username,
         userEmail: user.email,
 
-        ProviderUrl: selectedProvider.providerUrl,
-        providerApiKey: selectedProvider.apiKey,
+        ProviderUrl: providerUrlForInsert,
+        providerApiKey: providerApiKeyForInsert,
 
         service,
         link,
@@ -316,25 +329,25 @@ export async function createOrderAction(service, link, qua, paying) {
       { $set: { balance: updatedBalance } }
     );
 
-    // Fetch service
-    const admindb = client.db(DB_ADMIN);
-    const servicesCollection = admindb.collection("services");
-    const serviceData = await servicesCollection.findOne({ service });
-
+    // Reuse dbservice (already fetched above) for profit
+    const serviceData = dbservice;
     if (!serviceData)
       return { success: false, message: "Service not found ." };
 
     const profitPercentage = Number(serviceData.profitPercentage) || 0;
     const profit = (charge * profitPercentage) / 100;
 
-    // Build order
+    // Use the matched provider info found earlier (result)
+    const providerUrlForOrder = result?.providerUrl || null;
+    const providerApiKeyForOrder = result?.apiKey || null;
+
     const newOrder = {
       userId: user._id.toString(),
       username: user.username,
       userEmail: user.email,
 
-      ProviderUrl: selectedProvider.providerUrl,
-      providerApiKey: selectedProvider.apiKey,
+      ProviderUrl: providerUrlForOrder,
+      providerApiKey: providerApiKeyForOrder,
 
       service,
       link,
@@ -367,6 +380,7 @@ export async function createOrderAction(service, link, qua, paying) {
     return { success: false, message: "Internal server error." };
   }
 }
+
 
 
 
