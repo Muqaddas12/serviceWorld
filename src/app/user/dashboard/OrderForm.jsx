@@ -197,6 +197,23 @@ export default function OrderForm({ selectedCategory = "" }) {
     return () => document.removeEventListener("mousedown", close);
   }, []);
 
+
+  // when category or services change, pick first service in that category
+useEffect(() => {
+  if (!category || !services?.length) {
+    setSelectedService(null);
+    setService("");
+    return;
+  }
+
+  const filtered = services.filter((s) => s.category === category);
+  const first = filtered[0] || null;
+
+  setSelectedService(first);
+  setService(first?.service || "");
+}, [category, services]);
+
+
   // ---------------------------------------------------------
   // SELECT SERVICE HANDLER (MEMOIZED)
   // ---------------------------------------------------------
