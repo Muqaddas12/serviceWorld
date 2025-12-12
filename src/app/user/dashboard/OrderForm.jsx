@@ -36,12 +36,12 @@ const getCategoryIcon = (cat) =>
 
 const getPlatformIcon = (name = "") => {
   const lower = name.toLowerCase();
-  if (lower.includes("instagram")) return <FaInstagram className="text-pink-500 text-lg" />;
-  if (lower.includes("youtube")) return <FaYoutube className="text-red-500 text-lg" />;
-  if (lower.includes("facebook")) return <FaFacebookF className="text-blue-600 text-lg" />;
-  if (lower.includes("tiktok")) return <FaTiktok className="text-white text-lg" />;
-  if (lower.includes("telegram")) return <FaTelegramPlane className="text-sky-400 text-lg" />;
-  if (lower.includes("twitter")) return <FaTwitter className="text-blue-400 text-lg" />;
+  if (lower.includes("instagram")) return <FaInstagram size={28} className="text-pink-500 text-lg" />;
+  if (lower.includes("youtube")) return <FaYoutube size={28} className="text-red-500 text-lg" />;
+  if (lower.includes("facebook")) return <FaFacebookF size={28} className="text-blue-600 text-lg" />;
+  if (lower.includes("tiktok")) return <FaTiktok size={28} className="text-white text-lg" />;
+  if (lower.includes("telegram")) return <FaTelegramPlane size={28} className="text-sky-400 text-lg" />;
+  if (lower.includes("twitter")) return <FaTwitter size={28} className="text-blue-400 text-lg" />;
   return <FaGlobe className="text-gray-500 text-lg" />;
 };
 
@@ -271,7 +271,8 @@ export default function OrderForm({ selectedCategory = "" }) {
         <form onSubmit={handleSubmit} className="space-y-4">
 
           {/* SEARCH */}
-          <div className="relative" ref={searchRef}>
+          <div className="relative border border-gray-500 dark:border-gray-700 rounded-2xl"
+ ref={searchRef}>
             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               value={searchTerm}
@@ -313,7 +314,7 @@ export default function OrderForm({ selectedCategory = "" }) {
           </div>
 
           {/* CATEGORY */}
-          <div className="relative z-50" ref={categoryRef}>
+          <div className="relative z-10" ref={categoryRef}>
             <label>Category</label>
             <div
               onClick={() => setCategoryDropdownOpen((p) => !p)}
