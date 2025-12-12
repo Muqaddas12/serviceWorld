@@ -1,5 +1,5 @@
 import PaytmChecksum from "@/lib/paytmChecksum";
-import { paytmConfig } from "@/config/paytm.config";
+import { paytmConfig } from "../../../../../config/paytm.config";
 
 export async function POST(req) {
   const { orderId } = await req.json();
