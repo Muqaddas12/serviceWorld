@@ -13,6 +13,34 @@ const dbName = "smmpanel";
 const addFundsCollection = "add_funds";
 const JWT_SECRET = process.env.JWT_SECRET;
 const DB_ADMIN = "smmadmin";
+
+
+export async function getPaymentHistory() {
+  try {
+    const client = await clientPromise;
+    const db = client.db(dbName);
+    const paymentCollection = db.collection(addFundsCollection);
+
+    const result = await paymentCollection
+      .find({})
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    const filteredResult = result.map((t) => ({
+      ...t,
+      _id: t._id.toString(),
+      
+    }));
+
+    return filteredResult;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+
+
 // ========================= GET USER DETAILS =========================
 export async function getUserDetails() {
   try {
@@ -231,16 +259,16 @@ export async function createOrderAction(service, link, qua, paying) {
       .collection("Providers")
       .find({})
       .toArray();
-
+console.log(service)
     // fetch service once and reuse
     const dbservice = await client
       .db(DB_ADMIN)
       .collection("services")
-      .findOne({ service: Number(service) });
-
+      .findOne({ service: (service) });
+console.log(service,dbservice)
     // find provider matching the service provider URL
     const result = providers.find((p) => p.providerUrl === dbservice?.provider);
-
+console.log('this is result',result,result.providerUrl===dbservice.provider)
     // 5️⃣ Inputs
     const quantity = Number(qua);
     const charge = Number(paying);

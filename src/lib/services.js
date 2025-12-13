@@ -210,7 +210,7 @@ const selectedProvider = await client
   const serviceData = await client
   .db(DB_ADMIN)
   .collection("services")
-  .findOne({ service: Number(service) });
+  .findOne({ service: (service) });
 
 
 
