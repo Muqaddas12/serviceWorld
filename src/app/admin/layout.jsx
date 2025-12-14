@@ -13,6 +13,7 @@ const menuItems = [
   { name: "Orders", path: "/admin/orders" },
   { name: "Tickets", path: "/admin/tickets" },
   { name: "referal requests", path: "/admin/rrequest" },
+{ name: "Payment History", path: "/admin/payment-history" },
   { name: "Settings", path: "/admin/settings" },
 ];
 
