@@ -745,6 +745,7 @@ export async function getAllTickets() {
       message: t.message || "",
       status: t.status || "open",
       replies: t.replies || [],
+      ticketNumber:t?.ticketNumber,
       created_at: t.createdAt || t.created_at || null,
       updatedAt: t.updatedAt || null,
     }));
@@ -987,7 +988,7 @@ export async function createTicket({ subject, message }) {
     }
 
     // 🍪 2. Get token from cookies
-    const cookieStore =await cookies();
+    const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
     if (!token) return { error: "Unauthorized. No token found." };
 
@@ -1001,7 +1002,7 @@ export async function createTicket({ subject, message }) {
 
     const userId = decoded.id;
     const username = decoded.username;
-    const role = decoded.role || "user"; // optional fallback
+    const role = decoded.role || "user";
 
     if (!userId && !username)
       return { error: "Invalid user token. Please log in again." };
@@ -1010,13 +1011,33 @@ export async function createTicket({ subject, message }) {
     const client = await clientPromise;
     const db = client.db("smmpanel");
 
+    // ✅ ADDITION START (ticket number logic)
+    let counter = await db.collection("counters").findOne({ _id: "ticketNumber" });
+    let ticketNumber;
+
+    if (!counter) {
+      await db.collection("counters").insertOne({
+        _id: "ticketNumber",
+        seq: 1000,
+      });
+      ticketNumber = 1000;
+    } else {
+      await db.collection("counters").updateOne(
+        { _id: "ticketNumber" },
+        { $inc: { seq: 1 } }
+      );
+      ticketNumber = counter.seq + 1;
+    }
+    // ✅ ADDITION END
+
     // 🧩 5. Build ticket document
     const ticket = {
+      ticketNumber, // 👈 added
       userId: userId ? new ObjectId(userId) : null,
       username: username || "Unknown",
       subject,
       message,
-      type: "user", // ✅ added ticket type
+      type: "user",
       status: "open",
       replies: [],
       createdAt: new Date(),
@@ -1040,6 +1061,7 @@ export async function createTicket({ subject, message }) {
     return { error: "Failed to create ticket." };
   }
 }
+
 
 
 
@@ -1351,7 +1373,7 @@ const orders = await ordersCollection
   .find({
     status: { $regex: /^(pending|partial|completed|cancelled|refund)$/i },
   })
-  .sort({ createdAt: -1 })
+  .sort({ orderNumber: 1 })
   .toArray();
 
     if (!orders || orders.length === 0) {
@@ -1436,15 +1458,22 @@ const orders = await ordersCollection
         // Always return latest version
         const fresh = await ordersCollection.findOne({ _id: order._id });
 
-        return {
-          ...fresh,
-          _id: fresh._id.toString(),
-          userId: fresh.userId?.toString?.() ?? String(fresh.userId ?? ""),
-          createdAt: fresh.createdAt?.toISOString?.() ?? "",
-          updatedAt: fresh.updatedAt?.toISOString?.() ?? "",
-          fetchedAt: fresh.fetchedAt?.toISOString?.() ?? "",
-          providerResult,
-        };
+     return {
+  ...fresh,
+
+  _id: fresh._id?.toString(),
+
+  userId: fresh.userId?.toString?.() ?? String(fresh.userId ?? ""),
+
+  orderNumber: Number(fresh.orderNumber) || 0, // 👈 IMPORTANT
+
+  createdAt: fresh.createdAt?.toISOString?.() ?? "",
+  updatedAt: fresh.updatedAt?.toISOString?.() ?? "",
+  fetchedAt: fresh.fetchedAt?.toISOString?.() ?? "",
+
+  providerResult,
+};
+
       })
     );
 

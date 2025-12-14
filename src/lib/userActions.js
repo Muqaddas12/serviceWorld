@@ -374,12 +374,27 @@ console.log('this is result',result,result.providerUrl===dbservice.provider)
     // Use the matched provider info found earlier (result)
     const providerUrlForOrder = result?.providerUrl || null;
     const providerApiKeyForOrder = result?.apiKey || null;
+let counter = await db.collection("counters").findOne({ _id: "orderNumber" });
 
+if (counter) {
+  await db.collection("counters").updateOne(
+    { _id: "orderNumber" },
+    { $inc: { seq: 1 } }
+  );
+} else {
+  await db.collection("counters").insertOne({
+    _id: "orderNumber",
+    seq: 3000
+  });
+}
+
+counter = await db.collection("counters").findOne({ _id: "orderNumber" });
+const orderNumber = counter.seq;
     const newOrder = {
       userId: user._id.toString(),
       username: user.username,
       userEmail: user.email,
-
+orderNumber,
       ProviderUrl: providerUrlForOrder,
       providerApiKey: providerApiKeyForOrder,
 

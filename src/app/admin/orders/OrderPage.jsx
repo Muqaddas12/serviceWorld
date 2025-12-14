@@ -191,7 +191,7 @@ export default function OrdersPage({ sorders = "[]" }) {
             <thead className="bg-gray-200 dark:bg-gray-800">
               <tr>
                 {[
-                  "#",
+                  "PID",
                   "ID",
                   'Date',
                   "Username",
@@ -225,7 +225,7 @@ export default function OrdersPage({ sorders = "[]" }) {
                     animate={{ opacity: 1, y: 0 }}
                     className="border-b border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
                   >
-                    <td className="p-3">{i + 1}</td>
+                    <td className="p-3">{order?.orderNumber}</td>
 
                     <td className="p-3">
                       <div className="flex flex-col leading-tight">
