@@ -9,6 +9,7 @@ import MarkPartialModal from "./MarkPartialModal";
 import ResendOrderModal from "./ResendOrderModal";
 import CancelReasonModal from "./CancelOrderModal";
 import Dropdown from "./CategoryDropDown";
+import MultipleHandleBox from "./MultipleHandleBox";
 
 export default function OrdersPage({ sorders = "[]" }) {
   const [popup, setPopup] = useState(null);
@@ -22,6 +23,7 @@ export default function OrdersPage({ sorders = "[]" }) {
 
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+const [selectedRows, setSelectedRows] = useState([]);
 
   // parse orders
   useEffect(() => {
@@ -129,7 +131,13 @@ export default function OrdersPage({ sorders = "[]" }) {
         return "text-gray-600 bg-gray-200 dark:bg-gray-800 dark:text-gray-300";
     }
   };
-
+useEffect(() => {
+  setSelectedRows((prev) =>
+    prev.filter((id) =>
+      finalResults.some((o) => o._id.toString() === id)
+    )
+  );
+}, [finalResults]);
   // actions
   const getFilteredOptions = (status) => {
     
@@ -156,6 +164,30 @@ export default function OrdersPage({ sorders = "[]" }) {
     setPopup(null);
     setSelectedOrder(null);
   };
+const selectAllRows = (checked) => {
+  if (checked) {
+    setSelectedRows(finalResults.map(o => o._id.toString()));
+  } else {
+    setSelectedRows([]);
+  }
+};
+
+const toggleRow = (id) => {
+  const sid = id.toString();
+  setSelectedRows((prev) =>
+    prev.includes(sid)
+      ? prev.filter((x) => x !== sid)
+      : [...prev, sid]
+  );
+};
+
+
+const allSelected =
+  finalResults.length > 0 &&
+  finalResults.every(o =>
+    selectedRows.includes(o._id.toString())
+  );
+
 
   return (
     <div className="min-h-screen p-4 bg-gray-100 dark:bg-[#0d0d0d] text-black dark:text-white">
@@ -175,6 +207,8 @@ export default function OrdersPage({ sorders = "[]" }) {
       </div>
 
         <Dropdown label="All Orders" options={options} onSelect={handleSelect} />
+
+        <MultipleHandleBox selectedRows={selectedRows}/>
       {/* Loading */}
       {loading && (
         <div className="space-y-3 animate-pulse">
@@ -190,6 +224,15 @@ export default function OrdersPage({ sorders = "[]" }) {
           <table className="min-w-max w-full text-sm">
             <thead className="bg-gray-200 dark:bg-gray-800">
               <tr>
+                <th className="px-3 py-2 text-left">
+  <input
+  type="checkbox"
+  checked={allSelected}
+  onChange={(e) => selectAllRows(e.target.checked)}
+  className="w-4 h-4 accent-blue-600 cursor-pointer"
+/>
+</th>
+
                 {[
                   "PID",
                   "ID",
@@ -225,6 +268,16 @@ export default function OrdersPage({ sorders = "[]" }) {
                     animate={{ opacity: 1, y: 0 }}
                     className="border-b border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
                   >
+                    <td className="p-3">
+<input
+  type="checkbox"
+  checked={selectedRows.includes(order._id.toString())}
+  onChange={() => toggleRow(order._id)}
+  className="w-4 h-4 accent-blue-600 cursor-pointer"
+/>
+
+</td>
+
                     <td className="p-3">{order?.orderNumber}</td>
 
                     <td className="p-3">
