@@ -390,6 +390,29 @@ export async function DeleteServiceAction(serviceId) {
     return { status: false, message: "Internal server error" };
   }
 }
+/* -------------------------------------------------------
+   ❌ DELETE ALL SERVICES (TEMP)
+-------------------------------------------------------- */
+export async function DeleteAllServicesAction() {
+  try {
+    const auth = await verifyAdmin();
+    if (!auth.valid) return { status: false, message: auth.message };
+
+    const client = await clientPromise;
+    const db = client.db(DB_ADMIN);
+    const collection = db.collection(COLLECTION);
+
+    const result = await collection.deleteMany({});
+
+    return {
+      status: true,
+      message: `Deleted ${result.deletedCount} services successfully`,
+    };
+  } catch (error) {
+    console.error("DeleteAllServicesAction:", error);
+    return { status: false, message: "Internal server error" };
+  }
+}
 
 /* -------------------------------------------------------
    📌 GET SINGLE SERVICE

@@ -1,7 +1,7 @@
 "use server";
 
 import { getAllTickets, getUnansweredTickets, getAllUsers, getAllOrdersAction } from "@/lib/adminServices";
-import { getServices } from "@/lib/services";
+import { deleteAllServices, getServices } from "@/lib/services";
 import AdminDashboard from "./AdminDashboard";
 
 export default async function Page() {
@@ -22,6 +22,7 @@ const newOrders = orders?.orders.map((order) =>
     })
   )
 );
+console.log(services)
 
     return (
       <AdminDashboard
