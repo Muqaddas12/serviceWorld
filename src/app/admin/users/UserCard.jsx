@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, Edit3, Mail, Shield, Users, Trash2, Undo2, Loader2 } from "lucide-react";
+import { Eye, Edit3, Mail,  Wallet, Landmark, IndianRupee, Users, Trash2, Undo2, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { restoreUserById } from "@/lib/adminServices";
 
@@ -83,8 +83,8 @@ export default function UserCard({ user, type }) {
         </p>
 
         <p className="flex items-center gap-2 truncate">
-          <Shield size={14} className="text-gray-500 dark:text-gray-400" />
-          {user._id}
+          <Wallet size={14} className="text-gray-500 dark:text-gray-400" />
+          {user?.balance|| 0}
         </p>
       </div>
 
