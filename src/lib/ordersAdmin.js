@@ -101,7 +101,7 @@ export async function resendOrderAction(orderId) {
   try {
     // 1️⃣ Validate user/admin token
     const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const token = cookieStore.get("admin_token")?.value;
 
     if (!token) {
       return { success: false, message: "Unauthorized — please log in first." };
@@ -164,6 +164,94 @@ export async function resendOrderAction(orderId) {
   } catch (err) {
     console.error("❌ Error:", err);
     return { success: false, message: "Server error resending order." };
+  }
+}
+// ========================= Resend / Clone Multiple Orders =========================
+export async function resendMultipleOrderAction(orderIds = []) {
+  try {
+    // 1️⃣ Validate admin token
+    const cookieStore = await cookies();
+    const token = cookieStore.get("admin_token")?.value;
+
+    if (!token)
+      return { success: false, message: "Unauthorized — please log in first." };
+
+    const userData = jwt.verify(token, process.env.JWT_SECRET);
+    if (!userData?.id)
+      return { success: false, message: "Invalid or expired token." };
+
+    // 2️⃣ DB
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+    const ordersCollection = db.collection("orders");
+
+    const results = [];
+
+    // 3️⃣ Loop properly (NOT map)
+    for (const id of orderIds) {
+      const old = await ordersCollection.findOne({
+        _id: new ObjectId(id),
+      });
+
+      if (!old) {
+        results.push({ id, success: false, message: "Order not found" });
+        continue;
+      }
+
+      // 4️⃣ Provider call
+      const response = await createOrder({
+        service: old.service,
+        link: old.link,
+        quantity: old.quantity,
+      });
+
+      if (!response || response.error) {
+        results.push({
+          id,
+          success: false,
+          providerError: response?.error,
+        });
+        continue;
+      }
+
+      // 5️⃣ Clone order
+      const newOrder = {
+        userId: old.userId,
+        username: old.username,
+        userEmail: old.userEmail,
+        name: old.name,
+
+        service: old.service,
+        link: old.link,
+        quantity: old.quantity,
+        charge: old.charge,
+        profit: old.profit,
+
+        status: "Pending",
+        startCount: Number(response.start_count || 0),
+        remains: Number(response.remains || 0),
+        providerOrderId: response.order,
+        createdAt: new Date(),
+      };
+
+      await ordersCollection.insertOne(newOrder);
+
+      results.push({
+        id,
+        success: true,
+        newOrderId: response.order,
+      });
+    }
+
+    return {
+      success: true,
+      message: "Resend process completed",
+      results,
+    };
+
+  } catch (err) {
+    console.error("❌ resendMultipleOrderAction:", err);
+    return { success: false, message: "Server error resending orders." };
   }
 }
 
@@ -314,5 +402,43 @@ export async function updateStartCountAction(orderId, startCount) {
     return { success: true, message: "Start count updated." };
   } catch (err) {
     return { success: false, message: err.message };
+  }
+}
+
+
+
+export async function updateMultipleOrderStatus(orderIds = [], status) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("admin_token")?.value;
+
+    if (!token)
+      return { status: false, message: "Unauthorized Admin" };
+
+    const admin = jwt.verify(token, process.env.JWT_SECRET);
+    if (!admin)
+      return { status: false, message: "Unauthorized Admin" };
+
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+    const ordersCollection = db.collection("orders");
+
+    const result = await ordersCollection.updateMany(
+      {
+        _id: { $in: orderIds.map(id => new ObjectId(id)) }, // ✅ correct filter
+      },
+      {
+        $set: { status }, // ✅ update field
+      }
+    );
+
+    return {
+      status: true,
+      message: `${result.modifiedCount} orders updated successfully`,
+    };
+
+  } catch (error) {
+    console.error("updateMultipleOrderStatus:", error);
+    return { status: false, message: "Server error" };
   }
 }

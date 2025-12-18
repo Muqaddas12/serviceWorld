@@ -1371,7 +1371,7 @@ export async function getAllOrdersAction() {
     // ⭐ Fetch ALL orders (pending + partial + completed)
 const orders = await ordersCollection
   .find({
-    status: { $regex: /^(pending|partial|completed|cancelled|refund)$/i },
+    status: { $regex: /^(pending|partial|completed|cancelled|refund|processing)$/i },
   })
   .sort({ orderNumber: -1 })
   .toArray();
@@ -1491,47 +1491,6 @@ const orders = await ordersCollection
 
 
 
-
-
-export async function addTestOrdersAction() {
-  try {
-    const client = await clientPromise;
-    const db = client.db("smmpanel");
-    const ordersCollection = db.collection("orders");
-
-    // Generate 20 fake orders
-    const fakeOrders = Array.from({ length: 20 }, (_, i) => ({
-      userId: `user_${1000 + (i % 10)}`,
-      service: `Instagram Likes Package #${i + 1}`,
-      link: `https://instagram.com/post/${i + 1}`,
-      quantity: Math.floor(Math.random() * 1000) + 100,
-      charge: Number((Math.random() * 10).toFixed(5)),
-      startCount: 3000 + Math.floor(Math.random() * 1000),
-      remains: Math.floor(Math.random() * 200),
-      status: ["confirm", "partial", "pending", "cancelled"][Math.floor(Math.random() * 4)],
-      providerOrderId: `prov_${Math.floor(Math.random() * 999999)}`,
-      createdAt: new Date(),
-    }));
-
-    // Insert into DB
-    const result = await ordersCollection.insertMany(fakeOrders);
-
-    return {
-      success: true,
-      message: "20 test orders added successfully!",
-      inserted: result.insertedCount,
-    };
-
-  } catch (err) {
-    console.error("❌ Error inserting test orders:", err);
-
-    return {
-      success: false,
-      message: "Failed to insert test orders.",
-      error: err.message,
-    };
-  }
-}
 
 
 
