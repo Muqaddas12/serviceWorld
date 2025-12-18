@@ -1,19 +1,25 @@
 "use client";
-
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 export default function Loader({ message = "Loading..." }) {
   return (
     <div className="min-h-screen fixed inset-0 flex flex-col items-center justify-center z-50">
       {/* Gradient Circle Logo */}
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: [1, 1.2, 1], opacity: 1 }}
-        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-        className="w-20 h-20 rounded-full bg-gradient-to-r from-purple-500 via-indigo-500 to-pink-500 shadow-[0_0_25px_rgba(168,85,247,0.6)] flex items-center justify-center text-white text-2xl font-bold"
-      >
-        SM
-      </motion.div>
+     <motion.div
+  initial={{ scale: 0.8, opacity: 0 }}
+  animate={{ scale: [1, 1.2, 1], opacity: 1 }}
+  transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+  className="w-20 h-20 rounded-full bg-gradient-to-r from-purple-500 via-indigo-500 to-pink-500 shadow-[0_0_25px_rgba(168,85,247,0.6)] flex items-center justify-center"
+>
+  <Image
+    src="/fav.png"   // from public folder
+    alt="Logo"
+    width={40}
+    height={40}
+    className="object-contain"
+  />
+</motion.div>
 
       {/* Brand Name */}
       <motion.h1

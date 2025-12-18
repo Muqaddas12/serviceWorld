@@ -1373,7 +1373,7 @@ const orders = await ordersCollection
   .find({
     status: { $regex: /^(pending|partial|completed|cancelled|refund)$/i },
   })
-  .sort({ orderNumber: 1 })
+  .sort({ orderNumber: -1 })
   .toArray();
 
     if (!orders || orders.length === 0) {

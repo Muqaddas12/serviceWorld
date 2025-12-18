@@ -265,10 +265,11 @@ console.log(service)
       .db(DB_ADMIN)
       .collection("services")
       .findOne({ service: (service) });
-console.log(service,dbservice)
+console.log('this is the service',dbservice)
+console.log('this is the service',dbservice.name)
     // find provider matching the service provider URL
     const result = providers.find((p) => p.providerUrl === dbservice?.provider);
-console.log('this is result',result,result.providerUrl===dbservice.provider)
+
     // 5️⃣ Inputs
     const quantity = Number(qua);
     const charge = Number(paying);
@@ -324,7 +325,7 @@ console.log('this is result',result,result.providerUrl===dbservice.provider)
         userId: user._id.toString(),
         username: user.username,
         userEmail: user.email,
-
+name:dbservice.name,
         ProviderUrl: providerUrlForInsert,
         providerApiKey: providerApiKeyForInsert,
 
@@ -394,6 +395,7 @@ const orderNumber = counter.seq;
       userId: user._id.toString(),
       username: user.username,
       userEmail: user.email,
+      name:dbservice.name,
 orderNumber,
       ProviderUrl: providerUrlForOrder,
       providerApiKey: providerApiKeyForOrder,

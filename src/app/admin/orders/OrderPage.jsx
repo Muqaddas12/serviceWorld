@@ -234,13 +234,13 @@ const allSelected =
 </th>
 
                 {[
-                  "PID",
+                  "Panel Order Id",
                   "ID",
                   'Date',
                   "Username",
                   "Charge",
                   "Profit",
-                  "Name",
+                  "Service",
                   "Link",
                   "Seller",
                   
@@ -301,7 +301,10 @@ const allSelected =
                     <td className="p-3">{order.username || "No username"}</td>
                     <td className="p-3">₹{order.charge}</td>
                     <td className="p-3">₹{order?.profit || "0"}</td>
-                    <td className="p-3">₹{order?.profit || "0"}</td>
+                   <td className="p-3 max-w-[300px] truncate" title={order?.name}>
+  {order?.name}
+</td>
+
 
                   
 
