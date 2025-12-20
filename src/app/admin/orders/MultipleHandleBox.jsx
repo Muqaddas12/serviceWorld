@@ -1,5 +1,5 @@
 "use client";
-import { resendMultipleOrderAction, updateMultipleOrderStatus } from "@/lib/ordersAdmin";
+import { resendMultipleOrderAction, updateMultipleOrderStatus,MultipleCancelWithRefund } from "@/lib/ordersAdmin";
 import { useState } from "react";
 
 export default function MultipleHandleBox({ selectedRows = [] }) {
@@ -33,6 +33,18 @@ export default function MultipleHandleBox({ selectedRows = [] }) {
       setLoading(false);
     }
   };
+  const HandleCancelWithRefund=async()=>{
+    const res=await MultipleCancelWithRefund(selectedRows)
+    if(res.status){
+      alert(res.message)
+      return
+    }
+    alert(res.message)
+
+
+
+  }
+
 
   if (!selectedRows.length) return null;
 
@@ -44,8 +56,18 @@ export default function MultipleHandleBox({ selectedRows = [] }) {
           onClick={() => setOpen(true)}
           className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
         >
-          Update Status
+          {loading?'Updating':'Update Status'}
         </button>
+       <button
+  onClick={HandleCancelWithRefund}
+  disabled={loading}
+  className={`px-4 py-2 rounded-lg text-white
+    ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}
+  `}
+>
+  {loading ? "Cancelling..." : "Cancel With Refund"}
+</button>
+
 
         <button
           onClick={handleResendOrders}
@@ -81,6 +103,7 @@ export default function MultipleHandleBox({ selectedRows = [] }) {
               >
                 Cancel
               </button>
+             
 
               <button
                 onClick={handleUpdateStatus}

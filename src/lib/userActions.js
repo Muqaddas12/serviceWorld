@@ -339,8 +339,7 @@ console.log(service)
       .db(DB_ADMIN)
       .collection("services")
       .findOne({ service: (service) });
-console.log('this is the service',dbservice)
-console.log('this is the service',dbservice.name)
+
     // find provider matching the service provider URL
     const result = providers.find((p) => p.providerUrl === dbservice?.provider);
 

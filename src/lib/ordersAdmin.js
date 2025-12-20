@@ -442,3 +442,78 @@ export async function updateMultipleOrderStatus(orderIds = [], status) {
     return { status: false, message: "Server error" };
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+export async function MultipleCancelWithRefund(orderIds = []) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("admin_token")?.value;
+    if (!token) return { status: false, message: "Unauthorized Admin" };
+
+    jwt.verify(token, process.env.JWT_SECRET);
+
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+
+    const ordersCol = db.collection("orders");
+    const usersCol = db.collection("users");
+
+    // 1️⃣ Fetch orders (not already cancelled/refunded)
+    const orders = await ordersCol
+      .find({
+        _id: { $in: orderIds.map(id => new ObjectId(id)) },
+        status: { $ne: "cancelled" },
+        refunded: { $ne: true },
+      })
+      .toArray();
+
+    if (!orders.length)
+      return { status: false, message: "No valid orders to refund" };
+
+    // 2️⃣ Group refund amount per user
+    const refundMap = {};
+    for (const order of orders) {
+      refundMap[order.userId] =
+        (refundMap[order.userId] || 0) + Number(order.charge || 0);
+    }
+
+    // 3️⃣ Refund user balances
+    for (const [userId, amount] of Object.entries(refundMap)) {
+      await usersCol.updateOne(
+        { _id: new ObjectId(userId) },
+        { $inc: { balance: amount } } // ✅ ADD charge back
+      );
+    }
+
+    // 4️⃣ Update orders status + mark refunded
+    const updateResult = await ordersCol.updateMany(
+      { _id: { $in: orders.map(o => o._id) } },
+      {
+        $set: {
+          status: "cancelled",
+          refunded: true,
+          refundedAt: new Date(),
+        },
+      }
+    );
+
+    return {
+      status: true,
+      message: `${updateResult.modifiedCount} orders cancelled & refunded`,
+    };
+
+  } catch (error) {
+    console.error("MultipleCancelWithRefund:", error);
+    return { status: false, message: "Server error" };
+  }
+}
