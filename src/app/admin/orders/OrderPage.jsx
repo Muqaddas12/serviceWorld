@@ -234,7 +234,7 @@ const allSelected =
 </th>
 
                 {[
-                  "Panel Order Id",
+            
                   "ID",
                   'Date',
                   "Username",
@@ -278,7 +278,7 @@ const allSelected =
 
 </td>
 
-                    <td className="p-3">{order?.orderNumber}</td>
+                 
 
                     <td className="p-3">
                       <div className="flex flex-col leading-tight">
