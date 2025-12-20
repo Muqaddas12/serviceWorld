@@ -8,11 +8,66 @@ import { revalidatePath } from "next/cache";
 import { createOrder } from "./services";
 import crypto from "crypto";
 import { ObjectId } from "mongodb";
+
+import { getSmtpConfigAction } from "./smtp";
 import { ValidateTransactionBharatPe } from "./adminServices";
 const dbName = "smmpanel";
 const addFundsCollection = "add_funds";
 const JWT_SECRET = process.env.JWT_SECRET;
 const DB_ADMIN = "smmadmin";
+
+
+import nodemailer from "nodemailer";
+
+export async function SendMailHelper(email, subject, message) {
+  try {
+    const result = await getSmtpConfigAction();
+    if (!result) {
+      return { success: false, message: "SMTP config not found" };
+    }
+
+    const {
+      host,
+      port,
+      user,
+      pass,
+      from,
+      secure,
+    } = result;
+
+    const transporter = nodemailer.createTransport({
+      host,
+      port: Number(port || 587),
+      secure: secure === true || Number(port) === 465,
+      auth: {
+        user,
+        pass,
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: user || from,
+      to: email,
+      subject,
+      html: message,
+      text: message.replace(/<\/?[^>]+(>|$)/g, ""),
+    });
+
+    return {
+      success: true,
+      message: "Email sent successfully",
+      messageId: info.messageId,
+    };
+
+  } catch (error) {
+    console.error("SMTP Test Error:", error);
+    return {
+      success: false,
+      message: "Failed to send email",
+      error: error.message,
+    };
+  }
+}
 
 
 export async function getPaymentHistory() {
@@ -212,6 +267,25 @@ export async function generateApiKey() {
       apiKey,
       createdAt: new Date(),
     });
+
+const subject = "API Key Changed";
+
+const message = `
+<p>Hello,</p>
+
+<p>Your API key has been changed successfully.</p>
+
+<p><strong>New API Key:</strong></p>
+<p style="background:#f4f4f4;padding:10px;border-radius:6px;font-family:monospace;">
+  ${apiKey}
+</p>
+
+<p>If you did not perform this action, please contact support immediately.</p>
+
+<p>— Security Team</p>
+`;
+
+await SendMailHelper(decoded.email, subject, message);
 
     return { success: true, apiKey };
   } catch (err) {

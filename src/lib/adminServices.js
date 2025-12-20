@@ -8,6 +8,8 @@ import jwt from 'jsonwebtoken'
 import { revalidatePath } from 'next/cache'
 import axios from "axios";
 import { createOrder } from "./services";
+import { SendMailHelper } from "./userActions";
+import { getSmtpConfigAction } from "./smtp";
 const COLLECTION = "affiliate_settings"
 // 🗃️ Database and Collection names
 const DB_SMM_PANEL = "smmpanel";
@@ -891,13 +893,14 @@ export async function replyToTicket({ ticketId, message }) {
     if (!token) return { error: "Unauthorized: no token found." };
 
     let decoded;
+  
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch {
       return { error: "Invalid or expired token." };
     }
-
-    if (decoded.role !== "admin")
+  console.log(decoded)
+    if (decoded.role !== "admin" &&decoded.role !== "superadmin")
       return { error: "Access denied: only admins can reply." };
 
     // 🗄️ Connect to database
@@ -912,6 +915,8 @@ export async function replyToTicket({ ticketId, message }) {
       sender: decoded.username || "Admin",
       created_at: new Date(),
     };
+    const dbTicket=await db.collection('tickets').findOne({_id:new ObjectId(ticketId)})
+
 
     // 🔄 Update the ticket (append reply + set status)
     const result = await tickets.updateOne(
@@ -922,9 +927,33 @@ export async function replyToTicket({ ticketId, message }) {
       }
     );
 
+
     if (result.modifiedCount === 0)
       return { error: "Failed to update ticket or ticket not found." };
+const mailSubject = "New Ticket Received";
 
+
+const userEmail = dbTicket?.email; 
+
+const mailMessage = `
+<p>Hello ${dbTicket.username},</p>
+
+<p>Your support ticket has received a new reply.</p>
+
+<p><strong>Ticket ID:</strong> ${dbTicket.ticketNumber}</p>
+
+<p><strong>Reply:</strong></p>
+<div style="background:#f4f4f4;padding:12px;border-radius:6px;">
+  ${message}
+</div>
+
+<p>Please log in to your account to view and respond to this ticket.</p>
+
+<p>— Support Team</p>
+`;
+
+
+await SendMailHelper(userEmail, mailSubject, mailMessage);
     return {
       success: true,
       message: "Reply added successfully.",
@@ -940,7 +969,7 @@ export async function updateAdminReply({ ticketId, newMessage }) {
     if (!ticketId || !newMessage)
       return { error: "Missing required fields." };
 
-    const token = await cookies().get("token")?.value;
+    const token = await cookies().get("admin_token")?.value;
     if (!token) return { error: "Unauthorized: No token found." };
 
     let decoded;
@@ -950,12 +979,12 @@ export async function updateAdminReply({ ticketId, newMessage }) {
       return { error: "Invalid or expired token." };
     }
 
-    if (decoded.role !== "admin")
+    if (decoded.role !== "admin"&&decoded.role !== "superadmin")
       return { error: "Access denied: Only admins can edit replies." };
 
     const client = await clientPromise;
     const db = client.db("smmpanel");
-
+const dbTicket=await db.collection('tickets').findOne({_id:new ObjectId(ticketId)})
     const result = await db.collection("tickets").updateOne(
       { _id: new ObjectId(ticketId), "replies.type": "admin" },
       {
@@ -969,6 +998,30 @@ export async function updateAdminReply({ ticketId, newMessage }) {
 
     if (result.modifiedCount === 0)
       return { error: "Reply not found or update failed." };
+const mailSubject = "New Ticket Received";
+
+
+const userEmail = dbTicket?.email; 
+
+const mailMessage = `
+<p>Hello ${dbTicket.username},</p>
+
+<p>Your support ticket has received a new reply.</p>
+
+<p><strong>Ticket ID:</strong> ${dbTicket.ticketNumber}</p>
+
+<p><strong>Reply:</strong></p>
+<div style="background:#f4f4f4;padding:12px;border-radius:6px;">
+  ${newMessage}
+</div>
+
+<p>Please log in to your account to view and respond to this ticket.</p>
+
+<p>— Support Team</p>
+`;
+
+
+await SendMailHelper(userEmail, mailSubject, mailMessage);
 
     return {
       success: true,
@@ -1003,6 +1056,7 @@ export async function createTicket({ subject, message }) {
     const userId = decoded.id;
     const username = decoded.username;
     const role = decoded.role || "user";
+    const email=decoded.email||''
 
     if (!userId && !username)
       return { error: "Invalid user token. Please log in again." };
@@ -1036,6 +1090,8 @@ export async function createTicket({ subject, message }) {
       userId: userId ? new ObjectId(userId) : null,
       username: username || "Unknown",
       subject,
+      email,
+      role,
       message,
       type: "user",
       status: "open",
@@ -1046,6 +1102,27 @@ export async function createTicket({ subject, message }) {
 
     // 💾 6. Insert ticket
     const result = await db.collection("tickets").insertOne(ticket);
+const mailSubject = "New Ticket Received";
+
+const dbresult = await getSmtpConfigAction();
+const adminEmail = dbresult?.user; // admin/support email
+
+const mailMessage = `
+<p>Hello Admin,</p>
+
+<p>A new support ticket has been received.</p>
+
+<p><strong>Ticket ID:</strong> ${ticketNumber}</p>
+<p><strong>User Email:</strong> ${email}</p>
+
+<p>Please log in to the admin panel to respond.</p>
+
+<p>— Support System</p>
+`;
+
+const mailresult=await SendMailHelper(adminEmail, mailSubject, mailMessage);
+
+
 
     // ✅ 7. Return success response
     return {
