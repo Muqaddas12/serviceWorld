@@ -28,7 +28,7 @@ export async function generateMetadata() {
     settings = {};
   }
 
-  const siteName = settings.siteName || "SMM Panel";
+  const siteName = settings.siteName || "SMM Panel World's Cheapest & Best SMM Panel Services";
   const description =
     settings.metaDescription ||
     "Best SMM Panel for Instagram, YouTube, Facebook & Social Media Marketing services at cheapest prices.";
