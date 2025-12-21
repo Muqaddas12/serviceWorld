@@ -13,11 +13,17 @@ export default function APIDocsPage() {
   // 🌐 Dynamic API URL from live domain
   const [apiUrl, setApiUrl] = useState("");
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setApiUrl(`${window.location.origin}/api/v2`);
-    }
-  }, []);
+useEffect(() => {
+  if (typeof window !== "undefined") {
+    const url = new URL(window.location.origin);
+
+    // remove leading www.
+    url.hostname = url.hostname.replace(/^www\./, "");
+
+    setApiUrl(`${url.origin}/api/v2`);
+  }
+}, []);
+
 
   return (
     <div

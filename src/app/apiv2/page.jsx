@@ -14,10 +14,16 @@ export default function APIDocsPage() {
   const [apiUrl, setApiUrl] = useState("");
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      setApiUrl(`${window.location.origin}/api/v2`);
-    }
-  }, []);
+  if (typeof window !== "undefined") {
+    const url = new URL(window.location.origin);
+
+    // remove leading www.
+    url.hostname = url.hostname.replace(/^www\./, "");
+
+    setApiUrl(`${url.origin}/api/v2`);
+  }
+}, []);
+
 
   return (
     <div
