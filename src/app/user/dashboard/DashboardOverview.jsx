@@ -97,7 +97,7 @@ useEffect(() => {
           Total Orders
         </p>
         <h4 className="text-sm sm:text-base font-semibold text-green-600 dark:text-green-400 mt-0.5">
-          {Number(3000+totalOrders)}
+          {3000+Number(totalOrders)}
         </h4>
       </div>
     </div>
