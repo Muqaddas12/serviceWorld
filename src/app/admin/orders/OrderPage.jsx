@@ -248,6 +248,7 @@ const allSelected =
                   "Start",
                   "Remains",
                   "Status",
+                  'Message',
                   "Actions",
                 ].map((h) => (
                   <th key={h} className="p-3 whitespace-nowrap text-left">
@@ -332,6 +333,7 @@ const allSelected =
                         {order.status}
                       </span>
                     </td>
+                     <td className="p-3">{order?.providerError}</td>
 
                     <td className="p-3 relative">
                       {rowOptions.length > 0 && (

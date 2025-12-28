@@ -1,26 +1,49 @@
 "use client";
 import { Users } from "lucide-react";
+import { useState, useMemo } from "react";
 import UserCard from "./UserCard";
 
-export default function ActiveUsersList({ users }) {
+export default function ActiveUsersList({ users = [] }) {
+  const [sortByBal, setSortByBal] = useState(false);
+
+  const displayedUsers = useMemo(() => {
+    if (!sortByBal) return users;
+
+    return [...users].sort((a, b) => {
+      const balA = parseFloat(
+        String(a?.balance ?? "0").replace(/[^\d.-]/g, "")
+      ) || 0;
+
+      const balB = parseFloat(
+        String(b?.balance ?? "0").replace(/[^\d.-]/g, "")
+      ) || 0;
+
+      // 🔥 HIGH → LOW
+      return balB - balA;
+    });
+  }, [users, sortByBal]);
+
   return (
     <section className="mb-12 relative z-10">
-      
-      {/* Header */}
-      <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
-        <Users size={18} className="text-gray-700 dark:text-gray-300" /> 
-        Active Users ({users.length})
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-semibold flex items-center gap-2">
+          <Users size={18} />
+          Active Users ({users.length})
+        </h2>
 
-      {/* Empty State */}
+        <button
+          onClick={() => setSortByBal((p) => !p)}
+          className="px-4 py-1.5 rounded-md text-sm bg-gray-200 dark:bg-gray-700"
+        >
+          {sortByBal ? "Normal Order" : "Sort by Balance (High → Low)"}
+        </button>
+      </div>
+
       {users.length === 0 ? (
-        <p className="text-gray-500 dark:text-gray-400">No active users found.</p>
+        <p>No active users found.</p>
       ) : (
-        <div className="
-          grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 
-          gap-6
-        ">
-          {users.map((u) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
+          {displayedUsers.map((u) => (
             <UserCard key={u._id} user={u} type="active" />
           ))}
         </div>

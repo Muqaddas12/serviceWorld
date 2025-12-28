@@ -6,7 +6,7 @@ export default async function Page() {
   const data = await getAllOrdersAction();
 
 const ordersJson=JSON.stringify(data?.orders)
-
+console.log(data)
   // ✅ Orders exist → render page
   return <OrdersPage sorders={ordersJson} />;
 }
