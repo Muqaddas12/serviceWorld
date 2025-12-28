@@ -78,7 +78,7 @@ useEffect(()=>{
         "
       >
         <td className="py-2 px-2 sm:py-3 sm:px-4">
-          {order.providerOrderId}
+          {order?.orderNumber}
         </td>
 
         <td className="py-2 px-2 sm:py-3 sm:px-4 truncate">

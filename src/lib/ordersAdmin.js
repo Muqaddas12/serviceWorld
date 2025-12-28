@@ -503,7 +503,50 @@ export async function MultipleCancelWithRefund(orderIds = []) {
 
     return {
       status: true,
-      message: `${updateResult.modifiedCount} orders cancelled & refunded`,
+      message: `${updateResult.modifiedCount} orders cancelled `,
+    };
+
+  } catch (error) {
+    console.error("MultipleCancelWithRefund:", error);
+    return { status: false, message: "Server error" };
+  }
+}
+
+export async function CancelUserOrder(orderIds = []) {
+  try {
+    const client = await clientPromise;
+    const db = client.db("smmpanel");
+
+    const ordersCol = db.collection("orders");
+    const usersCol = db.collection("users");
+
+    // 1️⃣ Fetch orders (not already cancelled/refunded)
+    const orders = await ordersCol
+      .find({
+        _id: { $in: orderIds.map(id => new ObjectId(id)) },
+        status: { $ne: "cancelled" },
+        refunded: { $ne: true },
+      })
+      .toArray();
+
+    if (!orders.length)
+      return { status: false, message: "No valid orders to refund" };
+
+
+    // 4️⃣ Update orders status + mark refunded
+    const updateResult = await ordersCol.updateMany(
+      { _id: { $in: orders.map(o => o._id) } },
+      {
+        $set: {
+          status: "cancelled",
+          
+        },
+      }
+    );
+
+    return {
+      status: true,
+      message: `${updateResult.modifiedCount} orders cancelled `,
     };
 
   } catch (error) {

@@ -16,7 +16,7 @@ import { MoreVertical } from "lucide-react";
 import { useCurrency } from "@/context/CurrencyContext";
 import { useState, useRef, useEffect } from "react";
 
-import { MultipleCancelWithRefund } from "@/lib/ordersAdmin";
+import { CancelUserOrder, MultipleCancelWithRefund } from "@/lib/ordersAdmin";
 
 /* ▸ Status Styles */
 const STATUS_STYLES = {
@@ -49,7 +49,10 @@ export default function OrderCard({ order }) {
   const menuRef = useRef(null);
 
   const formattedCharge = convert(Number(order?.charge || 0)).toFixed(2);
-  const isCompleted = order.status === "Completed";
+const isCompleted = ["completed", "cancelled"].includes(
+  order.status.toLowerCase()
+);
+
 
   /* Close menu on outside click */
   useEffect(() => {
@@ -66,12 +69,12 @@ export default function OrderCard({ order }) {
   const handleCancel = async () => {
     try {
       setLoading(true);
-      const res = await MultipleCancelWithRefund([order._id]);
+      const res = await CancelUserOrder([order._id]);
 
       if (!res.status) {
         alert(res.message)
       } else {
-        alert("Order cancelled & refunded");
+        alert("Order cancelled");
       }
     } catch (err) {
       alert("Server error");
@@ -88,7 +91,7 @@ export default function OrderCard({ order }) {
         {/* HEADER */}
         <div className="flex justify-between items-center mb-3">
           <h3 className="font-semibold flex items-center gap-2">
-            <FaClipboardList /> Order #{order.providerOrderId}
+            <FaClipboardList /> Order #{order?.orderNumber|| ''}
           </h3>
 
           <span className={`px-3 py-1 rounded-full text-xs flex items-center ${STATUS_STYLES[order.status]}`}>
@@ -152,18 +155,18 @@ export default function OrderCard({ order }) {
                         : "hover:bg-gray-100 dark:hover:bg-gray-800"}
                     `}
                   >
-                    ❌ Cancel with Refund
+                    ❌ Cancel 
                   </button>
 
-                  <button
+                  {/* <button
                     onClick={() => {
                       setOpenMenu(false);
                       toast("Resend triggered");
                     }}
                     className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-800"
                   >
-                    🔁 Resend Order
-                  </button>
+                    🔁 Refill
+                  </button> */}
 
                 </div>
               )}
@@ -178,7 +181,7 @@ export default function OrderCard({ order }) {
           <div className="bg-white dark:bg-[#1f2433] p-6 rounded-xl w-96">
             <h3 className="font-semibold mb-3">Confirm Cancellation</h3>
             <p className="text-sm mb-5">
-              Are you sure you want to cancel and refund this order?
+              Are you sure you want to cancel this order?
             </p>
 
             <div className="flex justify-end gap-3">
