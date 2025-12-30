@@ -528,24 +528,32 @@ const serviceCol=adminDb.collection('services')
         refunded: { $ne: true },
       })
       .toArray();
+console.log(orders)
 
-const serviceId=orders[0].service
 
     if (!orders.length)
       return { status: false, message: "No valid orders to refund" };
-const service = await serviceCol.findOne({ service: serviceId });
+    const serviceId = orders[0].service
+const service = await serviceCol.findOne({
+  service: { $in: [String(serviceId).trim(), Number(serviceId)] }
+});
 console.log(service)
-
-    // // 4️⃣ Update orders status + mark refunded
-    // const updateResult = await ordersCol.updateMany(
-    //   { _id: { $in: orders.map(o => o._id) } },
-    //   {
-    //     $set: {
-    //       status: "cancelled",
+if(service.cancel==='No'){
+  return{
+    success:false,
+    message:'The service is not Cancelable',
+  }
+}
+    // 4️⃣ Update orders status + mark refunded
+    const updateResult = await ordersCol.updateMany(
+      { _id: { $in: orders.map(o => o._id) } },
+      {
+        $set: {
+          status: "cancelled",
           
-    //     },
-    //   }
-    // );
+        },
+      }
+    );
 
     return {
       status: true,
