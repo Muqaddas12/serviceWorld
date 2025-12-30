@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAllPaymentMethods } from "@/lib/adminServices";
 import PaymentMethodPopupModal from "./PaymentMethodPopupModal";
+import AddPaymentTypePage from "./add/page";
 
 export default function PaymentMethodsPage() {
   const [methods, setMethods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMethod, setSelectedMethod] = useState(null); // 👈 For popup
-
+const [isOpen,setIsOpen]=useState(false)
   const router = useRouter();
 
   useEffect(() => {
@@ -34,11 +35,27 @@ export default function PaymentMethodsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 text-gray-800 dark:text-gray-200">
+  {isOpen && (
+  <div className="fixed inset-0 z-50 flex  justify-center">
+    {/* Close button */}
+    <button
+      onClick={() => setIsOpen(false)}
+      className="absolute top-4 right-4 text-xl font-bold text-red hover:text-black"
+      aria-label="Close"
+    >
+      ✕
+    </button>
+
+    <AddPaymentTypePage />
+  </div>
+)}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 tracking-wide">
           Payment Methods
         </h1>
+        <h1 className="rounded-full border p-3 bg-gray-500 font-white text-white cursor-pointer" onClick={()=>setIsOpen(!isOpen)}>Add New</h1>
       </div>
 
       {/* Loader */}

@@ -478,11 +478,24 @@ export async function getPaymentMethodDetails(id) {
 
 export async function putPaymentMethodDetails(
   type,
-  { merchantId, token, active = true, qrBase64 = null,instruction,Name }
+  {
+    merchantId,
+    token,
+    Name,
+    instruction,
+    saltKey,
+    saltIndex,
+    active = true,
+    qrBase64 = null,
+  }
 ) {
   try {
-    if (!type || !merchantId || !token ||!Name || !instruction) {
+    if (!type || !merchantId || !token || !Name || !instruction) {
       return { success: false, error: "Missing required fields" };
+    }
+
+    if (type === "phonepe" && (!saltKey || !saltIndex)) {
+      return { success: false, error: "Salt key/index required for PhonePe" };
     }
 
     const client = await clientPromise;
@@ -490,40 +503,40 @@ export async function putPaymentMethodDetails(
     const collection = db.collection(PAYMENT_COLLECTION);
 
     const updateData = {
-      type: type.trim(),
+      type: type.toLowerCase(),
       merchantId: merchantId.trim(),
       token: token.trim(),
+      Name,
+      instruction,
       active: Boolean(active),
-      Name:Name,
-      instruction,instruction,
       updatedAt: new Date(),
-
     };
 
-    // Only add qrImage if valid base64 provided
-    if (qrBase64 && /^[A-Za-z0-9+/=]+$/.test(qrBase64)) {
+    if (type === "phonepe") {
+      updateData.saltKey = saltKey;
+      updateData.saltIndex = saltIndex;
+    }
+
+    if (qrBase64) {
       updateData.qrImage = Buffer.from(qrBase64, "base64");
     }
 
     const result = await collection.updateOne(
-      { type: { $regex: `^${type}$`, $options: "i" } }, // case-insensitive match
+      { type },
       { $set: updateData },
       { upsert: true }
     );
 
     return {
       success: true,
-      message: result.upsertedCount
-        ? "New payment method added"
-        : "Payment method updated",
-      modifiedCount: result.modifiedCount,
-      upsertedId: result.upsertedId || null,
+      message: result.upsertedCount ? "Added" : "Updated",
     };
   } catch (err) {
-    console.error("❌ Error updating payment details:", err);
+    console.error("Payment update error:", err);
     return { success: false, error: err.message };
   }
 }
+
 
 /* -------------------------------------------------------------------------- */
 /*                            ✅ Transaction Validation                        */

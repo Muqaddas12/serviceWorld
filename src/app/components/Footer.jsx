@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function Footer({ siteName }) {
+  console.log(siteName)
   return (
     <footer className="relative bg-[#F5F7FA] dark:bg-[#0F1117] text-[#1A1A1A] dark:text-white py-6 md:py-8 rounded-t-[30px] shadow-xl overflow-hidden border-t border-[#4A6CF7]/20">
       {/* Animated Blue/Green Glow Background */}
@@ -69,7 +70,8 @@ export default function Footer({ siteName }) {
         transition={{ duration: 0.7, delay: 0.25 }}
         className="text-center text-xs md:text-sm text-[#4A5568] dark:text-[#A0AEC3] mt-3 tracking-wide px-3"
       >
-        Made with ❤️ by <span className="text-[#4A6CF7] font-semibold">{siteName}</span>
+        Made with ❤️ by <span className="text-[#4A6CF7] font-semibold">{siteName||
+          'ViralBoost'}</span>
       </motion.p>
     </footer>
   );

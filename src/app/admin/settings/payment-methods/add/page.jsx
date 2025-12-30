@@ -2,49 +2,60 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { putPaymentMethodDetails } from "@/lib/adminServices";
 
 export default function AddPaymentTypePage() {
-  const [type, setType] = useState("");
+  const router = useRouter();
+
+  const [type, setType] = useState("bharatpe");
   const [merchantId, setMerchantId] = useState("");
   const [token, setToken] = useState("");
+  const [saltKey, setSaltKey] = useState("");
+  const [saltIndex, setSaltIndex] = useState("");
+  const [Name, setName] = useState("");
+  const [instruction, setInstruction] = useState("");
   const [qrFile, setQrFile] = useState(null);
+
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!qrFile) {
-      setMessage("❌ Please upload a QR image");
+      setMessage("❌ Please upload QR image");
       return;
     }
 
     setLoading(true);
 
-    // Convert file to base64
     const reader = new FileReader();
     reader.readAsDataURL(qrFile);
+
     reader.onloadend = async () => {
-      const base64 = reader.result.split(",")[1]; // remove data:image/png;base64,
+      const qrBase64 = reader.result.split(",")[1];
+
+      const payload = {
+        merchantId,
+        token,
+        Name,
+        instruction,
+        qrBase64,
+        ...(type === "phonepe" && { saltKey, saltIndex }),
+      };
+
       try {
-        const res = await fetch("/api/payment-methods", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type, merchantId, token, active: true, qrBase64: base64 }),
-        });
+        const res = await putPaymentMethodDetails(type, payload);
 
-        const data = await res.json();
-
-        if (res.ok) {
-          setMessage("✅ Payment type added successfully!");
-          setTimeout(() => router.push("/admin/settings/payment-methods"), 1500);
+        if (res.success) {
+          setMessage("✅ Payment method saved");
+          setTimeout(() => router.refresh(), 1200);
         } else {
-          setMessage(`❌ ${data.error || "Something went wrong"}`);
+          setMessage("❌ " + (res.error || "Failed"));
         }
       } catch (err) {
         console.error(err);
-        setMessage("❌ Something went wrong");
+        setMessage("❌ Server error");
       } finally {
         setLoading(false);
       }
@@ -52,84 +63,94 @@ export default function AddPaymentTypePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-6">
-      <div className="bg-white shadow-xl rounded-2xl p-8 max-w-md w-full border border-gray-200">
-        <h1 className="text-2xl font-bold text-black mb-6 text-center">
-          Add Payment Method Type
-        </h1>
+    <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl">
+      <h2 className="text-xl font-bold mb-6 text-center">Add Payment Method</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Type */}
-          <div>
-            <label className="block text-black font-semibold mb-2">Type Name</label>
-            <input
-              type="text"
-              placeholder="e.g. BharatPe"
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-black focus:ring-2 focus:ring-indigo-400 focus:outline-none"
-              required
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="space-y-4">
 
-          {/* Merchant ID */}
-          <div>
-            <label className="block text-black font-semibold mb-2">Merchant ID</label>
-            <input
-              type="text"
-              placeholder="Enter Merchant ID"
-              value={merchantId}
-              onChange={(e) => setMerchantId(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-black focus:ring-2 focus:ring-indigo-400 focus:outline-none"
-              required
-            />
-          </div>
-
-          {/* Token */}
-          <div>
-            <label className="block text-black font-semibold mb-2">Token</label>
-            <input
-              type="text"
-              placeholder="Enter Token"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-black focus:ring-2 focus:ring-indigo-400 focus:outline-none"
-              required
-            />
-          </div>
-
-          {/* QR Upload */}
-          <div>
-            <label className="block text-black font-semibold mb-2">Upload QR Image</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setQrFile(e.target.files[0])}
-              className="w-full text-black"
-              required
-            />
-          </div>
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-black font-bold py-3 rounded-xl shadow-md hover:from-indigo-600 hover:to-pink-600 transition-all duration-300"
+        {/* Dropdown */}
+        <div>
+          <label className="font-semibold">Payment Type</label>
+          <select
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            className="w-full border rounded-lg p-2"
           >
-            {loading ? "Adding..." : "Add Payment Type"}
-          </button>
-        </form>
+            <option value="bharatpe">BharatPe</option>
+            <option value="phonepe">PhonePe</option>
+          </select>
+        </div>
 
-        {message && (
-          <div
-            className={`mt-4 text-center font-medium ${
-              message.startsWith("✅") ? "text-green-600" : "text-red-600"
-            }`}
-          >
-            {message}
-          </div>
+        <input
+          placeholder="Display Name"
+          value={Name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full border p-2 rounded-lg"
+          required
+        />
+
+        <input
+          placeholder="Merchant ID"
+          value={merchantId}
+          onChange={(e) => setMerchantId(e.target.value)}
+          className="w-full border p-2 rounded-lg"
+          required
+        />
+
+        <input
+          placeholder="Token"
+          value={token}
+          onChange={(e) => setToken(e.target.value)}
+          className="w-full border p-2 rounded-lg"
+          required
+        />
+
+        {/* PhonePe Only */}
+        {type === "phonepe" && (
+          <>
+            <input
+              placeholder="Salt Key"
+              value={saltKey}
+              onChange={(e) => setSaltKey(e.target.value)}
+              className="w-full border p-2 rounded-lg"
+              required
+            />
+            <input
+              placeholder="Salt Index"
+              value={saltIndex}
+              onChange={(e) => setSaltIndex(e.target.value)}
+              className="w-full border p-2 rounded-lg"
+              required
+            />
+          </>
         )}
-      </div>
+
+        <textarea
+          placeholder="Instruction"
+          value={instruction}
+          onChange={(e) => setInstruction(e.target.value)}
+          className="w-full border p-2 rounded-lg"
+          required
+        />
+
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setQrFile(e.target.files[0])}
+          required
+        />
+
+        <button
+          disabled={loading}
+          className="w-full bg-indigo-600 text-white py-2 rounded-lg"
+        >
+          {loading ? "Saving..." : "Save"}
+        </button>
+      </form>
+
+      {message && (
+        <p className="text-center mt-4 font-medium">{message}</p>
+      )}
     </div>
   );
 }
