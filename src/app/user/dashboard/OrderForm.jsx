@@ -356,9 +356,9 @@ setCategories(matchedList)
     <div className="w-full flex-1 flex justify-start bg-gray-100 dark:bg-[#0F1117]">
       <div className="w-full max-w-4xl mx-auto bg-gray-50 dark:bg-[#1A1F2B] border border-gray-300 dark:border-[#2B3143] rounded-2xl shadow-lg py-6 sm:p-8 px-4">
 
-        <h2 className="flex items-center justify-center gap-3 text-3xl sm:text-4xl font-bold mb-8">
+        {/* <h2 className="flex items-center justify-center gap-3 text-3xl sm:text-4xl font-bold mb-8">
           <MdReceipt size={38} /> Place Order
-        </h2>
+        </h2> */}
 
         <QuickActions />
 

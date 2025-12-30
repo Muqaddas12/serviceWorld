@@ -192,7 +192,7 @@ useEffect(() => {
               { icon: <MdPayments />, label: "Referrals", value: "0%" },
               { icon: <MdVerifiedUser />, label: "Conversion Rate", value: "0.00%" },
               { icon: <MdMonetizationOn />, label: "Total Earnings", value: `${symbol}${convert(0).toFixed(2)}` },
-              { icon: <MdAttachMoney />, label: "Available Earnings", value: `${symbol}${convert(userBal).toFixed(2)}` },
+              { icon: <MdAttachMoney />, label: "Available Earnings", value: `${symbol}${convert(0).toFixed(2)}` },
             ].map((stat, i) => (
               <div
                 key={i}
@@ -222,7 +222,7 @@ useEffect(() => {
            p-4 rounded-lg mb-4">
             <p className="text-gray-500">Available Earnings</p>
             <h3 className="text-2xl font-bold">
-              {symbol}{convert(userBal).toFixed(2)}
+              {symbol}{convert(0).toFixed(2)}
             </h3>
           </div>
 

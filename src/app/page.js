@@ -27,7 +27,7 @@ const websiteName=result.sietName
       <WhyChooseUs/>
       <HowItWorks/>
       <FaqSection/>
-      <PaymentMethods/>
+      {/* <PaymentMethods/> */}
 
 </>
      
