@@ -48,7 +48,7 @@ export async function forgotPasswordAction(email) {
         const transporter = nodemailer.createTransport({
           host: smtp.host,
           port: Number(smtp.port),
-          secure: true,
+          secure: false,
           auth: {
             user: smtp.user,
             pass: smtp.pass,

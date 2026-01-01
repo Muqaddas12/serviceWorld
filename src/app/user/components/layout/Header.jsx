@@ -69,15 +69,13 @@ export default function Header({
     text-gray-700
   "
 >
-  {websitename?.siteName ? (
-    websitename.siteName
-  ) : (
+  
     <img
       src={websitename?.logo}
       alt="Logo"
       style={{ height: `${websitename?.logosize}px` }}
     />
-  )}
+
 </Link>
 
       </div>
