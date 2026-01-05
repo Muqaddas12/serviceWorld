@@ -479,7 +479,7 @@ const handleSubmit = async (e) => {
             >
               {selectedService ? (
                 <>
-                  {getPlatformIcon(selectedService.name)}
+                
                   <span>
                     {selectedService.service} | {selectedService.name} |{" "}
                     {symbol}
@@ -507,7 +507,7 @@ const handleSubmit = async (e) => {
                     onClick={() => handleServiceSelect(srv)}
                     className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
                   >
-                    {getPlatformIcon(srv.name)}
+                   
                     <span>
                       {srv.service} — {srv.name} —{" "}
                       {(
