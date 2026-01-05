@@ -170,22 +170,28 @@ useEffect(() => {
 // MEMOIZED FILTERED SERVICES
 // ---------------------------------------------------------
 const filteredServices = useMemo(() => {
-  if (!services.length) return [];
+  if (!Array.isArray(services) || !services.length) return [];
 
-  const term = searchTerm.toLowerCase();
+  const term =
+    typeof searchTerm === "string" && searchTerm.trim()
+      ? searchTerm.toLowerCase()
+      : "";
 
   return services.filter(s => {
-    if (category && s.category !== category) return false;
+    // ✅ Apply category ONLY if not searching
+    if (!term && category && s.category !== category) return false;
+
+    // No search → show all (or category-filtered)
     if (!term) return true;
 
+    // Search across ALL services
     return (
-      s.name?.toLowerCase().includes(term) ||
-      s.desc?.toLowerCase().includes(term) ||
-      s.service?.toLowerCase().includes(term)
+      (typeof s.name === "string" && s.name.toLowerCase().includes(term)) ||
+      (typeof s.desc === "string" && s.desc.toLowerCase().includes(term)) ||
+      (typeof s.service === "string" && s.service.toLowerCase().includes(term))
     );
   });
 }, [services, category, searchTerm]);
-
 
 // ---------------------------------------------------------
 // ACTIVE SERVICE
