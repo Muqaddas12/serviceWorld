@@ -57,20 +57,30 @@ export default function ServicesList({ services = [] }) {
   }, [searchTerm]);
 
   // Filter services by search term
-  const filteredGroupedServices = useMemo(() => {
-    const filtered = {};
-    for (const [category, list] of Object.entries(groupedServices)) {
-      const filteredList = list.filter(
-        (s) =>
-          !debouncedSearch ||
-          s.name.toLowerCase().includes(debouncedSearch) ||
-          (s.description &&
-            s.description.toLowerCase().includes(debouncedSearch))
-      );
-      if (filteredList.length > 0) filtered[category] = filteredList;
+const filteredGroupedServices = useMemo(() => {
+  if (!debouncedSearch) return groupedServices;
+
+  const search = debouncedSearch.toLowerCase();
+  const filtered = {};
+
+  for (const [category, list] of Object.entries(groupedServices)) {
+    const filteredList = list.filter((s) =>
+      (typeof s.name === "string" &&
+        s.name.toLowerCase().includes(search)) ||
+      (typeof s.description === "string" &&
+        s.description.toLowerCase().includes(search)) ||
+      (typeof s.service === "string" &&
+        s.service.toLowerCase().includes(search))
+    );
+
+    if (filteredList.length > 0) {
+      filtered[category] = filteredList;
     }
-    return filtered;
-  }, [groupedServices, debouncedSearch]);
+  }
+
+  return filtered;
+}, [groupedServices, debouncedSearch]);
+
 
   // Neutral icon colors
   const getIconForService = () => (
