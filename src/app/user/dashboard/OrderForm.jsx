@@ -532,7 +532,7 @@ const handleSubmit = async (e) => {
               <p className="text-sm opacity-75">{selectedService.desc || "No description available"}</p>
               <p className="flex items-center gap-2 mt-2 opacity-80">
                 <MdAccessTime />
-                {selectedService.average_time || "No data available"}
+                {selectedService.average_time ||""}
               </p>
             </div>
           )}
