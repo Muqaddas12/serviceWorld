@@ -1186,19 +1186,18 @@ export async function getChildPanels() {
       return { error: "Invalid or expired token." };
     }
 
-    const { email, role } = decoded;
+   
 
     const client = await clientPromise;
     const db = client.db("smmpanel");
 
-    const filter = role === "admin" ? {} : { email };
 
     const requests = await db
       .collection("child_panel_requests")
-      .find(filter)
+      .find({})
       .sort({ createdAt: -1 })
       .toArray();
-
+console.log(requests,'hello')
     // ✅ Convert Mongo + Date to plain object
     const plain = requests.map(p => ({
       ...p,
@@ -1349,10 +1348,21 @@ export async function createChildPanel({ formData }) {
     }
 
     // 💳 Step 6: Deduct balance
-    await db.collection("users").updateOne(
-      { _id: new ObjectId(id) },
-      { $inc: { balance: -formPrice } }
-    );
+   await db.collection("users").updateOne(
+  { _id: new ObjectId(id) },
+  [
+    {
+      $set: {
+        balance: {
+          $subtract: [
+            { $toDouble: "$balance" },
+            Number(formPrice)
+          ]
+        }
+      }
+    }
+  ]
+);
 
     // 📝 Step 7: Create child panel request
     const request = {
