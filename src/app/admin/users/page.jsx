@@ -12,7 +12,16 @@ export default async function UserPage() {
     const activeUsers = users?.users || [];
     const deletedUsers = dusers?.users || [];
 
-    return <AllUsers users={activeUsers} dusers={deletedUsers} />;
+  // ✅ Combine both arrays
+  const allUsers = [...activeUsers, ...deletedUsers];
+
+  // ✅ Sum all balances (handles string/number safely)
+  const totalBalance = allUsers.reduce((sum, user) => {
+    return sum + Number(user.balance || 0);
+  }, 0);
+
+  console.log("Total Balance:", totalBalance);
+    return <AllUsers users={activeUsers} dusers={deletedUsers} allUserTotalBalance={totalBalance}/>;
   } catch (error) {
     console.error("❌ Error fetching users:", error);
     return (

@@ -3,7 +3,7 @@ import { Users } from "lucide-react";
 import { useState, useMemo } from "react";
 import UserCard from "./UserCard";
 
-export default function ActiveUsersList({ users = [] }) {
+export default function ActiveUsersList({ users = [],totalBalance=0 }) {
   const [sortByBal, setSortByBal] = useState(false);
 
   const displayedUsers = useMemo(() => {
@@ -25,7 +25,15 @@ export default function ActiveUsersList({ users = [] }) {
 
   return (
     <section className="mb-12 relative z-10">
+<div className="flex justify-end">
+  <h3 className="text-right">
+   Total Balance- ₹ {Number(totalBalance || 0).toFixed(2)}
+  </h3>
+</div>
+
+
       <div className="flex items-center justify-between mb-4">
+       
         <h2 className="text-xl font-semibold flex items-center gap-2">
           <Users size={18} />
           Active Users ({users.length})

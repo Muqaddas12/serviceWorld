@@ -7,7 +7,7 @@ import ActiveUsersList from "./ActiveUsersList";
 import DeletedUsersList from "./DeletedUsersList";
 import ExportPopup from "./ExportPopup";
 import SendMessageModal from "./SendMessageModal";
-export default function AllUsers({ users = [], dusers = [] }) {
+export default function AllUsers({ users = [], dusers = [],allUserTotalBalance=0 }) {
   const [filteredUsers, setFilteredUsers] = useState(users);
   const [filteredDeleted, setFilteredDeleted] = useState(dusers);
   const [search, setSearch] = useState("");
@@ -117,7 +117,7 @@ const [sendMessage,setSendMessage]=useState(false)
       <SearchBar search={search} setSearch={setSearch} />
 
       {/* Active Users */}
-      <ActiveUsersList users={filteredUsers} />
+      <ActiveUsersList users={filteredUsers} totalBalance={allUserTotalBalance} />
 
       {/* Deleted Users */}
       <DeletedUsersList dusers={filteredDeleted} />
