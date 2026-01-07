@@ -1,12 +1,12 @@
 'use server';
 
 import ServicesList from "./ServicesList";
-import { getServices } from "@/lib/services";
+import { getEnabledServices} from "@/lib/services";
 
 export default async function ServicesPage() {
   let services = [];
 
-  const res = await getServices();
+  const res = await getEnabledServices();
   if (res.status && Array.isArray(res.plain)) {
     services = res.plain;
   }

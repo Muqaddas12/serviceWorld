@@ -1,23 +1,37 @@
-'use server'
+'use server';
 
 import DashboardOverview from "./DashboardOverview";
-
-import { getOrderStatus, getUserDetails, updateProviderForOrders } from "@/lib/userActions";
-import { getWebsiteSettings } from "@/lib/adminServices";
-import { getAllOrdersAction } from "@/lib/adminServices";
+import { getUserDetails, getUserOrders } from "@/lib/userActions";
+import { getWebsiteSettings, getAllOrdersAction } from "@/lib/adminServices";
 
 export default async function DashboardPage() {
-    const user=await getUserDetails()
-  const data = await getWebsiteSettings();
-  const orders=await getAllOrdersAction()
-  
-  const result=await JSON.parse(data.plainsettings)
+  const [
+    userOrdersRes,
+    user,
+    settingsRes,
+    ordersRes,
+  ] = await Promise.all([
+    getUserOrders(),
+    getUserDetails(),
+    getWebsiteSettings(),
+    getAllOrdersAction(),
+  ]);
 
-    return (
-      <>
-        <DashboardOverview user={user} serviceEnabled={result.servicesEnabled} totalOrders={orders?.count}/>
-    
+  const settings = JSON.parse(settingsRes.plainsettings);
 
-      </>
-    );
+  const spent = userOrdersRes.orders.reduce(
+    (acc, o) => acc + Number(o.charge || 0),
+    0
+  );
+
+  return (
+    <>
+      <DashboardOverview
+        user={user}
+        serviceEnabled={settings.servicesEnabled}
+        totalOrders={ordersRes?.count}
+        spent={spent}
+      />
+    </>
+  );
 }

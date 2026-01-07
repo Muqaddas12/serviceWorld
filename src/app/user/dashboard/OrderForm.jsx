@@ -8,7 +8,7 @@ import {
 } from "react-icons/fa";
 import { MdReceipt, MdAccessTime } from "react-icons/md";
 
-import { getServices, getCategories } from "@/lib/services";
+import { getServices,getEnabledServices, getCategories } from "@/lib/services";
 import { createOrderAction } from "@/lib/userActions";
 import QuickActions from "./QuickActions";
 import { useCurrency } from "@/context/CurrencyContext";
@@ -112,8 +112,12 @@ useEffect(() => {
 
   async function load() {
     try {
-      const srvRes = await getServices();
-      const catRes = await getCategories();
+      
+      const [srvRes, catRes] = await Promise.all([
+  getEnabledServices(),
+  getCategories(),
+]);
+
 
       const srvList = Array.isArray(srvRes?.plain)
         ? srvRes.plain

@@ -17,31 +17,11 @@ import Card from "./Card";
 import BalanceCard from "./BalanceCard";
 import SpentCard from "./SpentCard";
 
-export default function DashboardLayout({ user, serviceEnabled ,totalOrders=0}) {
-  const [spent, setSpent] = useState(0);
+export default function DashboardLayout({ user, serviceEnabled ,totalOrders=0,spent=0}) {
+
   const [orders, setOrders] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
-useEffect(() => {
-  const loadOrders = async () => {
-    const res = await getUserOrders();
 
-
-    if (!res.success) {
-      return;
-    }
-
-    // ✅ Correct way to SUM total spent
-    const totalSpent = res.orders.reduce((acc, o) => acc + Number(o.charge || 0), 0);
-
-   
-
-    // ✅ Set values in state
-    setSpent(totalSpent);
-   
-  };
-
-  loadOrders();
-}, []);
 
   return (
     <div

@@ -56,6 +56,50 @@ export async function getServices() {
   }
 }
 
+export async function getEnabledServices() {
+  try {
+    const client = await clientPromise;
+    const servicesCollection = client.db(DB_ADMIN).collection("services");
+
+    // 👇 only enabled services
+    const data = await servicesCollection
+      .find({ status: "enabled" })
+      .toArray();
+
+    const plain = data.map(s => ({
+      _id: s._id ? s._id.toString() : null,
+      id: s.id ?? null,
+      name: s.name ?? "",
+      category: s.category ?? "",
+      min: Number(s.min) || 0,
+      max: s.max?.toString() || "0",
+      rate: Number(s.rate) || 0,
+      provider: s.provider ?? "",
+      service: s.service ?? null,
+      cancel: s?.cancel ?? "No",
+      average_time: s?.average_time,
+      type: s.type ?? "Default",
+      desc: s.desc ?? "",
+      storedBy: s.storedBy ?? "",
+      status: s.status ?? "enabled",
+      profitPercentage: s?.profitPercentage,
+      createdAt: s.createdAt ? s.createdAt.toISOString() : null,
+    }));
+
+    return {
+      status: true,
+      plain,
+      message: "Enabled services fetched ✅",
+    };
+  } catch (error) {
+    console.error("DB FETCH ERROR:", error.message);
+    return {
+      status: false,
+      plain: [],
+      message: error.message,
+    };
+  }
+}
 
 
 export async function deleteAllServices() {
