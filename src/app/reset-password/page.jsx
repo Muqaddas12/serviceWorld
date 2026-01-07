@@ -23,6 +23,7 @@ export default function ResetPasswordPage() {
   };
 
   const updatePass = async () => {
+    console.log('hello')
     const res = await updatePasswordAction(token, password);
 
     setMsg({
