@@ -6,9 +6,9 @@ import {
 import {
   FaSearch, FaSpinner
 } from "react-icons/fa";
-import { MdReceipt, MdAccessTime } from "react-icons/md";
+import {  MdAccessTime } from "react-icons/md";
 
-import { getServices,getEnabledServices, getCategories } from "@/lib/services";
+import { getEnabledServices, getCategories } from "@/lib/services";
 import { createOrderAction } from "@/lib/userActions";
 import QuickActions from "./QuickActions";
 import { useCurrency } from "@/context/CurrencyContext";
