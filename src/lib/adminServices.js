@@ -494,9 +494,9 @@ export async function putPaymentMethodDetails(
       return { success: false, error: "Missing required fields" };
     }
 
-    if (type === "phonepe" && (!saltKey || !saltIndex)) {
-      return { success: false, error: "Salt key/index required for PhonePe" };
-    }
+    // if (type === "phonepe" && (!saltKey || !saltIndex)) {
+    //   return { success: false, error: "Salt key/index required for PhonePe" };
+    // }
 
     const client = await clientPromise;
     const db = client.db(DB_SMM_PANEL);
