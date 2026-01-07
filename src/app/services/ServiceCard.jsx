@@ -3,7 +3,7 @@ import { useState } from "react";
 import ServiceDetailsPopup from "./ServiceDetailsPopup";
 import { useCurrency } from "@/context/CurrencyContext";
 import { useRouter } from "next/navigation";
-export default function ServiceCard({ service, getIconForService, onSelect }) {
+export default function ServiceCard({ service }) {
   const router=useRouter()
   const [showDetails, setShowDetails] = useState(false);
 
@@ -36,7 +36,7 @@ export default function ServiceCard({ service, getIconForService, onSelect }) {
 
       {/* Top Section */}
       <div className="flex items-center gap-3 mb-3">
-        {getIconForService(service.name)}
+       
         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
           {service.name}
         </h3>

@@ -73,9 +73,30 @@ export default function ServicesList({ services = [] }) {
   }, [groupedServices, debouncedSearch]);
 
   // Neutral icon colors
-  const getIconForService = () => (
-    <FaGlobe className="text-gray-600 dark:text-gray-300 text-2xl" />
-  );
+const getIconForService = (name = "") => {
+  const key = name.toLowerCase();
+
+  switch (key) {
+    case "instagram":
+      return <FaInstagram className="text-pink-500 text-2xl" />;
+
+    case "youtube":
+      return <FaYoutube className="text-red-600 text-2xl" />;
+
+    case "facebook":
+      return <FaFacebook className="text-blue-600 text-2xl" />;
+
+    case "telegram":
+      return <FaTelegramPlane className="text-sky-500 text-2xl" />;
+
+    case "tiktok":
+      return <FaTiktok className="text-black dark:text-white text-2xl" />;
+
+    default:
+      return <FaGlobe className="text-gray-600 dark:text-gray-300 text-2xl" />;
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-[#0F1117] text-gray-800 dark:text-gray-100 flex justify-center px-3 md:px-8 py-10">
