@@ -33,7 +33,7 @@ export default function TicketSupport({ tickets = [] }) {
     text-center
     space-y-2
     shadow-lg
-    z-50
+    z-10
     
   "
 >
