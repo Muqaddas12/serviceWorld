@@ -61,10 +61,10 @@ export default function Footer({ siteName }) {
       </div>
 
       {/* Divider */}
-      <div className="mt-5 border-t border-[#4A6CF7]/20 w-full" />
+      {/* <div className="mt-5 border-t border-[#4A6CF7]/20 w-full" /> */}
 
       {/* Bottom Note */}
-      <motion.p
+      {/* <motion.p
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.7, delay: 0.25 }}
@@ -72,7 +72,7 @@ export default function Footer({ siteName }) {
       >
         Made with ❤️ by <span className="text-[#4A6CF7] font-semibold">{siteName||
           'ViralBoost'}</span>
-      </motion.p>
+      </motion.p> */}
     </footer>
   );
 }

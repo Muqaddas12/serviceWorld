@@ -77,7 +77,7 @@ export default function DashboardLayout({ user, serviceEnabled ,totalOrders=0,sp
           Total Orders
         </p>
         <h4 className="text-sm sm:text-base font-semibold text-green-600 dark:text-green-400 mt-0.5">
-          {3000+Number(totalOrders)}
+          {106999+Number(totalOrders)}
         </h4>
       </div>
     </div>

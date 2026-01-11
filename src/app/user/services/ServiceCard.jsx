@@ -43,7 +43,7 @@ export default function ServiceCard({ service, getIconForService, onSelect }) {
 
       {/* Details */}
       <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-        <strong className="text-gray-800 dark:text-gray-200">ID:</strong> {service.service}
+        <strong className="text-gray-800 dark:text-gray-200">ID:</strong> {service.id}
       </p>
 
       <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">

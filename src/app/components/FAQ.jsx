@@ -72,13 +72,13 @@ export default function FaqSection({dark=false}) {
         </div>
 
         {/* Right Accordion */}
-        <div>
+        {/* <div>
           <div className="space-y-4">
             {faqs.map((item, i) => (
               <Accordion key={i} question={item.q} answer={item.a} />
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );

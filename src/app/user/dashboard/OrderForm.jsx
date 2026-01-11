@@ -485,7 +485,7 @@ const handleSubmit = async (e) => {
                 <>
                 
                   <span>
-                    {selectedService.service} | {selectedService.name} |{" "}
+                    {selectedService.id} | {selectedService.name} |{" "}
                     {symbol}
                     {(
                       convert(
@@ -513,7 +513,7 @@ const handleSubmit = async (e) => {
                   >
                    
                     <span>
-                      {srv.service} — {srv.name} —{" "}
+                      {srv.id} — {srv.name} —{" "}
                       {(
                         convert(
                           Number(srv.rate || 0) *
