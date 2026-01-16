@@ -2,7 +2,15 @@ import { getEnabledServices, bulkUpdateServices } from "@/lib/services";
 import { getProvidersAction } from "@/lib/providerActions";
 import { importServicesAction } from "@/lib/services";
 
-export async function GET() {
+export async function GET(request) {
+    const { searchParams } = new URL(request.url);
+  const key = searchParams.get("key");
+  if (key !== "AbhinaySMMPanel") {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
   const services = await getEnabledServices();
   const providers = await getProvidersAction();
 
