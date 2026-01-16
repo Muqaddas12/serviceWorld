@@ -14,7 +14,7 @@ import QuickActions from "./QuickActions";
 import { useCurrency } from "@/context/CurrencyContext";
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-
+import CategoryAndSearch from "./CategoryAndSearch";
 // ---------------------------------------------------------
 // ICON HELPERS
 // ---------------------------------------------------------
@@ -41,36 +41,6 @@ const getCategoryIcon = (cat = "") =>
       .includes(i.name.toLowerCase())
   )?.icon || <FaGlobe size={28} />;
 
-
-// const getPlatformIcon = (name = "") => {
-//   const text = name
-//     .normalize("NFKD")
-//     .replace(/[\u0300-\u036f]/g, "")
-//     .replace(/[^\w\s]/g, "")
-//     .toLowerCase();
-
-//   if (text.includes("instagram"))
-//     return <FaInstagram size={28} className="text-pink-500" />;
-
-//   if (text.includes("youtube"))
-//     return <FaYoutube size={28} className="text-red-500" />;
-
-//   if (text.includes("facebook"))
-//     return <FaFacebookF size={28} className="text-blue-600" />;
-
-//   if (text.includes("tiktok"))
-//     return <FaTiktok size={28} className="text-white" />;
-
-//   if (text.includes("telegram"))
-//     return <FaTelegramPlane size={28} className="text-sky-400" />;
-
-//   if (text.includes("twitter") || text.includes("x"))
-//     return <FaTwitter size={28} className="text-blue-400" />;
-
-//   return <FaGlobe size={28} className="text-gray-500" />;
-// };
-
-// ---------------------------------------------------------
 
 export default function OrderForm({ selectedCategory = "" }) {
   const { symbol, convert } = useCurrency();
@@ -393,88 +363,30 @@ const handleSubmit = async (e) => {
     <div className="w-full flex-1 flex justify-start bg-gray-100 dark:bg-[#0F1117]">
       <div className="w-full max-w-4xl mx-auto bg-gray-50 dark:bg-[#1A1F2B] border border-gray-300 dark:border-[#2B3143] rounded-2xl shadow-lg py-6 sm:p-8 px-4">
 
-        {/* <h2 className="flex items-center justify-center gap-3 text-3xl sm:text-4xl font-bold mb-8">
-          <MdReceipt size={38} /> Place Order
-        </h2> */}
+
 
         <QuickActions />
 
         {/* FORM START */}
         <form onSubmit={handleSubmit} className="space-y-4">
+<CategoryAndSearch
+  searchRef={searchRef}
+  searchTerm={searchTerm}
+  setSearchTerm={setSearchTerm}
+  setSearchDropdownOpen={setSearchDropdownOpen}
+  searchDropdownOpen={searchDropdownOpen}
+  loading={loading}
+  filteredServices={filteredServices}
+  handleServiceSelect={handleServiceSelect}
+  setCategory={setCategory}
+  categoryRef={categoryRef}
+  setCategoryDropdownOpen={setCategoryDropdownOpen}
+  categoryDropdownOpen={categoryDropdownOpen}
+  getCategoryIcon={getCategoryIcon}
+  categories={categories}
+  category={category}
+/>
 
-          {/* SEARCH */}
-          <div className="relative border border-gray-500 dark:border-gray-700 rounded-2xl"
- ref={searchRef}>
-            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setSearchDropdownOpen(true);
-              }}
-              placeholder="Search service..."
-              className="w-full pl-10 pr-3 py-2 rounded-lg"
-            />
-
-            {searchTerm && searchDropdownOpen && (
-              <div className="absolute left-0 top-full mt-2 w-full max-h-64 bg-gray-50 dark:bg-[#1A1F2B] border rounded-lg z-[99999] overflow-y-auto">
-                {loading ? (
-                  <div className="p-4 text-center">
-                    <FaSpinner className="animate-spin" /> Searching...
-                  </div>
-                ) : filteredServices.length ? (
-                  filteredServices.map((srv, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => {
-                        setSearchTerm(srv.name);
-                        handleServiceSelect(srv);
-                        setCategory(srv.category);
-                        setSearchDropdownOpen(false);
-                      }}
-                      className="px-4 py-3 cursor-pointer hover:bg-gray-200"
-                    >
-                      <p className="font-semibold">{srv.id} || {srv.name}</p>
-                      <p className="text-sm opacity-75">{srv.desc}</p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="p-3 text-center opacity-70">No results found.</p>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* CATEGORY */}
-          <div className="relative z-10" ref={categoryRef}>
-            <label>Category</label>
-            <div
-              onClick={() => setCategoryDropdownOpen((p) => !p)}
-              className="bg-gray-100 dark:bg-[#0F1117] border px-3 py-2 rounded-lg cursor-pointer flex items-center gap-2"
-            >
-              {category ? getCategoryIcon(category) : <FaGlobe />}
-              <span>{category || "Select category"}</span>
-            </div>
-
-            {categoryDropdownOpen && (
-              <ul className="absolute left-0 top-full mt-2 w-full max-h-56 bg-gray-50 dark:bg-[#1A1F2B] border rounded-lg shadow-lg overflow-y-auto">
-                {categories.map((cat, i) => (
-                  <li
-                    key={i}
-                    onClick={() => {
-                      setCategory(cat);
-                      setCategoryDropdownOpen(false);
-                      setSearchTerm("");
-                    }}
-                    className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
-                  >
-                    {getCategoryIcon(cat)}
-                    <span>{cat}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
 
           {/* SERVICE */}
           <div className="relative" ref={dropdownRef}>
