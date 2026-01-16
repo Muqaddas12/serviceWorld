@@ -42,33 +42,33 @@ const getCategoryIcon = (cat = "") =>
   )?.icon || <FaGlobe size={28} />;
 
 
-const getPlatformIcon = (name = "") => {
-  const text = name
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\w\s]/g, "")
-    .toLowerCase();
+// const getPlatformIcon = (name = "") => {
+//   const text = name
+//     .normalize("NFKD")
+//     .replace(/[\u0300-\u036f]/g, "")
+//     .replace(/[^\w\s]/g, "")
+//     .toLowerCase();
 
-  if (text.includes("instagram"))
-    return <FaInstagram size={28} className="text-pink-500" />;
+//   if (text.includes("instagram"))
+//     return <FaInstagram size={28} className="text-pink-500" />;
 
-  if (text.includes("youtube"))
-    return <FaYoutube size={28} className="text-red-500" />;
+//   if (text.includes("youtube"))
+//     return <FaYoutube size={28} className="text-red-500" />;
 
-  if (text.includes("facebook"))
-    return <FaFacebookF size={28} className="text-blue-600" />;
+//   if (text.includes("facebook"))
+//     return <FaFacebookF size={28} className="text-blue-600" />;
 
-  if (text.includes("tiktok"))
-    return <FaTiktok size={28} className="text-white" />;
+//   if (text.includes("tiktok"))
+//     return <FaTiktok size={28} className="text-white" />;
 
-  if (text.includes("telegram"))
-    return <FaTelegramPlane size={28} className="text-sky-400" />;
+//   if (text.includes("telegram"))
+//     return <FaTelegramPlane size={28} className="text-sky-400" />;
 
-  if (text.includes("twitter") || text.includes("x"))
-    return <FaTwitter size={28} className="text-blue-400" />;
+//   if (text.includes("twitter") || text.includes("x"))
+//     return <FaTwitter size={28} className="text-blue-400" />;
 
-  return <FaGlobe size={28} className="text-gray-500" />;
-};
+//   return <FaGlobe size={28} className="text-gray-500" />;
+// };
 
 // ---------------------------------------------------------
 
@@ -182,9 +182,10 @@ const filteredServices = useMemo(() => {
       : "";
 
   return services.filter(s => {
+  
     // ✅ Apply category ONLY if not searching
     if (!term && category && s.category !== category) return false;
-
+ const ID = s.id?.toString(); // safe conversion
     // No search → show all (or category-filtered)
     if (!term) return true;
 
@@ -192,7 +193,8 @@ const filteredServices = useMemo(() => {
     return (
       (typeof s.name === "string" && s.name.toLowerCase().includes(term)) ||
       (typeof s.desc === "string" && s.desc.toLowerCase().includes(term)) ||
-      (typeof s.service === "string" && s.service.toLowerCase().includes(term))
+      (typeof s.service === "string" && s.service.toLowerCase().includes(term))||
+   (ID && ID.includes(term))
     );
   });
 }, [services, category, searchTerm]);
@@ -432,7 +434,7 @@ const handleSubmit = async (e) => {
                       }}
                       className="px-4 py-3 cursor-pointer hover:bg-gray-200"
                     >
-                      <p className="font-semibold">{srv.name}</p>
+                      <p className="font-semibold">{srv.id} || {srv.name}</p>
                       <p className="text-sm opacity-75">{srv.desc}</p>
                     </div>
                   ))
