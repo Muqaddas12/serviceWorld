@@ -3,9 +3,7 @@ import {
   FaInstagram, FaFacebookF, FaYoutube, FaTwitter, FaSpotify,
   FaTiktok, FaTelegramPlane, FaLinkedinIn, FaDiscord, FaGlobe
 } from "react-icons/fa";
-import {
-  FaSearch, FaSpinner
-} from "react-icons/fa";
+
 import {  MdAccessTime } from "react-icons/md";
 
 import { getEnabledServices, getCategories } from "@/lib/services";
