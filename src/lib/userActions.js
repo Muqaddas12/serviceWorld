@@ -136,7 +136,8 @@ export async function getUserDetails() {
       email: user.email,
       username: user.username,
       frozen: user.frozen,
-      mobileNumber:user.mobileNumber
+      mobileNumber:user.mobileNumber,
+      discount:user?.discount,
     };
   } catch (err) {
     return {
@@ -193,7 +194,7 @@ export async function updateMobileNumber(mobileNumber) {
         error: "User not found",
       };
     }
-console.log(result)
+
     return {
       success: true,
       message: "Mobile number updated successfully",

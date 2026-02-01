@@ -22,6 +22,7 @@ import {
 } from "@/lib/adminServices";
 
 export default function EditUserPage({ user }) {
+  console.log(user)
   const router = useRouter();
   const [form, setForm] = useState({});
   const [fieldError, setFieldError] = useState({ username: "", email: "" });
@@ -30,18 +31,23 @@ export default function EditUserPage({ user }) {
   const [checking, setChecking] = useState(false);
   const [actionLoading, setActionLoading] = useState("");
 
-  // Ensure balance always exists
-  useEffect(() => {
-    if (user) {
-      setForm({
-        ...user,
-        balance:
-          user.balance !== undefined && user.balance !== null
-            ? user.balance
-            : 0,
-      });
-    }
-  }, [user]);
+// Ensure balance & discount always exist
+useEffect(() => {
+  if (user) {
+    setForm({
+      ...user,
+      balance:
+        user.balance !== undefined && user.balance !== null
+          ? user.balance
+          : 0,
+      discount:
+        user.discount !== undefined && user.discount !== null
+          ? user.discount
+          : 0,
+    });
+  }
+}, [user]);
+
 
   // Handle input change + validation
   const handleChange = async (e) => {
@@ -136,7 +142,9 @@ export default function EditUserPage({ user }) {
       setActionLoading("");
     }
   };
+const handleDiscountChange=async()=>{
 
+}
   if (!user)
     return (
       <div className="flex items-center justify-center min-h-screen text-gray-400 text-lg">
@@ -175,7 +183,7 @@ export default function EditUserPage({ user }) {
 
         <div className="flex-1 text-center sm:text-left">
           <h2 className="text-2xl font-semibold">
-            {form.username || "Unnamed User"}
+            {form.username || "User"}
           </h2>
 
           <p className="text-gray-500 dark:text-gray-400 flex gap-2 items-center mt-2">
@@ -254,6 +262,7 @@ export default function EditUserPage({ user }) {
             </label>
 
             <div className="relative flex items-center">
+           
               {key === "password" ? (
                 <input
                   type="text"
@@ -266,9 +275,9 @@ export default function EditUserPage({ user }) {
                 />
               ) : (
                 <input
-                  type="text"
+                  type={key==='discount'?'number':"text"}
                   name={key}
-                  readOnly={!["username", "email", "balance"].includes(key)}
+                  readOnly={!["username", "email", "balance","discount"].includes(key)}
                   value={
                     typeof value === "boolean" ? value.toString() : value || ""
                   }

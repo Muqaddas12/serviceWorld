@@ -5,7 +5,7 @@ import {
 } from "react-icons/fa";
 
 import {  MdAccessTime } from "react-icons/md";
-
+import { getUserDetails } from "@/lib/userActions";
 import { getEnabledServices, getCategories } from "@/lib/services";
 import { createOrderAction } from "@/lib/userActions";
 import QuickActions from "./QuickActions";
@@ -46,7 +46,7 @@ export default function OrderForm({ selectedCategory = "" }) {
   // MAIN DATA
   const [services, setServices] = useState([]);
   const [categories, setCategories] = useState([]);
-
+const [user,setUser]=useState(null)
   // FORM STATE
   const [category, setCategory] = useState(selectedCategory || "");
   const [service, setService] = useState("");
@@ -81,11 +81,12 @@ useEffect(() => {
   async function load() {
     try {
       
-      const [srvRes, catRes] = await Promise.all([
+      const [srvRes, catRes,userRes] = await Promise.all([
   getEnabledServices(),
   getCategories(),
+  getUserDetails()
 ]);
-
+setUser(userRes)
 
       const srvList = Array.isArray(srvRes?.plain)
         ? srvRes.plain
@@ -319,11 +320,19 @@ const handleSubmit = async (e) => {
   setSubmitting(true);
 
   try {
+    const discount = Number(user?.discount || 0);
+
+const discountAmount =
+  charge && discount > 0 ? (charge * discount) / 100 : 0;
+
+const finalCharge =
+  charge && discount > 0 ? charge - discountAmount : charge;
+
     const res = await createOrderAction(
       service,
       link,
       quantity,
-      charge
+finalCharge,
     );
 
     if (!res.success) {
@@ -480,15 +489,38 @@ const handleSubmit = async (e) => {
             {quantityError && <p className="text-red-400 text-sm">{quantityError}</p>}
           </div>
 
-          {/* CHARGE */}
-          <div>
-            <label>Charge</label>
-            <input
-              readOnly
-              className="w-full bg-gray-100 dark:bg-[#0F1117] border px-3 py-2 rounded-lg"
-              value={charge ? `${symbol}${charge}` : ""}
-            />
-          </div>
+ {/* DISCOUNT SUMMARY */}
+{charge && user?.discount > 0 && (() => {
+  const discountAmount = (charge * user.discount) / 100;
+  const finalPrice = charge - discountAmount;
+
+  return (
+    <div className="mt-3 rounded-lg border border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 px-4 py-4">
+      <p className="text-sm text-green-700 dark:text-green-300 space-y-1">
+        <span className="block">
+          Original Price:{" "}
+          <span className="line-through font-medium">
+            {symbol}{charge}
+          </span>
+        </span>
+
+        <span className="block">
+          Discount:{" "}
+          <span className="font-semibold">
+            {user.discount}%
+          </span>{" "}
+          ({symbol}{discountAmount.toFixed(2)})
+        </span>
+
+        <span className="block text-base font-semibold mt-2">
+          🎉 Final Price: {symbol}{finalPrice.toFixed(2)}
+        </span>
+      </p>
+    </div>
+  );
+})()}
+
+
 
           {/* SUBMIT */}
           <button
