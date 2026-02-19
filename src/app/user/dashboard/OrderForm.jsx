@@ -10,8 +10,8 @@ import { getEnabledServices, getCategories } from "@/lib/services";
 import { createOrderAction } from "@/lib/userActions";
 import QuickActions from "./QuickActions";
 import { useCurrency } from "@/context/CurrencyContext";
-
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import Loading from "./loading";
+import { useState, useEffect, useMemo, useCallback, useRef ,Suspense} from "react";
 import CategoryAndSearch from "./CategoryAndSearch";
 // ---------------------------------------------------------
 // ICON HELPERS
@@ -72,6 +72,44 @@ const [allCategory,setAllCategory]=useState([])
   const dropdownRef = useRef();
   const categoryRef = useRef();
   const searchRef = useRef();
+
+
+
+
+  function normalizeText(text) {
+  return text
+    .normalize("NFKD")               // convert bold/fancy unicode
+    .replace(/[\u0300-\u036f]/g, "") // remove accents
+    .replace(/[^\w\s]/g, "")         // remove emojis/symbols
+    .trim()
+    .toLowerCase();
+}
+
+function getPlatformOrder(text) {
+  const t = normalizeText(text);
+
+  if (t.includes("facebook")) return 1;
+  if (t.includes("instagram")) return 2;
+  if (t.includes("youtube")) return 3;
+  if (t.includes("tiktok")) return 4;
+  if (t.includes("telegram")) return 5;
+
+  return 99; // others at bottom
+}
+
+function sortCategories(categories) {
+  return [...categories].sort((a, b) => {
+    const pa = getPlatformOrder(a);
+    const pb = getPlatformOrder(b);
+
+    // 1️⃣ platform priority
+    if (pa !== pb) return pa - pb;
+
+    // 2️⃣ alphabetical inside same platform
+    return normalizeText(a).localeCompare(normalizeText(b));
+  });
+}
+
 // ---------------------------------------------------------
 // LOAD ALL DATA FIRST (CATEGORIES + SERVICES)
 // ---------------------------------------------------------
@@ -104,9 +142,11 @@ setUser(userRes)
         : [...serviceCategories];
 
       // ❗ FILTER OUT EMPTY CATEGORIES
-      const catList = rawCatList.filter(c =>
+      const List = rawCatList.filter(c =>
         serviceCategories.has(c)
       );
+
+const catList = sortCategories(List);
 
       if (!alive) return;
 
@@ -367,6 +407,7 @@ finalCharge,
   // JSX (UNCHANGED UI)
   // ---------------------------------------------------------
   return (
+      <Suspense fallback={<Loading />}>
     <div className="w-full flex-1 flex justify-start bg-gray-100 dark:bg-[#0F1117]">
       <div className="w-full max-w-4xl mx-auto bg-gray-50 dark:bg-[#1A1F2B] border border-gray-300 dark:border-[#2B3143] rounded-2xl shadow-lg py-6 sm:p-8 px-4">
 
@@ -568,5 +609,6 @@ finalCharge,
 
       </div>
     </div>
+    </Suspense>
   );
 }

@@ -15,7 +15,7 @@ export default function Loader({ message = "Loading..." }) {
        
       >
         <div className=" flex items-center justify-center">
-          <Image src="/fav.png" alt="Logo" width={100} height={100} priority  className="rounded-full"/>
+          <Image src="/logo.jpeg" alt="Logo" width={100} height={100} priority  className="rounded-full"/>
         </div>
       </motion.div>
 
