@@ -328,7 +328,12 @@ export async function createOrderAction(service, link, qua, paying) {
     const usersCollection = db.collection("users");
 
     // 4️⃣ Find user
-    const user = await usersCollection.findOne({ _id: new ObjectId(userData.id) });
+const user = await usersCollection.findOne({
+  $or: [
+    { _id: new ObjectId(userData.id) },
+    { email: { $regex: `^${userData.email}$`, $options: "i" } }
+  ]
+});
     if (!user) return { success: false, message: "User not found." };
    
  if(user.frozen){
