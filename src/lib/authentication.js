@@ -78,7 +78,7 @@ const emailLower = email.trim().toLowerCase()
 // =========================
 
 
-export async function loginUser({ email, password, ip = "127.0.0.1" }) {
+export async function loginUser({ email, password, ip = "127.0.0.1",name='' }) {
   try {
 
   
@@ -151,7 +151,52 @@ const user = await db.collection("users").findOne({
     return { error: "Server error: " + err.message };
   }
 }
+export async function loginWithGoogle({ email, name }) {
+  const client = await clientPromise;
+  const db = client.db("smmpanel");
 
+  const emailLower = email.trim().toLowerCase();
+
+  let user = await db.collection("users").findOne({ email: emailLower });
+
+  // create user if not exists
+  if (!user) {
+    const newUser = {
+      email: emailLower,
+      username: name,
+      provider: "google",
+      role: "user",
+      frozen: false,
+      createdAt: new Date(),
+    };
+
+    const result = await db.collection("users").insertOne(newUser);
+    user = { ...newUser, _id: result.insertedId };
+  }
+
+  const tokenPayload = {
+    id: user._id.toString(),
+    username: user.username,
+    email: user.email,
+    role: user.role,
+    frozen: user.frozen || false,
+  };
+
+  const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
+
+  const cookieStore = await cookies();
+  cookieStore.set("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60,
+    path: "/",
+  });
+
+  return { success: true };
+}
 // =========================
 // LOGOUT USER
 // =========================

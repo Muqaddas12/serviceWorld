@@ -39,15 +39,13 @@ export async function GET(req) {
     headers: { Authorization: `Bearer ${tokenRes.access_token}` },
   }).then((res) => res.json());
 
-  const randomPassword = Math.random().toString(36).slice(2, 10);
-  const hashedPassword = await bcrypt.hash(randomPassword, 10);
+  
 
   const userData = {
     email: googleUser.email.toLowerCase(),
     name: googleUser.name,
     username: googleUser.email.split("@")[0],
     image: googleUser.picture,
-    password: hashedPassword,
     oauthProvider: "google",
     updatedAt: new Date(),
   };
