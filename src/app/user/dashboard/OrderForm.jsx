@@ -88,9 +88,11 @@ const [allCategory,setAllCategory]=useState([])
 function getPlatformOrder(text) {
   const t = normalizeText(text);
 
-  if (t.includes("facebook")) return 1;
-  if (t.includes("instagram")) return 2;
-  if (t.includes("youtube")) return 3;
+  
+  if (t.includes("instagram")) return 1;
+   if (t.includes("youtube")) return 2;
+  if (t.includes("facebook")) return 3;
+ 
   if (t.includes("tiktok")) return 4;
   if (t.includes("telegram")) return 5;
 
