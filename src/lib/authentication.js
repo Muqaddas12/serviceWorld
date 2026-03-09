@@ -4,35 +4,13 @@ import clientPromise from "@/lib/mongodb";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
-// =========================
-// RATE LIMIT CONFIGURATION
-// =========================
-const rateLimitMap = new Map();
-const WINDOW_TIME = 15 * 60 * 1000; // 15 minutes
-const MAX_REQUESTS = 5;
 
-function checkRateLimit(ip) {
-  const now = Date.now();
-  if (!rateLimitMap.has(ip)) {
-    rateLimitMap.set(ip, { count: 1, startTime: now });
-    return false;
-  }
-  const data = rateLimitMap.get(ip);
-  if (now - data.startTime > WINDOW_TIME) {
-    rateLimitMap.set(ip, { count: 1, startTime: now });
-    return false;
-  }
-  if (data.count >= MAX_REQUESTS) return true;
-  data.count += 1;
-  rateLimitMap.set(ip, data);
-  return false;
-}
 
 // =========================
 // USER SIGNUP
-export async function registerUser({ email, username, password, mobile, ip = "127.0.0.1" }) {
+export async function registerUser({ email, username, password, mobile,}) {
   try {
-    if (checkRateLimit(ip)) return { error: "Too many requests, try again later." };
+ 
 
     if (!email || !username || !password || !mobile) {
       return { error: "Missing fields or CAPTCHA" };
@@ -40,9 +18,11 @@ export async function registerUser({ email, username, password, mobile, ip = "12
 
     const client = await clientPromise;
     const db = client.db("smmpanel");
+const emailLower = email.trim().toLowerCase()
+
 
     const existingUser = await db.collection("users").findOne({
-      $or: [{ email: email.toLowerCase() }, { username }],
+      $or: [{ email: emailLower }, { username }],
     });
 
     if (existingUser) return { error: "User or email already exists" };
@@ -101,10 +81,7 @@ export async function registerUser({ email, username, password, mobile, ip = "12
 export async function loginUser({ email, password, ip = "127.0.0.1" }) {
   try {
 
-    // 🧠 1. Rate limiting
-    if (checkRateLimit(ip)) {
-      return { error: "Too many requests, please try again later." };
-    }
+  
 
     // 🧩 2. Field validation
     if (!email || !password ) {
@@ -117,11 +94,11 @@ export async function loginUser({ email, password, ip = "127.0.0.1" }) {
     const db = client.db("smmpanel");
 
     // 🔍 5. Find user
- const user = await db.collection("users").findOne({
-  email: { $regex: new RegExp(`^${email}$`, "i") }
-});
+const emailLower = email.trim().toLowerCase()
 
-
+const user = await db.collection("users").findOne({
+  email: emailLower
+})
     if (!user) return { error: "Invalid credentials." };
 
     // 🧊 6. Check if frozen
@@ -239,9 +216,7 @@ export async function checkEmail(email) {
 
 export async function changePassword({ currentPassword, newPassword, ip = "127.0.0.1" }) {
   try {
-    if (checkRateLimit(ip)) {
-      return { error: "Too many requests, try again later." };
-    }
+  
 
     if (!currentPassword || !newPassword) {
       return { error: "Missing required fields" };
