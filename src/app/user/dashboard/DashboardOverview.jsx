@@ -50,7 +50,7 @@ export default function DashboardLayout({ user, serviceEnabled ,totalOrders=0,sp
           Username
         </p>
         <h4 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white truncate mt-0.5">
-          {user?.username || "Guest"}
+         {user?.username || user?.name || "Guest"}
         </h4>
       </div>
     </div>
