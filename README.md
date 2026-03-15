@@ -12,22 +12,6 @@
 
 
 
-🌞 Light Mode ()
-Background: #F5F7FA (very light grey)
-Primary Color: #4A6CF7 (premium blue)
-Accent: #16D1A5 (green)
-Text: #1A1A1A (dark black)
-Cards: #FFFFFF (with soft shadow)
-🌙 Dark Mode (optional sexy look)
-Background: #0F1117
-Card: #1A1F2B
-Primary: #4A6CF7
-Accent: #16D1A5
-Text: #FFFFFF / #A0AEC3 (secondary)
-
-
-
-
 
 
 
